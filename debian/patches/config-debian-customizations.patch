@@ -1,0 +1,258 @@
+Last-Update: 2013-07-29
+Forwarded: not-needed
+Author: Christoph Haas <haas@debian.org>
+Reviewed-By: Dmitry Smirnov <onlyjob@member.fsf.org>
+Description: Change default paths and settings in config files specifically for Debian
+
+--- a/conf/zabbix_agentd.conf
++++ b/conf/zabbix_agentd.conf
+@@ -9,17 +9,19 @@
+ # Mandatory: no
+ # Default:
+ # PidFile=/tmp/zabbix_agentd.pid
+ 
++PidFile=/var/run/zabbix/zabbix_agentd.pid
++
+ ### Option: LogFile
+ #	Name of log file.
+ #	If not set, syslog is used.
+ #
+ # Mandatory: no
+ # Default:
+ # LogFile=
+ 
+-LogFile=/tmp/zabbix_agentd.log
++LogFile=/var/log/zabbix-agent/zabbix_agentd.log
+ 
+ ### Option: LogFileSize
+ #	Maximum size of log file in MB.
+ #	0 - disable automatic log rotation.
+@@ -28,8 +30,10 @@
+ # Range: 0-1024
+ # Default:
+ # LogFileSize=1
+ 
++LogFileSize=0
++
+ ### Option: DebugLevel
+ #	Specifies debug level
+ #	0 - no debug
+ #	1 - critical information
+@@ -205,16 +209,17 @@
+ # Timeout=3
+ 
+ ### Option: Include
+ #	You may include individual files or all files in a directory in the configuration file.
+-#	Installing Zabbix will create include directory in /usr/local/etc, unless modified during the compile time.
++#	Installing Zabbix will create include directory in /etc/zabbix, unless modified during the compile time.
+ #
+ # Mandatory: no
+ # Default:
+ # Include=
+ 
+-# Include=/usr/local/etc/zabbix_agentd.userparams.conf
+-# Include=/usr/local/etc/zabbix_agentd.conf.d/
++# Include=/etc/zabbix/zabbix_agentd.userparams.conf
++# Include=/etc/zabbix/zabbix_agentd.conf.d/
++Include=/etc/zabbix/zabbix_agentd.conf.d/
+ 
+ ####### USER-DEFINED MONITORED PARAMETERS #######
+ 
+ ### Option: UnsafeUserParameters
+--- a/conf/zabbix_proxy.conf
++++ b/conf/zabbix_proxy.conf
+@@ -73,9 +73,9 @@
+ # Mandatory: no
+ # Default:
+ # LogFile=
+ 
+-LogFile=/tmp/zabbix_proxy.log
++LogFile=/var/log/zabbix-proxy/zabbix_proxy.log
+ 
+ ### Option: LogFileSize
+ #	Maximum size of log file in MB.
+ #	0 - disable automatic log rotation.
+@@ -103,8 +103,9 @@
+ #
+ # Mandatory: no
+ # Default:
+ # PidFile=/tmp/zabbix_proxy.pid
++PidFile=/var/run/zabbix/zabbix_proxy.pid
+ 
+ ### Option: DBHost
+ #	Database host name.
+ #	If set to localhost, socket is used for MySQL.
+@@ -137,9 +138,9 @@
+ #
+ # Default:
+ # DBUser=
+ 
+-DBUser=root
++DBUser=zabbix
+ 
+ ### Option: DBPassword
+ #	Database password. Ignored for SQLite.
+ #	Comment this line if no password is used.
+@@ -416,8 +417,9 @@
+ #
+ # Mandatory: no
+ # Default:
+ # FpingLocation=/usr/sbin/fping
++FpingLocation=/usr/bin/fping
+ 
+ ### Option: Fping6Location
+ #	Location of fping6.
+ #	Make sure that fping6 binary has root ownership and SUID flag set.
+@@ -425,8 +427,9 @@
+ #
+ # Mandatory: no
+ # Default:
+ # Fping6Location=/usr/sbin/fping6
++Fping6Location=/usr/bin/fping6
+ 
+ ### Option: SSHKeyLocation
+ #	Location of public and private keys for SSH checks and actions
+ #
+@@ -452,12 +455,12 @@
+ # TmpDir=/tmp
+ 
+ ### Option: Include
+ #	You may include individual files or all files in a directory in the configuration file.
+-#	Installing Zabbix will create include directory in /usr/local/etc, unless modified during the compile time.
++#	Installing Zabbix will create include directory in /etc/zabbix, unless modified during the compile time.
+ #
+ # Mandatory: no
+ # Default:
+ # Include=
+ 
+-# Include=/usr/local/etc/zabbix_proxy.general.conf
+-# Include=/usr/local/etc/zabbix_proxy.conf.d/
++# Include=/etc/zabbix/zabbix_proxy.general.conf
++# Include=/etc/zabbix/zabbix_proxy.conf.d/
+--- a/conf/zabbix_server.conf
++++ b/conf/zabbix_server.conf
+@@ -35,9 +35,9 @@
+ # Mandatory: no
+ # Default:
+ # LogFile=
+ 
+-LogFile=/tmp/zabbix_server.log
++LogFile=/var/log/zabbix-server/zabbix_server.log
+ 
+ ### Option: LogFileSize
+ #	Maximum size of log file in MB.
+ #	0 - disable automatic log rotation.
+@@ -66,8 +66,10 @@
+ # Mandatory: no
+ # Default:
+ # PidFile=/tmp/zabbix_server.pid
+ 
++PidFile=/var/run/zabbix/zabbix_server.pid
++
+ ### Option: DBHost
+ #	Database host name.
+ #	If set to localhost, socket is used for MySQL.
+ #	If set to empty string, socket is used for PostgreSQL.
+@@ -78,8 +80,10 @@
+ 
+ ### Option: DBName
+ #	Database name.
+ #	For SQLite3 path to database file must be provided. DBUser and DBPassword are ignored.
++#	Sample SQLite3 DBName:
++#				DBName=/var/lib/zabbix/zabbix.sqlite3
+ #
+ # Mandatory: yes
+ # Default:
+ # DBName=
+@@ -99,9 +103,9 @@
+ # Mandatory: no
+ # Default:
+ # DBUser=
+ 
+-DBUser=root
++DBUser=zabbix
+ 
+ ### Option: DBPassword
+ #	Database password. Ignored for SQLite.
+ #	Comment this line if no password is used.
+@@ -390,8 +394,10 @@
+ # Mandatory: no
+ # Default:
+ # AlertScriptsPath=${datadir}/zabbix/alertscripts
+ 
++AlertScriptsPath=/etc/zabbix/alert.d/
++
+ ### Option: ExternalScripts
+ #	Full path to location of external scripts.
+ #	Default depends on compilation options.
+ #
+@@ -406,8 +412,10 @@
+ # Mandatory: no
+ # Default:
+ # FpingLocation=/usr/sbin/fping
+ 
++FpingLocation=/usr/bin/fping
++
+ ### Option: Fping6Location
+ #	Location of fping6.
+ #	Make sure that fping6 binary has root ownership and SUID flag set.
+ #	Make empty if your fping utility is capable to process IPv6 addresses.
+@@ -415,8 +423,10 @@
+ # Mandatory: no
+ # Default:
+ # Fping6Location=/usr/sbin/fping6
+ 
++Fping6Location=/usr/bin/fping6
++
+ ### Option: SSHKeyLocation
+ #	Location of public and private keys for SSH checks and actions
+ #
+ # Mandatory: no
+@@ -441,16 +451,16 @@
+ # TmpDir=/tmp
+ 
+ ### Option: Include
+ #	You may include individual files or all files in a directory in the configuration file.
+-#	Installing Zabbix will create include directory in /usr/local/etc, unless modified during the compile time.
++#	Installing Zabbix will create include directory in /etc/zabbix, unless modified during the compile time.
+ #
+ # Mandatory: no
+ # Default:
+ # Include=
+ 
+-# Include=/usr/local/etc/zabbix_server.general.conf
+-# Include=/usr/local/etc/zabbix_server.conf.d/
++# Include=/etc/zabbix/zabbix_server.general.conf
++# Include=/etc/zabbix/zabbix_server.conf.d/
+ 
+ ### Option: StartProxyPollers
+ #	Number of pre-forked instances of pollers for passive proxies.
+ #
+--- a/frontends/php/conf/zabbix.conf.php.example
++++ b/frontends/php/conf/zabbix.conf.php.example
+@@ -1,18 +1,21 @@
+ <?php
+ // Zabbix GUI configuration file
+ global $DB;
+ 
+-$DB["TYPE"]				= 'MYSQL';
++// Valid types are MYSQL, SQLITE3 or POSTGRESQL
++$DB["TYPE"]			= 'MYSQL';
+ $DB["SERVER"]			= 'localhost';
+-$DB["PORT"]				= '0';
++$DB["PORT"]			= '0';
++
++// SQLITE3 use full path to file/database: $DB["DATABASE"] = '/var/lib/zabbix/zabbix.sqlite3';
+ $DB["DATABASE"]			= 'zabbix';
+-$DB["USER"]				= 'zabbix';
++$DB["USER"]			= 'zabbix';
+ $DB["PASSWORD"]			= 'zabbix_password';
+ // SCHEMA is relevant only for IBM_DB2 database
+ $DB["SCHEMA"]			= '';
+ 
+-$ZBX_SERVER				= 'localhost';
++$ZBX_SERVER			= 'localhost';
+ $ZBX_SERVER_PORT		= '10051';
+ $ZBX_SERVER_NAME		= '';
+ 
+ $IMAGE_FORMAT_DEFAULT	= IMAGE_FORMAT_PNG;
