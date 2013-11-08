@@ -1,3 +1,9 @@
+zabbix (1:2.0.9+dfsg-2~bbc72+1) stable; urgency=low
+
+  * Backport of 2.0.9 for Wheezy by BlaBlaCar
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Fri, 08 Nov 2013 11:52:58 +0100
+
 zabbix (1:2.0.9+dfsg-1) unstable; urgency=low
 
   * New upstream release [October 2013]
