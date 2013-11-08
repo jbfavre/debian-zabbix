@@ -20,7 +20,7 @@ Description: fix minor errors in man pages
  .if n .ad l
  .SH NAME
  zabbix_sender \- Zabbix sender utility.
-@@ -33,7 +33,7 @@
+@@ -33,7 +33,7 @@ If target item has triggers referencing
  .IP "-r, --real-time"
  Send values one by one as soon as they are received. This can be used when reading from standard input.
  .IP "-v, --verbose"

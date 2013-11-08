@@ -1,17 +1,64 @@
-Last-Update: 2012-08-05
-Author: Christoph Haas <haas@debian.org>
-Description: Make Zabbix put its generated config file into /etc/zabbix
-
---- a/frontends/php/include/config.inc.php
-+++ b/frontends/php/include/config.inc.php
-@@ -64,8 +64,8 @@
- $USER_RIGHTS = array();
- $ZBX_LOCALNODEID = 0;
- $ZBX_LOCMASTERID = 0;
--$ZBX_CONFIGURATION_FILE = './conf/zabbix.conf.php';
--$ZBX_CONFIGURATION_FILE = realpath(dirname($ZBX_CONFIGURATION_FILE)).DIRECTORY_SEPARATOR.basename($ZBX_CONFIGURATION_FILE);
-+$ZBX_CONFIGURATION_FILE = '/etc/zabbix/zabbix.conf.php';
-+#$ZBX_CONFIGURATION_FILE = realpath(dirname($ZBX_CONFIGURATION_FILE)).DIRECTORY_SEPARATOR.basename($ZBX_CONFIGURATION_FILE);
+--- a/frontends/php/include/classes/class.cconfigfile.php
++++ b/frontends/php/include/classes/class.cconfigfile.php
+@@ -24,7 +24,7 @@ class CConfigFile {
+ 	const CONFIG_NOT_FOUND = 1;
+ 	const CONFIG_ERROR = 2;
  
- // include tactical overview modules
- require_once dirname(__FILE__).'/locales.inc.php';
+-	const CONFIG_FILE_PATH = '/conf/zabbix.conf.php';
++	const CONFIG_FILE_PATH = '/etc/zabbix/zabbix.conf.php';
+ 
+ 	public $configFile = null;
+ 	public $config = array();
+--- a/frontends/php/include/classes/core/ZBase.php
++++ b/frontends/php/include/classes/core/ZBase.php
+@@ -288,7 +288,8 @@ class ZBase {
+ 	 * Load zabbix config file.
+ 	 */
+ 	protected function loadConfigFile() {
+-		$configFile = $this->getRootDir().CConfigFile::CONFIG_FILE_PATH;
++		#$configFile = $this->getRootDir().CConfigFile::CONFIG_FILE_PATH;
++		$configFile = CConfigFile::CONFIG_FILE_PATH;
+ 		$config = new CConfigFile($configFile);
+ 		$this->config = $config->load();
+ 	}
+--- a/frontends/php/include/setup.inc.php
++++ b/frontends/php/include/setup.inc.php
+@@ -429,7 +429,8 @@ class CSetupWizard extends CForm {
+ 	function stage6() {
+ 		$this->setConfig('ZBX_CONFIG_FILE_CORRECT', true);
+ 
+-		$config = new CConfigFile(Z::getInstance()->getRootDir().CConfigFile::CONFIG_FILE_PATH);
++		#$config = new CConfigFile(Z::getInstance()->getRootDir().CConfigFile::CONFIG_FILE_PATH);
++		$config = CConfigFile::CONFIG_FILE_PATH);
+ 		$config->config = array(
+ 			'DB' => array(
+ 				'TYPE' => $this->getConfig('DB_TYPE'),
+@@ -496,7 +497,8 @@ class CSetupWizard extends CForm {
+ 		$this->HIDE_CANCEL_BUTTON = !$this->DISABLE_NEXT_BUTTON;
+ 
+ 
+-		$table = array('Configuration file', BR(), '"'.Z::getInstance()->getRootDir().CConfigFile::CONFIG_FILE_PATH.'"',
++		#$table = array('Configuration file', BR(), '"'.Z::getInstance()->getRootDir().CConfigFile::CONFIG_FILE_PATH.'"',
++		$table = array('Configuration file', BR(), '"'.CConfigFile::CONFIG_FILE_PATH.'"',
+ 			BR(), 'created: ', $this->getConfig('ZBX_CONFIG_FILE_CORRECT', false)
+ 			? new CSpan(_('OK'), 'ok')
+ 			: new CSpan(_('Fail'), 'fail')
+@@ -509,7 +511,7 @@ class CSetupWizard extends CForm {
+ 				? array($error_text, BR(), 'Please install it manually, or fix permissions on the conf directory.', BR(), BR(),
+ 					'Press the "Download configuration file" button, download the configuration file ',
+ 					'and save it as ', BR(),
+-					'"'.Z::getInstance()->getRootDir().CConfigFile::CONFIG_FILE_PATH.'"', BR(), BR(),
++					'"'.CConfigFile::CONFIG_FILE_PATH.'"', BR(), BR(),
+ 					new CSubmit('save_config', 'Download configuration file'),
+ 					BR(), BR()
+ 				)
+@@ -615,7 +617,8 @@ class CSetupWizard extends CForm {
+ 				// make zabbix.conf.php downloadable
+ 				header('Content-Type: application/x-httpd-php');
+ 				header('Content-Disposition: attachment; filename="'.basename(CConfigFile::CONFIG_FILE_PATH).'"');
+-				$config = new CConfigFile(Z::getInstance()->getRootDir().CConfigFile::CONFIG_FILE_PATH);
++				#$config = new CConfigFile(Z::getInstance()->getRootDir().CConfigFile::CONFIG_FILE_PATH);
++				$config = new CConfigFile(CConfigFile::CONFIG_FILE_PATH);
+ 				$config->config = array(
+ 					'DB' => array(
+ 						'TYPE' => $this->getConfig('DB_TYPE'),
