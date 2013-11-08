@@ -6,6 +6,7 @@
 ## Define the names of the resulting binary packages
 PKG_AGENT = zabbix-agent
 PKG_FRONTEND = zabbix-frontend-php
+PKG_JAVA_GATEWAY = zabbix-java-gateway
 PKG_PROXY_MYSQL = zabbix-proxy-mysql
 PKG_PROXY_PGSQL = zabbix-proxy-pgsql
 PKG_PROXY_SQLITE3 = zabbix-proxy-sqlite3
@@ -44,6 +45,7 @@ CONFFLAGS_COMMON  = --host=$(DEB_HOST_GNU_TYPE) \
                     --enable-agent \
                     --enable-proxy \
                     --enable-server \
+		    --enable-java \
                     --enable-ipv6 \
                     --with-jabber \
                     --with-ldap \
@@ -62,6 +64,7 @@ BUILD_PREFIX := $(CURDIR)/debian/tmp-build
 # The proxy and server packages always contain one kind of database support.
 # The zabbix-agent and zabbix-frontend-php package do not have any kind of
 # database support and are created from one of the above mentioned builds.
+#VARIANTS := MYSQL PGSQL SQLITE3
 VARIANTS := MYSQL PGSQL SQLITE3
 
 %:
@@ -110,6 +113,7 @@ override_dh_install:
 override_dh_installinit:
 	dh_installinit -p $(PKG_AGENT)
 	dh_installinit -p $(PKG_PROXY_MYSQL) --name zabbix-proxy
+	dh_installinit -p $(PKG_JAVA_GATEWAY) --name zabbix-java-gateway
 	dh_installinit -p $(PKG_PROXY_PGSQL) --name zabbix-proxy
 	dh_installinit -p $(PKG_PROXY_SQLITE3) --name zabbix-proxy
 	dh_installinit -p $(PKG_SERVER_MYSQL) --name zabbix-server

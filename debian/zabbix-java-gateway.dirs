@@ -1,0 +1,4 @@
+usr/sbin
+etc/zabbix
+usr/share/zabbix-java
+var/log/zabbix-java
