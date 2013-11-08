@@ -1,3 +1,13 @@
+zabbix (1:2.2.0~rc1-1~bbc72+1) stable; urgency=low
+
+  * Imported Upstream version 2.2.0~rc1
+  * Patches refresh for Zabbix 2.2.0~rc1
+  * Enable zabbix-java-gateway build
+  * Fix missing bin directory when building zabbix-java-gateway
+    due to empty directory being skipped when importing orig archive into git
+
+ -- Jean Baptiste Favre <jbfavre@jbfavre.short>  Fri, 08 Nov 2013 12:30:29 +0100
+
 zabbix (1:2.0.9+dfsg-2~bbc72+1) stable; urgency=low
 
   * Backport of 2.0.9 for Wheezy by BlaBlaCar
