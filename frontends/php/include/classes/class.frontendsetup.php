@@ -25,7 +25,7 @@
  */
 class FrontendSetup {
 
-	const MIN_PHP_VERSION = '5.1.6';
+	const MIN_PHP_VERSION = '5.3.0';
 	const MIN_PHP_MEMORY_LIMIT = 134217728; // 128*1024*1024
 	const MIN_PHP_POST_MAX_SIZE = 16777216; // 16*1024*1024
 	const MIN_PHP_UPLOAD_MAX_FILESIZE = 2097152; // 2*1024*1024
@@ -117,7 +117,7 @@ class FrontendSetup {
 			'name' => _('PHP option memory_limit'),
 			'current' => $current,
 			'required' => mem2str(self::MIN_PHP_MEMORY_LIMIT),
-			'result' => str2mem($current) >= self::MIN_PHP_MEMORY_LIMIT,
+			'result' => $current == '-1' || str2mem($current) >= self::MIN_PHP_MEMORY_LIMIT,
 			'error' => _s('Minimum required PHP memory limit is %s (configuration option "memory_limit")', mem2str(self::MIN_PHP_MEMORY_LIMIT))
 		);
 
@@ -227,53 +227,55 @@ class FrontendSetup {
 	public function checkPhpDatabases() {
 		$current = array();
 
-		if (function_exists('mysql_pconnect') &&
-				function_exists('mysql_select_db') &&
-				function_exists('mysql_error') &&
-				function_exists('mysql_query') &&
-				function_exists('mysql_fetch_array') &&
-				function_exists('mysql_fetch_row') &&
-				function_exists('mysql_data_seek') &&
-				function_exists('mysql_insert_id')
-		) {
+		if (function_exists('mysqli_connect')
+				&& function_exists('mysqli_connect_error')
+				&& function_exists('mysqli_error')
+				&& function_exists('mysqli_query')
+				&& function_exists('mysqli_fetch_assoc')
+				&& function_exists('mysqli_free_result')
+				&& function_exists('mysqli_real_escape_string')
+				&& function_exists('mysqli_close')) {
 			$current[] = 'MySQL';
 			$current[] = BR();
 		}
 
-		if (function_exists('pg_pconnect') &&
-				function_exists('pg_fetch_array') &&
-				function_exists('pg_fetch_row') &&
-				function_exists('pg_exec') &&
-				function_exists('pg_getlastoid')
-		) {
+		if (function_exists('pg_pconnect')
+				&& function_exists('pg_fetch_array')
+				&& function_exists('pg_fetch_row')
+				&& function_exists('pg_exec')
+				&& function_exists('pg_getlastoid')) {
 			$current[] = 'PostgreSQL';
 			$current[] = BR();
 		}
 
-		if (function_exists('ocilogon') &&
-				function_exists('ocierror') &&
-				function_exists('ociparse') &&
-				function_exists('ociexecute') &&
-				function_exists('ocifetchinto')
-		) {
-
+		if (function_exists('oci_connect')
+				&& function_exists('oci_error')
+				&& function_exists('oci_parse')
+				&& function_exists('oci_execute')
+				&& function_exists('oci_fetch_assoc')
+				&& function_exists('oci_commit')
+				&& function_exists('oci_close')
+				&& function_exists('oci_rollback')
+				&& function_exists('oci_field_type')
+				&& function_exists('oci_new_descriptor')
+				&& function_exists('oci_bind_by_name')
+				&& function_exists('oci_free_statement')) {
 			$current[] = 'Oracle';
 			$current[] = BR();
 		}
 
-		if (function_exists('db2_connect') &&
-				function_exists('db2_set_option') &&
-				function_exists('db2_commit') &&
-				function_exists('db2_rollback') &&
-				function_exists('db2_autocommit') &&
-				function_exists('db2_prepare') &&
-				function_exists('db2_execute') &&
-				function_exists('db2_stmt_errormsg') &&
-				function_exists('db2_fetch_assoc') &&
-				function_exists('db2_free_result') &&
-				function_exists('db2_escape_string') &&
-				function_exists('db2_close')
-		) {
+		if (function_exists('db2_connect')
+				&& function_exists('db2_set_option')
+				&& function_exists('db2_commit')
+				&& function_exists('db2_rollback')
+				&& function_exists('db2_autocommit')
+				&& function_exists('db2_prepare')
+				&& function_exists('db2_execute')
+				&& function_exists('db2_stmt_errormsg')
+				&& function_exists('db2_fetch_assoc')
+				&& function_exists('db2_free_result')
+				&& function_exists('db2_escape_string')
+				&& function_exists('db2_close')) {
 			$current[] = 'IBM DB2';
 			$current[] = BR();
 		}
@@ -286,7 +288,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP databases support'),
-			'current' => empty($current) ? _('no') : new CSpan($current),
+			'current' => empty($current) ? _('off') : new CSpan($current),
 			'required' => null,
 			'result' => !empty($current),
 			'error' => _('At least one of MySQL, PostgreSQL, Oracle, SQLite3 or IBM DB2 should be supported')
@@ -314,7 +316,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP bcmath'),
-			'current' => $current ? _('yes') : _('no'),
+			'current' => $current ? _('on') : _('off'),
 			'required' => null,
 			'result' => $current,
 			'error' => _('PHP bcmath extension missing (PHP configuration parameter --enable-bcmath)')
@@ -333,7 +335,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP mbstring'),
-			'current' => $current ? _('yes') : _('no'),
+			'current' => $current ? _('on') : _('off'),
 			'required' => null,
 			'result' => $current,
 			'error' => _('PHP mbstring extension missing (PHP configuration parameter --enable-mbstring)')
@@ -352,7 +354,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP sockets'),
-			'current' => $current ? _('yes') : _('no'),
+			'current' => $current ? _('on') : _('off'),
 			'required' => null,
 			'result' => $current,
 			'error' => _('PHP sockets extension missing (PHP configuration parameter --enable-sockets)')
@@ -403,7 +405,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP gd PNG support'),
-			'current' => $current ? _('yes') : _('no'),
+			'current' => $current ? _('on') : _('off'),
 			'required' => null,
 			'result' => $current,
 			'error' => _('PHP gd PNG image support missing')
@@ -429,7 +431,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP gd JPEG support'),
-			'current' => $current ? _('yes') : _('no'),
+			'current' => $current ? _('on') : _('off'),
 			'required' => null,
 			'result' => $current,
 			'error' => _('PHP gd JPEG image support missing')
@@ -454,7 +456,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP gd FreeType support'),
-			'current' => $current ? _('yes') : _('no'),
+			'current' => $current ? _('on') : _('off'),
 			'required' => null,
 			'result' => $current,
 			'error' => _('PHP gd FreeType support missing')
@@ -497,7 +499,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP xmlwriter'),
-			'current' => $current ? _('yes') : _('no'),
+			'current' => $current ? _('on') : _('off'),
 			'required' => null,
 			'result' => $current,
 			'error' => _('PHP xmlwriter extension missing')
@@ -516,7 +518,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP xmlreader'),
-			'current' => $current ? _('yes') : _('no'),
+			'current' => $current ? _('on') : _('off'),
 			'required' => null,
 			'result' => $current,
 			'error' => _('PHP xmlreader extension missing')
@@ -545,7 +547,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP ctype'),
-			'current' => $current ? _('yes') : _('no'),
+			'current' => $current ? _('on') : _('off'),
 			'required' => null,
 			'result' => $current,
 			'error' => _('PHP ctype extension missing (PHP configuration parameter --enable-ctype)')
@@ -564,7 +566,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP session'),
-			'current' => $current ? _('yes') : _('no'),
+			'current' => $current ? _('on') : _('off'),
 			'required' => null,
 			'result' => $current,
 			'error' => _('PHP session extension missing (PHP configuration parameter --enable-session)')
@@ -583,8 +585,8 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP session auto start'),
-			'current' => $current ? _('no') : _('yes'),
-			'required' => null,
+			'current' => $current ? _('off') : _('on'),
+			'required' => _('off'),
 			'result' => $current,
 			'error' => _('PHP session auto start must be disabled (PHP directive "session.auto_start")')
 		);
@@ -602,7 +604,7 @@ class FrontendSetup {
 
 		$result = array(
 			'name' => _('PHP gettext'),
-			'current' => $current ? _('yes') : _('no'),
+			'current' => $current ? _('on') : _('off'),
 			'required' => null,
 			'result' => $current,
 			'error' => _('PHP gettext extension missing (PHP configuration parameter --with-gettext)')
