@@ -2961,7 +2961,7 @@ CREATE TABLE dbversion (\n\
 mandatory integer WITH DEFAULT '0' NOT NULL,\n\
 optional integer WITH DEFAULT '0' NOT NULL\n\
 );\n\
-INSERT INTO dbversion VALUES ('2010199','2010199');\n\
+INSERT INTO dbversion VALUES ('2020000','2020000');\n\
 ";
 const char	*const db_schema_fkeys[] = {
 	"ALTER TABLE hosts ADD CONSTRAINT c_hosts_1 FOREIGN KEY (proxy_hostid) REFERENCES hosts (hostid)",
@@ -4622,7 +4622,7 @@ CREATE TABLE `dbversion` (\n\
 `mandatory` integer DEFAULT '0' NOT NULL,\n\
 `optional` integer DEFAULT '0' NOT NULL\n\
 ) ENGINE=InnoDB;\n\
-INSERT INTO dbversion VALUES ('2010199','2010199');\n\
+INSERT INTO dbversion VALUES ('2020000','2020000');\n\
 ";
 const char	*const db_schema_fkeys[] = {
 	"ALTER TABLE `hosts` ADD CONSTRAINT `c_hosts_1` FOREIGN KEY (`proxy_hostid`) REFERENCES `hosts` (`hostid`)",
@@ -6283,7 +6283,7 @@ CREATE TABLE dbversion (\n\
 mandatory number(10) DEFAULT '0' NOT NULL,\n\
 optional number(10) DEFAULT '0' NOT NULL\n\
 );\n\
-INSERT INTO dbversion VALUES ('2010199','2010199');\n\
+INSERT INTO dbversion VALUES ('2020000','2020000');\n\
 CREATE SEQUENCE history_sync_seq\n\
 START WITH 1\n\
 INCREMENT BY 1\n\
@@ -8016,7 +8016,7 @@ CREATE TABLE dbversion (\n\
 mandatory integer DEFAULT '0' NOT NULL,\n\
 optional integer DEFAULT '0' NOT NULL\n\
 );\n\
-INSERT INTO dbversion VALUES ('2010199','2010199');\n\
+INSERT INTO dbversion VALUES ('2020000','2020000');\n\
 ";
 const char	*const db_schema_fkeys[] = {
 	"ALTER TABLE ONLY hosts ADD CONSTRAINT c_hosts_1 FOREIGN KEY (proxy_hostid) REFERENCES hosts (hostid)",
@@ -9671,7 +9671,7 @@ CREATE TABLE dbversion (\n\
 mandatory integer DEFAULT '0' NOT NULL,\n\
 optional integer DEFAULT '0' NOT NULL\n\
 );\n\
-INSERT INTO dbversion VALUES ('2010199','2010199');\n\
+INSERT INTO dbversion VALUES ('2020000','2020000');\n\
 ";
 const char	*const db_schema_fkeys[] = {
 	NULL
