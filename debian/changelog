@@ -1,3 +1,9 @@
+zabbix (1:2.2.0~rc2-1~bbc72+1) stable; urgency=low
+
+  * Imported Upstream version 2.2.0~rc2
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Fri, 08 Nov 2013 12:46:43 +0100
+
 zabbix (1:2.2.0~rc1-1~bbc72+1) stable; urgency=low
 
   * Imported Upstream version 2.2.0~rc1
@@ -6,7 +12,7 @@ zabbix (1:2.2.0~rc1-1~bbc72+1) stable; urgency=low
   * Fix missing bin directory when building zabbix-java-gateway
     due to empty directory being skipped when importing orig archive into git
 
- -- Jean Baptiste Favre <jbfavre@jbfavre.short>  Fri, 08 Nov 2013 12:30:29 +0100
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Fri, 08 Nov 2013 12:30:29 +0100
 
 zabbix (1:2.0.9+dfsg-2~bbc72+1) stable; urgency=low
 
