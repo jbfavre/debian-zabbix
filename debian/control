@@ -16,6 +16,7 @@ Build-Depends: debhelper (>= 9), automake, dh-autoreconf
  ,libsqlite3-dev
  ,libssh2-1-dev
  ,unixodbc-dev
+ ,openjdk-7-jdk
 Standards-Version: 3.9.4
 Homepage: http://zabbix.com
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/zabbix.git
@@ -169,7 +170,7 @@ Description: network monitoring solution - server (using PostgreSQL)
 
 Package: zabbix-java-gateway
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, java6-runtime, adduser
+Depends: ${shlibs:Depends}, ${misc:Depends}, openjdk-7-jre-headless, adduser
 Suggests: logrotate
 Description: network monitoring solution - java-gateway
  Zabbix is a server/client network monitoring system with many features.
