@@ -1,3 +1,9 @@
+zabbix (1:2.2.0-1~bbc72+1) stable; urgency=low
+
+  * Imported Upstream version 2.2.0
+
+ -- Jean Baptiste Favre <jean-batiste.favre@blablacar.com>  Tue, 12 Nov 2013 10:02:07 +0100
+
 zabbix (1:2.2.0~rc2-1~bbc72+1) stable; urgency=low
 
   * Imported Upstream version 2.2.0~rc2
