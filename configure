@@ -2841,7 +2841,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=zabbix
- VERSION=2.2.0rc2
+ VERSION=2.2.0
 
 
 cat >>confdefs.h <<_ACEOF
