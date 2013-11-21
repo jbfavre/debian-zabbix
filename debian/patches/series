@@ -1,3 +1,4 @@
+fix_zabbix_mysql_gone_away.patch
 fix_java_gateway_missing_dir.patch
 config-debian-customizations.patch
 manpages-fix.patch
