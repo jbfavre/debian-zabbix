@@ -119,7 +119,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 +#if defined(HAVE_MYSQL)
 +	if (NULL != conn)
 +		if (zbx_time() - last_db_ping > 190)
-+			zbx_db_select("SELECT 1;");
++			mysql_ping(conn);
 +#endif	/* HAVE_MYSQL */
 +}
 +
