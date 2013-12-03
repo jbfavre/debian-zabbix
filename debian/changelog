@@ -1,3 +1,10 @@
+zabbix (1:2.2.0-3~bbc72+1) stable; urgency=low
+
+  * Use mysql_ping() in patch fix_zabbix_mysql_gone_away instead of select 1
+  * Enable libxml2 support. Allows to use new integrated VMware LLD & monitoring
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Tue, 03 Dec 2013 17:51:17 +0100
+
 zabbix (1:2.2.0-2~bbc72+1) stable; urgency=low
 
   * Zabbix 2.2.0 release. Backport for Wheezy by BlaBlaCar
