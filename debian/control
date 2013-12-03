@@ -17,6 +17,7 @@ Build-Depends: debhelper (>= 9), automake, dh-autoreconf
  ,libssh2-1-dev
  ,unixodbc-dev
  ,openjdk-7-jdk
+ ,libxml2-dev
 Standards-Version: 3.9.4
 Homepage: http://zabbix.com
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/zabbix.git
