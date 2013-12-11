@@ -126,7 +126,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  /******************************************************************************
   *                                                                            *
   * Function: zbx_db_begin                                                     *
-@@ -941,6 +952,7 @@ int	zbx_db_vexecute(const char *fmt, va_
+@@ -942,6 +953,7 @@ int	zbx_db_vexecute(const char *fmt, va_
  		}
  		else
  		{
@@ -134,7 +134,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  			do
  			{
  				if (0 != mysql_field_count(conn))
-@@ -1179,7 +1191,10 @@ error:
+@@ -1180,7 +1192,10 @@ error:
  			}
  		}
  		else
@@ -197,7 +197,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  }
 --- a/src/zabbix_server/poller/poller.c
 +++ b/src/zabbix_server/poller/poller.c
-@@ -825,7 +825,15 @@ void	main_poller_loop(unsigned char poll
+@@ -801,7 +801,15 @@ void	main_poller_loop(unsigned char poll
  			last_stat_time = time(NULL);
  		}
  

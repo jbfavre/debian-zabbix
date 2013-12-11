@@ -27,7 +27,7 @@
  ### Option: DebugLevel
  #	Specifies debug level
  #	0 - no debug
-@@ -227,14 +231,15 @@ Hostname=Zabbix server
+@@ -233,14 +237,15 @@ Hostname=Zabbix server
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.

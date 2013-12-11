@@ -11,7 +11,7 @@
  	public $config = array();
 --- a/frontends/php/include/classes/core/ZBase.php
 +++ b/frontends/php/include/classes/core/ZBase.php
-@@ -288,7 +288,8 @@ class ZBase {
+@@ -289,7 +289,8 @@ class ZBase {
  	 * Load zabbix config file.
  	 */
  	protected function loadConfigFile() {
@@ -23,7 +23,7 @@
  	}
 --- a/frontends/php/include/setup.inc.php
 +++ b/frontends/php/include/setup.inc.php
-@@ -429,7 +429,8 @@ class CSetupWizard extends CForm {
+@@ -443,7 +443,8 @@ class CSetupWizard extends CForm {
  	function stage6() {
  		$this->setConfig('ZBX_CONFIG_FILE_CORRECT', true);
  
@@ -33,7 +33,7 @@
  		$config->config = array(
  			'DB' => array(
  				'TYPE' => $this->getConfig('DB_TYPE'),
-@@ -496,7 +497,8 @@ class CSetupWizard extends CForm {
+@@ -510,7 +511,8 @@ class CSetupWizard extends CForm {
  		$this->HIDE_CANCEL_BUTTON = !$this->DISABLE_NEXT_BUTTON;
  
  
@@ -43,7 +43,7 @@
  			BR(), 'created: ', $this->getConfig('ZBX_CONFIG_FILE_CORRECT', false)
  			? new CSpan(_('OK'), 'ok')
  			: new CSpan(_('Fail'), 'fail')
-@@ -509,7 +511,7 @@ class CSetupWizard extends CForm {
+@@ -523,7 +525,7 @@ class CSetupWizard extends CForm {
  				? array($error_text, BR(), 'Please install it manually, or fix permissions on the conf directory.', BR(), BR(),
  					'Press the "Download configuration file" button, download the configuration file ',
  					'and save it as ', BR(),
@@ -52,7 +52,7 @@
  					new CSubmit('save_config', 'Download configuration file'),
  					BR(), BR()
  				)
-@@ -615,7 +617,8 @@ class CSetupWizard extends CForm {
+@@ -629,7 +631,8 @@ class CSetupWizard extends CForm {
  				// make zabbix.conf.php downloadable
  				header('Content-Type: application/x-httpd-php');
  				header('Content-Disposition: attachment; filename="'.basename(CConfigFile::CONFIG_FILE_PATH).'"');
