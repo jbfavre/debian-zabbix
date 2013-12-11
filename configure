@@ -2842,7 +2842,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=zabbix
- VERSION=2.0.9
+ VERSION=2.0.10
 
 
 cat >>confdefs.h <<_ACEOF
@@ -7963,29 +7963,17 @@ $as_echo "$as_me: WARNING: Oracle version unknown, probably OCI older than 10.2 
                 fi
             fi
 
-                        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Oracle version >= 11.x to use -lnnz11 flag" >&5
-$as_echo_n "checking for Oracle version >= 11.x to use -lnnz11 flag... " >&6; }
-            oracle_nnz11_check=`expr $oracle_version_number \>\= 11 \* 1000000`
-            if test "$oracle_nnz11_check" = "1"; then
-				oci_libs="$oci_libs -lnnz11"
-                LIBS="$LIBS -lnnz11"
-                { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
+                        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Oracle OCI version >= 10.x to use -lnnz1x flag" >&5
+$as_echo_n "checking for Oracle OCI version >= 10.x to use -lnnz1x flag... " >&6; }
+            oracle_nnz1x_flag=`expr $oracle_version_number / 1000000`
+            if test "$oracle_nnz1x_flag" -ge 10; then
+                oci_libs="$oci_libs -lnnz$oracle_nnz1x_flag"
+                LIBS="$LIBS -lnnz$oracle_nnz1x_flag"
+                { $as_echo "$as_me:${as_lineno-$LINENO}: result: -lnnz$oracle_nnz1x_flag" >&5
+$as_echo "-lnnz$oracle_nnz1x_flag" >&6; }
             else
                 { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
 $as_echo "no" >&6; }
-                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Oracle version >= 10.x to use -lnnz10 flag" >&5
-$as_echo_n "checking for Oracle version >= 10.x to use -lnnz10 flag... " >&6; }
-                oracle_nnz10_check=`expr $oracle_version_number \>\= 10 \* 1000000`
-                if test "$oracle_nnz10_check" = "1"; then
-			        oci_libs="$oci_libs -lnnz10"
-                    LIBS="$LIBS -lnnz10"
-                    { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-                else
-                    { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-                fi
             fi
         fi
 
@@ -8036,8 +8024,8 @@ rm -f core conftest.err conftest.$ac_objext \
         LIBS="$saved_LIBS"
     fi
 
-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking if Oracle support is enabled" >&5
-$as_echo_n "checking if Oracle support is enabled... " >&6; }
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for Oracle support" >&5
+$as_echo_n "checking for Oracle support... " >&6; }
 
     if test "$oci_header_found" = "yes" -a "$oci_lib_found" = "yes"; then
 
