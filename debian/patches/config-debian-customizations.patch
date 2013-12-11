@@ -6,8 +6,7 @@ Description: Change default paths and settings in config files specifically for 
 
 --- a/conf/zabbix_agentd.conf
 +++ b/conf/zabbix_agentd.conf
-@@ -9,17 +9,19 @@
- # Mandatory: no
+@@ -10,6 +10,8 @@
  # Default:
  # PidFile=/tmp/zabbix_agentd.pid
  
@@ -16,8 +15,7 @@ Description: Change default paths and settings in config files specifically for 
  ### Option: LogFile
  #	Name of log file.
  #	If not set, syslog is used.
- #
- # Mandatory: no
+@@ -18,7 +20,7 @@
  # Default:
  # LogFile=
  
@@ -26,9 +24,7 @@ Description: Change default paths and settings in config files specifically for 
  
  ### Option: LogFileSize
  #	Maximum size of log file in MB.
- #	0 - disable automatic log rotation.
-@@ -28,8 +30,10 @@
- # Range: 0-1024
+@@ -29,6 +31,8 @@ LogFile=/tmp/zabbix_agentd.log
  # Default:
  # LogFileSize=1
  
@@ -37,9 +33,7 @@ Description: Change default paths and settings in config files specifically for 
  ### Option: DebugLevel
  #	Specifies debug level
  #	0 - no debug
- #	1 - critical information
-@@ -205,16 +209,17 @@
- # Timeout=3
+@@ -206,14 +210,15 @@ Hostname=Zabbix server
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.
@@ -58,11 +52,9 @@ Description: Change default paths and settings in config files specifically for 
  
  ####### USER-DEFINED MONITORED PARAMETERS #######
  
- ### Option: UnsafeUserParameters
 --- a/conf/zabbix_proxy.conf
 +++ b/conf/zabbix_proxy.conf
-@@ -73,9 +73,9 @@
- # Mandatory: no
+@@ -74,7 +74,7 @@ Hostname=Zabbix proxy
  # Default:
  # LogFile=
  
@@ -71,9 +63,7 @@ Description: Change default paths and settings in config files specifically for 
  
  ### Option: LogFileSize
  #	Maximum size of log file in MB.
- #	0 - disable automatic log rotation.
-@@ -103,8 +103,9 @@
- #
+@@ -104,6 +104,7 @@ LogFile=/tmp/zabbix_proxy.log
  # Mandatory: no
  # Default:
  # PidFile=/tmp/zabbix_proxy.pid
@@ -81,9 +71,7 @@ Description: Change default paths and settings in config files specifically for 
  
  ### Option: DBHost
  #	Database host name.
- #	If set to localhost, socket is used for MySQL.
-@@ -137,9 +138,9 @@
- #
+@@ -138,7 +139,7 @@ DBName=zabbix_proxy
  # Default:
  # DBUser=
  
@@ -92,9 +80,7 @@ Description: Change default paths and settings in config files specifically for 
  
  ### Option: DBPassword
  #	Database password. Ignored for SQLite.
- #	Comment this line if no password is used.
-@@ -416,8 +417,9 @@
- #
+@@ -417,6 +418,7 @@ DBUser=root
  # Mandatory: no
  # Default:
  # FpingLocation=/usr/sbin/fping
@@ -102,9 +88,7 @@ Description: Change default paths and settings in config files specifically for 
  
  ### Option: Fping6Location
  #	Location of fping6.
- #	Make sure that fping6 binary has root ownership and SUID flag set.
-@@ -425,8 +427,9 @@
- #
+@@ -426,6 +428,7 @@ DBUser=root
  # Mandatory: no
  # Default:
  # Fping6Location=/usr/sbin/fping6
@@ -112,9 +96,7 @@ Description: Change default paths and settings in config files specifically for 
  
  ### Option: SSHKeyLocation
  #	Location of public and private keys for SSH checks and actions
- #
-@@ -452,12 +455,12 @@
- # TmpDir=/tmp
+@@ -453,11 +456,11 @@ DBUser=root
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.
@@ -131,8 +113,7 @@ Description: Change default paths and settings in config files specifically for 
 +# Include=/etc/zabbix/zabbix_proxy.conf.d/
 --- a/conf/zabbix_server.conf
 +++ b/conf/zabbix_server.conf
-@@ -35,9 +35,9 @@
- # Mandatory: no
+@@ -36,7 +36,7 @@
  # Default:
  # LogFile=
  
@@ -141,9 +122,7 @@ Description: Change default paths and settings in config files specifically for 
  
  ### Option: LogFileSize
  #	Maximum size of log file in MB.
- #	0 - disable automatic log rotation.
-@@ -66,8 +66,10 @@
- # Mandatory: no
+@@ -67,6 +67,8 @@ LogFile=/tmp/zabbix_server.log
  # Default:
  # PidFile=/tmp/zabbix_server.pid
  
@@ -152,9 +131,7 @@ Description: Change default paths and settings in config files specifically for 
  ### Option: DBHost
  #	Database host name.
  #	If set to localhost, socket is used for MySQL.
- #	If set to empty string, socket is used for PostgreSQL.
-@@ -78,8 +80,10 @@
- 
+@@ -79,6 +81,8 @@ LogFile=/tmp/zabbix_server.log
  ### Option: DBName
  #	Database name.
  #	For SQLite3 path to database file must be provided. DBUser and DBPassword are ignored.
@@ -163,9 +140,7 @@ Description: Change default paths and settings in config files specifically for 
  #
  # Mandatory: yes
  # Default:
- # DBName=
-@@ -99,9 +103,9 @@
- # Mandatory: no
+@@ -100,7 +104,7 @@ DBName=zabbix
  # Default:
  # DBUser=
  
@@ -174,9 +149,7 @@ Description: Change default paths and settings in config files specifically for 
  
  ### Option: DBPassword
  #	Database password. Ignored for SQLite.
- #	Comment this line if no password is used.
-@@ -390,8 +394,10 @@
- # Mandatory: no
+@@ -391,6 +395,8 @@ DBUser=root
  # Default:
  # AlertScriptsPath=${datadir}/zabbix/alertscripts
  
@@ -185,9 +158,7 @@ Description: Change default paths and settings in config files specifically for 
  ### Option: ExternalScripts
  #	Full path to location of external scripts.
  #	Default depends on compilation options.
- #
-@@ -406,8 +412,10 @@
- # Mandatory: no
+@@ -407,6 +413,8 @@ DBUser=root
  # Default:
  # FpingLocation=/usr/sbin/fping
  
@@ -196,9 +167,7 @@ Description: Change default paths and settings in config files specifically for 
  ### Option: Fping6Location
  #	Location of fping6.
  #	Make sure that fping6 binary has root ownership and SUID flag set.
- #	Make empty if your fping utility is capable to process IPv6 addresses.
-@@ -415,8 +423,10 @@
- # Mandatory: no
+@@ -416,6 +424,8 @@ DBUser=root
  # Default:
  # Fping6Location=/usr/sbin/fping6
  
@@ -207,9 +176,7 @@ Description: Change default paths and settings in config files specifically for 
  ### Option: SSHKeyLocation
  #	Location of public and private keys for SSH checks and actions
  #
- # Mandatory: no
-@@ -441,16 +451,16 @@
- # TmpDir=/tmp
+@@ -442,14 +452,14 @@ DBUser=root
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.
@@ -227,11 +194,9 @@ Description: Change default paths and settings in config files specifically for 
  
  ### Option: StartProxyPollers
  #	Number of pre-forked instances of pollers for passive proxies.
- #
 --- a/frontends/php/conf/zabbix.conf.php.example
 +++ b/frontends/php/conf/zabbix.conf.php.example
-@@ -1,18 +1,21 @@
- <?php
+@@ -2,16 +2,19 @@
  // Zabbix GUI configuration file
  global $DB;
  
@@ -255,4 +220,3 @@ Description: Change default paths and settings in config files specifically for 
  $ZBX_SERVER_PORT		= '10051';
  $ZBX_SERVER_NAME		= '';
  
- $IMAGE_FORMAT_DEFAULT	= IMAGE_FORMAT_PNG;

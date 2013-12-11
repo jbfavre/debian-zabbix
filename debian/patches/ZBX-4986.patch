@@ -9,8 +9,7 @@ Description: Changed getUrl method for returning relative url's.
 
 --- a/frontends/php/include/classes/class.curl.php
 +++ b/frontends/php/include/classes/class.curl.php
-@@ -200,19 +200,30 @@
- 			}
+@@ -201,17 +201,28 @@ class Curl {
  		}
  		$this->formatQuery();
  	}
@@ -48,4 +47,3 @@ Description: Changed getUrl method for returning relative url's.
  		$url .= $this->query ? '?'.$this->query : '';
  		$url .= $this->reference ? '#'.urlencode($this->reference) : '';
  		return $url;
- 	}

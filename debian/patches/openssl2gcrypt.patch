@@ -5,7 +5,7 @@ Description: use 'libgcrypt' in order to avoid linking with OpenSSL due to licen
 
 --- a/m4/netsnmp.m4
 +++ b/m4/netsnmp.m4
-@@ -55,7 +55,7 @@
+@@ -55,7 +55,7 @@ AC_HELP_STRING([--with-net-snmp@<:@=ARG@
  			esac
  		done
  
@@ -16,7 +16,7 @@ Description: use 'libgcrypt' in order to avoid linking with OpenSSL due to licen
  				-L*)
 --- a/m4/ucdsnmp.m4
 +++ b/m4/ucdsnmp.m4
-@@ -74,7 +74,7 @@
+@@ -74,7 +74,7 @@ AC_DEFUN([LIBSNMP_CHECK_CONFIG],
  		found_snmp="yes"
                  AC_MSG_RESULT(yes)
  
