@@ -1,3 +1,10 @@
+zabbix (1:2.0.10-1~bbc72+1) stable; urgency=low
+
+  * Imported Upstream version 2.0.10
+  * Patches refresh for 2.0.10
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Wed, 11 Dec 2013 16:24:38 +0100
+
 zabbix (1:2.0.9+dfsg-2~bbc72+1) stable; urgency=low
 
   * Backport of 2.0.9 for Wheezy by BlaBlaCar
