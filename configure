@@ -626,7 +626,6 @@ OPENIPMI_CFLAGS
 SSH2_LIBS
 SSH2_LDFLAGS
 SSH2_CFLAGS
-SNMP_CPPFLAGS
 SNMP_LIBS
 SNMP_LDFLAGS
 SNMP_CFLAGS
@@ -801,7 +800,6 @@ with_libxml2
 with_libcurl
 with_unixodbc
 with_net_snmp
-with_ucd_snmp
 with_ssh2
 with_openipmi
 with_ldap
@@ -1491,13 +1489,9 @@ If you want to use unixODBC library:
                           [default=no], optionally specify full path to
                           odbc_config binary.
 
-What SNMP package do you want to use (please select only one):
-  --with-net-snmp[=ARG]   use NET-SNMP package [default=no], optionally
+If you want to use Net-SNMP library:
+  --with-net-snmp[=ARG]   use Net-SNMP package [default=no], optionally
                           specify path to net-snmp-config
-
-  --with-ucd-snmp[=ARG]   use UCD-SNMP package [default=no], default is to
-                          search through a number of common places for the
-                          UCD-SNMP files.
 
 If you want to use SSH2 based checks:
   --with-ssh2[=DIR]       use SSH2 package [default=no], DIR is the SSH2
@@ -2841,7 +2835,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=zabbix
- VERSION=2.2.0
+ VERSION=2.2.1
 
 
 cat >>confdefs.h <<_ACEOF
@@ -10051,7 +10045,7 @@ _ACEOF
   LIBS="-lnetsnmp $LIBS"
 
 else
-  as_fn_error $? "Not found NET-SNMP library" "$LINENO" 5
+  as_fn_error $? "Not found Net-SNMP library" "$LINENO" 5
 fi
 
 
@@ -10114,192 +10108,12 @@ $as_echo "#define SNMP_NO_DEBUGGING /**/" >>confdefs.h
 
 	if test "x$want_netsnmp" = "xyes"; then
 		if test "x$found_netsnmp" != "xyes"; then
-			as_fn_error $? "Invalid NET-SNMP directory - unable to find net-snmp-config" "$LINENO" 5
+			as_fn_error $? "Invalid Net-SNMP directory - unable to find net-snmp-config" "$LINENO" 5
 		else
-			have_snmp="net-snmp"
+			have_snmp="yes"
 		fi
 	fi
 	CFLAGS="$CFLAGS $SNMP_CFLAGS"
-	SERVER_LDFLAGS="$SERVER_LDFLAGS $SNMP_LDFLAGS"
-	SERVER_LIBS="$SERVER_LIBS $SNMP_LIBS"
-
-	PROXY_LDFLAGS="$PROXY_LDFLAGS $SNMP_LDFLAGS"
-	PROXY_LIBS="$PROXY_LIBS $SNMP_LIBS"
-
-
-
-# Check whether --with-ucd-snmp was given.
-if test "${with_ucd_snmp+set}" = set; then :
-  withval=$with_ucd_snmp;  if test "$withval" = "no"; then
-            want_snmp="no"
-            _libsnmp_with="no"
-        elif test "$withval" = "yes"; then
-            want_snmp="yes"
-            _libsnmp_with="yes"
-        else
-            want_snmp="yes"
-            _libsnmp_with=$withval
-        fi
-
-else
-  _libsnmp_with=no
-fi
-
-
-  if test "x$_libsnmp_with" != x"no"; then
-       { $as_echo "$as_me:${as_lineno-$LINENO}: checking for UCD-SNMP support" >&5
-$as_echo_n "checking for UCD-SNMP support... " >&6; }
-
-  	if test "$_libsnmp_with" = "yes"; then
-		if test -f /usr/local/ucd-snmp/include/ucd-snmp-config.h; then
-			SNMP_INCDIR=/usr/local/ucd-snmp/include/
-			SNMP_LIBDIR=/usr/local/ucd-snmp/lib/
-		elif test -f /usr/include/ucd-snmp/ucd-snmp-config.h; then
-			SNMP_INCDIR=/usr/include
-			SNMP_LIBDIR=/usr/lib
-		elif test -f /usr/include/ucd-snmp-config.h; then
-			SNMP_INCDIR=/usr/include
-			SNMP_LIBDIR=/usr/lib
-		elif test -f /usr/local/include/ucd-snmp/ucd-snmp-config.h; then
-			SNMP_INCDIR=/usr/local/include
-			SNMP_LIBDIR=/usr/local/lib
-		elif test -f /usr/local/include/ucd-snmp-config.h; then
-			SNMP_INCDIR=/usr/local/include
-			SNMP_LIBDIR=/usr/local/lib
-		else
-			found_snmp="no"
-                        { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-		fi
-   	else
-		if test -f $withval/include/ucd-snmp/ucd-snmp-config.h; then
-   			SNMP_INCDIR=$withval/include
-   			SNMP_LIBDIR=$withval/lib
-		elif test -f $withval/include/ucd-snmp-config.h; then
-   			SNMP_INCDIR=$withval/include
-   			SNMP_LIBDIR=$withval/lib
-		else
-			found_snmp="no"
-                        { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-		fi
-   	fi
-
-	if test "x$found_snmp" != "xno" ; then
-		found_snmp="yes"
-                { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-
-                { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lcrypto" >&5
-$as_echo_n "checking for main in -lcrypto... " >&6; }
-if ${ac_cv_lib_crypto_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lcrypto  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_crypto_main=yes
-else
-  ac_cv_lib_crypto_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_crypto_main" >&5
-$as_echo "$ac_cv_lib_crypto_main" >&6; }
-if test "x$ac_cv_lib_crypto_main" = xyes; then :
-  SNMP_LIBS="$SNMP_LIBS -lcrypto"
-fi
-
-
-		SNMP_CPPFLAGS=-I$SNMP_INCDIR
-		SNMP_LDFLAGS="-L$SNMP_LIBDIR"
-		SNMP_LIBS="-lsnmp $SNMP_LIBS"
-
-		_save_udcsnmp_cflags="$CFLAGS"
-		_save_udcsnmp_ldflags="$LDFLAGS"
-		_save_udcsnmp_libs="$LIBS"
-		CFLAGS="$CFLAGS $SNMP_CPPFLAGS"
-		LDFLAGS="$LDFLAGS $SNMP_LDFLAGS"
-		LIBS="$LIBS $SNMP_LIBS"
-
-				{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for localname in struct snmp_session" >&5
-$as_echo_n "checking for localname in struct snmp_session... " >&6; }
-		cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-#include <ucd-snmp/ucd-snmp-config.h>
-#include <ucd-snmp/ucd-snmp-includes.h>
-
-int
-main ()
-{
-
-struct snmp_session session;
-session.localname = "";
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-
-$as_echo "#define HAVE_SNMP_SESSION_LOCALNAME 1" >>confdefs.h
-
-		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-$as_echo "yes" >&6; }
-else
-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
-$as_echo "no" >&6; }
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-		CFLAGS="$_save_udcsnmp_cflags"
-		LDFLAGS="$_save_udcsnmp_ldflags"
-		LIBS="$_save_udcsnmp_libs"
-		unset _save_udcsnmp_cflags
-		unset _save_udcsnmp_ldflags
-		unset _save_udcsnmp_libs
-
-
-$as_echo "#define HAVE_UCDSNMP 1" >>confdefs.h
-
-
-$as_echo "#define HAVE_SNMP 1" >>confdefs.h
-
-	fi
-  fi
-
-
-
-
-  unset _libsnmp_with
-
-	if test "x$want_snmp" = "xyes"; then
-		if test "x$found_snmp" != "xyes"; then
-			as_fn_error $? "Invalid UCD-SNMP directory - unable to find ucd-snmp-config.h" "$LINENO" 5
-		else
-			have_snmp="ucd-snmp"
-		fi
-
-		if test  "x$found_netsnmp" = "xyes"; then
-			as_fn_error $? "You can configure for only one SNMP library." "$LINENO" 5
-		fi
-	fi
-	CFLAGS="$CFLAGS $SNMP_CPPFLAGS"
 	SERVER_LDFLAGS="$SERVER_LDFLAGS $SNMP_LDFLAGS"
 	SERVER_LIBS="$SERVER_LIBS $SNMP_LIBS"
 
@@ -10553,7 +10367,7 @@ $as_echo "yes" >&6; }
 		if test "x$found_openipmi" != "xyes"; then
 			as_fn_error $? "Invalid OPENIPMI directory - unable to find ipmiif.h" "$LINENO" 5
 		else
-			have_ipmi="openipmi"
+			have_ipmi="yes"
 		fi
 	fi
 	CFLAGS="$CFLAGS $OPENIPMI_CFLAGS"

@@ -201,7 +201,7 @@
 /* Define to 1 if you have the <netinet/in.h> header file. */
 #undef HAVE_NETINET_IN_H
 
-/* Define to 1 if NET-SNMP should be enabled. */
+/* Define to 1 if Net-SNMP should be enabled. */
 #undef HAVE_NETSNMP
 
 /* Define to 1 if you have the <net/if.h> header file. */
@@ -465,9 +465,6 @@
 /* Define to 1 if 'tm.tm_gmtoff' exists. */
 #undef HAVE_TM_TM_GMTOFF
 
-/* Define to 1 if UCD-SNMP should be enabled. */
-#undef HAVE_UCDSNMP
-
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
@@ -597,7 +594,7 @@
 /* Define as the return type of signal handlers (`int' or `void'). */
 #undef RETSIGTYPE
 
-/* Disabling debugging messages from NET-SNMP library */
+/* Disabling debugging messages from Net-SNMP library */
 #undef SNMP_NO_DEBUGGING
 
 /* Define to 1 if you have the ANSI C header files. */
