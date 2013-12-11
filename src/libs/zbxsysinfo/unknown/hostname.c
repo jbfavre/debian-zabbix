@@ -17,17 +17,13 @@
 ** Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **/
 
-package com.zabbix.gateway;
+#include "sysinfo.h"
 
-class GeneralInformation
+ZBX_METRIC	parameter_hostname =
+/*	KEY			FLAG		FUNCTION		TEST PARAMETERS */
+	{"system.hostname",     0,              SYSTEM_HOSTNAME,        NULL};
+
+int	SYSTEM_HOSTNAME(AGENT_REQUEST *request, AGENT_RESULT *result)
 {
-	public static final String APPLICATION_NAME = "Zabbix Java Gateway";
-	public static final String REVISION_DATE = "09 December 2013";
-	public static final String REVISION = "40808";
-	public static final String VERSION = "2.2.1";
-
-	public static void printVersion()
-	{
-		System.out.printf("%s v%s (revision %s) (%s)\n", APPLICATION_NAME, VERSION, REVISION, REVISION_DATE);
-	}
+	return SYSINFO_RET_FAIL;
 }
