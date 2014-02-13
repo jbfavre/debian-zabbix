@@ -46,7 +46,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ax_lib_ibm_db2.m4 \
 	$(top_srcdir)/m4/libcurl.m4 $(top_srcdir)/m4/libssh2.m4 \
 	$(top_srcdir)/m4/libunixodbc.m4 $(top_srcdir)/m4/libxml2.m4 \
 	$(top_srcdir)/m4/netsnmp.m4 $(top_srcdir)/m4/openipmi.m4 \
-	$(top_srcdir)/m4/resolv.m4 $(top_srcdir)/configure.in
+	$(top_srcdir)/m4/resolv.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -58,9 +58,10 @@ AR = ar
 ARFLAGS = cru
 libzbxnodewatcher_a_AR = $(AR) $(ARFLAGS)
 libzbxnodewatcher_a_LIBADD =
+am__dirstamp = $(am__leading_dot)dirstamp
 am_libzbxnodewatcher_a_OBJECTS = nodewatcher.$(OBJEXT) \
 	nodesender.$(OBJEXT) nodecomms.$(OBJEXT) history.$(OBJEXT) \
-	nodesync.$(OBJEXT)
+	../trapper/nodesync.$(OBJEXT)
 libzbxnodewatcher_a_OBJECTS = $(am_libzbxnodewatcher_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -285,6 +286,14 @@ $(am__aclocal_m4_deps):
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+../trapper/$(am__dirstamp):
+	@$(MKDIR_P) ../trapper
+	@: > ../trapper/$(am__dirstamp)
+../trapper/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) ../trapper/$(DEPDIR)
+	@: > ../trapper/$(DEPDIR)/$(am__dirstamp)
+../trapper/nodesync.$(OBJEXT): ../trapper/$(am__dirstamp) \
+	../trapper/$(DEPDIR)/$(am__dirstamp)
 libzbxnodewatcher.a: $(libzbxnodewatcher_a_OBJECTS) $(libzbxnodewatcher_a_DEPENDENCIES) $(EXTRA_libzbxnodewatcher_a_DEPENDENCIES) 
 	-rm -f libzbxnodewatcher.a
 	$(libzbxnodewatcher_a_AR) libzbxnodewatcher.a $(libzbxnodewatcher_a_OBJECTS) $(libzbxnodewatcher_a_LIBADD)
@@ -292,43 +301,32 @@ libzbxnodewatcher.a: $(libzbxnodewatcher_a_OBJECTS) $(libzbxnodewatcher_a_DEPEND
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f ../trapper/nodesync.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@../trapper/$(DEPDIR)/nodesync.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/history.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nodecomms.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nodesender.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nodesync.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nodewatcher.Po@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c $<
+@am__fastdepCC_FALSE@	$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
-
-nodesync.o: ../trapper/nodesync.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT nodesync.o -MD -MP -MF $(DEPDIR)/nodesync.Tpo -c -o nodesync.o `test -f '../trapper/nodesync.c' || echo '$(srcdir)/'`../trapper/nodesync.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/nodesync.Tpo $(DEPDIR)/nodesync.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../trapper/nodesync.c' object='nodesync.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o nodesync.o `test -f '../trapper/nodesync.c' || echo '$(srcdir)/'`../trapper/nodesync.c
-
-nodesync.obj: ../trapper/nodesync.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT nodesync.obj -MD -MP -MF $(DEPDIR)/nodesync.Tpo -c -o nodesync.obj `if test -f '../trapper/nodesync.c'; then $(CYGPATH_W) '../trapper/nodesync.c'; else $(CYGPATH_W) '$(srcdir)/../trapper/nodesync.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/nodesync.Tpo $(DEPDIR)/nodesync.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='../trapper/nodesync.c' object='nodesync.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o nodesync.obj `if test -f '../trapper/nodesync.c'; then $(CYGPATH_W) '../trapper/nodesync.c'; else $(CYGPATH_W) '$(srcdir)/../trapper/nodesync.c'; fi`
+@am__fastdepCC_FALSE@	$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -442,6 +440,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f ../trapper/$(DEPDIR)/$(am__dirstamp)
+	-rm -f ../trapper/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -451,7 +451,7 @@ clean: clean-am
 clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ../trapper/$(DEPDIR) ./$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -497,7 +497,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ../trapper/$(DEPDIR) ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

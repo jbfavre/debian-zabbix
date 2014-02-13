@@ -46,7 +46,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ax_lib_ibm_db2.m4 \
 	$(top_srcdir)/m4/libcurl.m4 $(top_srcdir)/m4/libssh2.m4 \
 	$(top_srcdir)/m4/libunixodbc.m4 $(top_srcdir)/m4/libxml2.m4 \
 	$(top_srcdir)/m4/netsnmp.m4 $(top_srcdir)/m4/openipmi.m4 \
-	$(top_srcdir)/m4/resolv.m4 $(top_srcdir)/configure.in
+	$(top_srcdir)/m4/resolv.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -58,16 +58,17 @@ AR = ar
 ARFLAGS = cru
 libzbxagentsysinfo_a_AR = $(AR) $(ARFLAGS)
 libzbxagentsysinfo_a_LIBADD =
+am__dirstamp = $(am__leading_dot)dirstamp
 am_libzbxagentsysinfo_a_OBJECTS =  \
 	libzbxagentsysinfo_a-sysinfo.$(OBJEXT) \
-	libzbxagentsysinfo_a-@ARCH@.$(OBJEXT) \
-	libzbxagentsysinfo_a-hostname.$(OBJEXT)
+	@ARCH@/libzbxagentsysinfo_a-@ARCH@.$(OBJEXT) \
+	@ARCH@/libzbxagentsysinfo_a-hostname.$(OBJEXT)
 libzbxagentsysinfo_a_OBJECTS = $(am_libzbxagentsysinfo_a_OBJECTS)
 libzbxproxysysinfo_a_AR = $(AR) $(ARFLAGS)
 libzbxproxysysinfo_a_LIBADD =
 am_libzbxproxysysinfo_a_OBJECTS =  \
 	libzbxproxysysinfo_a-sysinfo.$(OBJEXT) \
-	libzbxproxysysinfo_a-hostname.$(OBJEXT)
+	@ARCH@/libzbxproxysysinfo_a-hostname.$(OBJEXT)
 libzbxproxysysinfo_a_OBJECTS = $(am_libzbxproxysysinfo_a_OBJECTS)
 libzbxserversysinfo_a_AR = $(AR) $(ARFLAGS)
 libzbxserversysinfo_a_LIBADD =
@@ -403,10 +404,22 @@ $(am__aclocal_m4_deps):
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+@ARCH@/$(am__dirstamp):
+	@$(MKDIR_P) @ARCH@
+	@: > @ARCH@/$(am__dirstamp)
+@ARCH@/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) @ARCH@/$(DEPDIR)
+	@: > @ARCH@/$(DEPDIR)/$(am__dirstamp)
+@ARCH@/libzbxagentsysinfo_a-@ARCH@.$(OBJEXT): @ARCH@/$(am__dirstamp) \
+	@ARCH@/$(DEPDIR)/$(am__dirstamp)
+@ARCH@/libzbxagentsysinfo_a-hostname.$(OBJEXT):  \
+	@ARCH@/$(am__dirstamp) @ARCH@/$(DEPDIR)/$(am__dirstamp)
 libzbxagentsysinfo.a: $(libzbxagentsysinfo_a_OBJECTS) $(libzbxagentsysinfo_a_DEPENDENCIES) $(EXTRA_libzbxagentsysinfo_a_DEPENDENCIES) 
 	-rm -f libzbxagentsysinfo.a
 	$(libzbxagentsysinfo_a_AR) libzbxagentsysinfo.a $(libzbxagentsysinfo_a_OBJECTS) $(libzbxagentsysinfo_a_LIBADD)
 	$(RANLIB) libzbxagentsysinfo.a
+@ARCH@/libzbxproxysysinfo_a-hostname.$(OBJEXT):  \
+	@ARCH@/$(am__dirstamp) @ARCH@/$(DEPDIR)/$(am__dirstamp)
 libzbxproxysysinfo.a: $(libzbxproxysysinfo_a_OBJECTS) $(libzbxproxysysinfo_a_DEPENDENCIES) $(EXTRA_libzbxproxysysinfo_a_DEPENDENCIES) 
 	-rm -f libzbxproxysysinfo.a
 	$(libzbxproxysysinfo_a_AR) libzbxproxysysinfo.a $(libzbxproxysysinfo_a_OBJECTS) $(libzbxproxysysinfo_a_LIBADD)
@@ -418,30 +431,35 @@ libzbxserversysinfo.a: $(libzbxserversysinfo_a_OBJECTS) $(libzbxserversysinfo_a_
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f @ARCH@/libzbxagentsysinfo_a-@ARCH@.$(OBJEXT)
+	-rm -f @ARCH@/libzbxagentsysinfo_a-hostname.$(OBJEXT)
+	-rm -f @ARCH@/libzbxproxysysinfo_a-hostname.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxagentsysinfo_a-hostname.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxagentsysinfo_a-sysinfo.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxproxysysinfo_a-hostname.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxproxysysinfo_a-sysinfo.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxserversysinfo_a-sysinfo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-hostname.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@@ARCH@/$(DEPDIR)/libzbxproxysysinfo_a-hostname.Po@am__quote@
 
 .c.o:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c $<
+@am__fastdepCC_FALSE@	$(COMPILE) -c -o $@ $<
 
 .c.obj:
-@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@am__fastdepCC_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCC_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(COMPILE) -c `$(CYGPATH_W) '$<'`
+@am__fastdepCC_FALSE@	$(COMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 libzbxagentsysinfo_a-sysinfo.o: sysinfo.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -MT libzbxagentsysinfo_a-sysinfo.o -MD -MP -MF $(DEPDIR)/libzbxagentsysinfo_a-sysinfo.Tpo -c -o libzbxagentsysinfo_a-sysinfo.o `test -f 'sysinfo.c' || echo '$(srcdir)/'`sysinfo.c
@@ -457,33 +475,33 @@ libzbxagentsysinfo_a-sysinfo.obj: sysinfo.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -c -o libzbxagentsysinfo_a-sysinfo.obj `if test -f 'sysinfo.c'; then $(CYGPATH_W) 'sysinfo.c'; else $(CYGPATH_W) '$(srcdir)/sysinfo.c'; fi`
 
-libzbxagentsysinfo_a-@ARCH@.o: @ARCH@/@ARCH@.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -MT libzbxagentsysinfo_a-@ARCH@.o -MD -MP -MF $(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Tpo -c -o libzbxagentsysinfo_a-@ARCH@.o `test -f '@ARCH@/@ARCH@.c' || echo '$(srcdir)/'`@ARCH@/@ARCH@.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Tpo $(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/@ARCH@.c' object='libzbxagentsysinfo_a-@ARCH@.o' libtool=no @AMDEPBACKSLASH@
+@ARCH@/libzbxagentsysinfo_a-@ARCH@.o: @ARCH@/@ARCH@.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -MT @ARCH@/libzbxagentsysinfo_a-@ARCH@.o -MD -MP -MF @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Tpo -c -o @ARCH@/libzbxagentsysinfo_a-@ARCH@.o `test -f '@ARCH@/@ARCH@.c' || echo '$(srcdir)/'`@ARCH@/@ARCH@.c
+@am__fastdepCC_TRUE@	$(am__mv) @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Tpo @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/@ARCH@.c' object='@ARCH@/libzbxagentsysinfo_a-@ARCH@.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -c -o libzbxagentsysinfo_a-@ARCH@.o `test -f '@ARCH@/@ARCH@.c' || echo '$(srcdir)/'`@ARCH@/@ARCH@.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -c -o @ARCH@/libzbxagentsysinfo_a-@ARCH@.o `test -f '@ARCH@/@ARCH@.c' || echo '$(srcdir)/'`@ARCH@/@ARCH@.c
 
-libzbxagentsysinfo_a-@ARCH@.obj: @ARCH@/@ARCH@.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -MT libzbxagentsysinfo_a-@ARCH@.obj -MD -MP -MF $(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Tpo -c -o libzbxagentsysinfo_a-@ARCH@.obj `if test -f '@ARCH@/@ARCH@.c'; then $(CYGPATH_W) '@ARCH@/@ARCH@.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/@ARCH@.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Tpo $(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/@ARCH@.c' object='libzbxagentsysinfo_a-@ARCH@.obj' libtool=no @AMDEPBACKSLASH@
+@ARCH@/libzbxagentsysinfo_a-@ARCH@.obj: @ARCH@/@ARCH@.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -MT @ARCH@/libzbxagentsysinfo_a-@ARCH@.obj -MD -MP -MF @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Tpo -c -o @ARCH@/libzbxagentsysinfo_a-@ARCH@.obj `if test -f '@ARCH@/@ARCH@.c'; then $(CYGPATH_W) '@ARCH@/@ARCH@.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/@ARCH@.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Tpo @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-@ARCH@.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/@ARCH@.c' object='@ARCH@/libzbxagentsysinfo_a-@ARCH@.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -c -o libzbxagentsysinfo_a-@ARCH@.obj `if test -f '@ARCH@/@ARCH@.c'; then $(CYGPATH_W) '@ARCH@/@ARCH@.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/@ARCH@.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -c -o @ARCH@/libzbxagentsysinfo_a-@ARCH@.obj `if test -f '@ARCH@/@ARCH@.c'; then $(CYGPATH_W) '@ARCH@/@ARCH@.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/@ARCH@.c'; fi`
 
-libzbxagentsysinfo_a-hostname.o: @ARCH@/hostname.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -MT libzbxagentsysinfo_a-hostname.o -MD -MP -MF $(DEPDIR)/libzbxagentsysinfo_a-hostname.Tpo -c -o libzbxagentsysinfo_a-hostname.o `test -f '@ARCH@/hostname.c' || echo '$(srcdir)/'`@ARCH@/hostname.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libzbxagentsysinfo_a-hostname.Tpo $(DEPDIR)/libzbxagentsysinfo_a-hostname.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/hostname.c' object='libzbxagentsysinfo_a-hostname.o' libtool=no @AMDEPBACKSLASH@
+@ARCH@/libzbxagentsysinfo_a-hostname.o: @ARCH@/hostname.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -MT @ARCH@/libzbxagentsysinfo_a-hostname.o -MD -MP -MF @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-hostname.Tpo -c -o @ARCH@/libzbxagentsysinfo_a-hostname.o `test -f '@ARCH@/hostname.c' || echo '$(srcdir)/'`@ARCH@/hostname.c
+@am__fastdepCC_TRUE@	$(am__mv) @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-hostname.Tpo @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-hostname.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/hostname.c' object='@ARCH@/libzbxagentsysinfo_a-hostname.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -c -o libzbxagentsysinfo_a-hostname.o `test -f '@ARCH@/hostname.c' || echo '$(srcdir)/'`@ARCH@/hostname.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -c -o @ARCH@/libzbxagentsysinfo_a-hostname.o `test -f '@ARCH@/hostname.c' || echo '$(srcdir)/'`@ARCH@/hostname.c
 
-libzbxagentsysinfo_a-hostname.obj: @ARCH@/hostname.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -MT libzbxagentsysinfo_a-hostname.obj -MD -MP -MF $(DEPDIR)/libzbxagentsysinfo_a-hostname.Tpo -c -o libzbxagentsysinfo_a-hostname.obj `if test -f '@ARCH@/hostname.c'; then $(CYGPATH_W) '@ARCH@/hostname.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/hostname.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libzbxagentsysinfo_a-hostname.Tpo $(DEPDIR)/libzbxagentsysinfo_a-hostname.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/hostname.c' object='libzbxagentsysinfo_a-hostname.obj' libtool=no @AMDEPBACKSLASH@
+@ARCH@/libzbxagentsysinfo_a-hostname.obj: @ARCH@/hostname.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -MT @ARCH@/libzbxagentsysinfo_a-hostname.obj -MD -MP -MF @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-hostname.Tpo -c -o @ARCH@/libzbxagentsysinfo_a-hostname.obj `if test -f '@ARCH@/hostname.c'; then $(CYGPATH_W) '@ARCH@/hostname.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/hostname.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-hostname.Tpo @ARCH@/$(DEPDIR)/libzbxagentsysinfo_a-hostname.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/hostname.c' object='@ARCH@/libzbxagentsysinfo_a-hostname.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -c -o libzbxagentsysinfo_a-hostname.obj `if test -f '@ARCH@/hostname.c'; then $(CYGPATH_W) '@ARCH@/hostname.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/hostname.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxagentsysinfo_a_CFLAGS) $(CFLAGS) -c -o @ARCH@/libzbxagentsysinfo_a-hostname.obj `if test -f '@ARCH@/hostname.c'; then $(CYGPATH_W) '@ARCH@/hostname.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/hostname.c'; fi`
 
 libzbxproxysysinfo_a-sysinfo.o: sysinfo.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxproxysysinfo_a_CFLAGS) $(CFLAGS) -MT libzbxproxysysinfo_a-sysinfo.o -MD -MP -MF $(DEPDIR)/libzbxproxysysinfo_a-sysinfo.Tpo -c -o libzbxproxysysinfo_a-sysinfo.o `test -f 'sysinfo.c' || echo '$(srcdir)/'`sysinfo.c
@@ -499,19 +517,19 @@ libzbxproxysysinfo_a-sysinfo.obj: sysinfo.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxproxysysinfo_a_CFLAGS) $(CFLAGS) -c -o libzbxproxysysinfo_a-sysinfo.obj `if test -f 'sysinfo.c'; then $(CYGPATH_W) 'sysinfo.c'; else $(CYGPATH_W) '$(srcdir)/sysinfo.c'; fi`
 
-libzbxproxysysinfo_a-hostname.o: @ARCH@/hostname.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxproxysysinfo_a_CFLAGS) $(CFLAGS) -MT libzbxproxysysinfo_a-hostname.o -MD -MP -MF $(DEPDIR)/libzbxproxysysinfo_a-hostname.Tpo -c -o libzbxproxysysinfo_a-hostname.o `test -f '@ARCH@/hostname.c' || echo '$(srcdir)/'`@ARCH@/hostname.c
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libzbxproxysysinfo_a-hostname.Tpo $(DEPDIR)/libzbxproxysysinfo_a-hostname.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/hostname.c' object='libzbxproxysysinfo_a-hostname.o' libtool=no @AMDEPBACKSLASH@
+@ARCH@/libzbxproxysysinfo_a-hostname.o: @ARCH@/hostname.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxproxysysinfo_a_CFLAGS) $(CFLAGS) -MT @ARCH@/libzbxproxysysinfo_a-hostname.o -MD -MP -MF @ARCH@/$(DEPDIR)/libzbxproxysysinfo_a-hostname.Tpo -c -o @ARCH@/libzbxproxysysinfo_a-hostname.o `test -f '@ARCH@/hostname.c' || echo '$(srcdir)/'`@ARCH@/hostname.c
+@am__fastdepCC_TRUE@	$(am__mv) @ARCH@/$(DEPDIR)/libzbxproxysysinfo_a-hostname.Tpo @ARCH@/$(DEPDIR)/libzbxproxysysinfo_a-hostname.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/hostname.c' object='@ARCH@/libzbxproxysysinfo_a-hostname.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxproxysysinfo_a_CFLAGS) $(CFLAGS) -c -o libzbxproxysysinfo_a-hostname.o `test -f '@ARCH@/hostname.c' || echo '$(srcdir)/'`@ARCH@/hostname.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxproxysysinfo_a_CFLAGS) $(CFLAGS) -c -o @ARCH@/libzbxproxysysinfo_a-hostname.o `test -f '@ARCH@/hostname.c' || echo '$(srcdir)/'`@ARCH@/hostname.c
 
-libzbxproxysysinfo_a-hostname.obj: @ARCH@/hostname.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxproxysysinfo_a_CFLAGS) $(CFLAGS) -MT libzbxproxysysinfo_a-hostname.obj -MD -MP -MF $(DEPDIR)/libzbxproxysysinfo_a-hostname.Tpo -c -o libzbxproxysysinfo_a-hostname.obj `if test -f '@ARCH@/hostname.c'; then $(CYGPATH_W) '@ARCH@/hostname.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/hostname.c'; fi`
-@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libzbxproxysysinfo_a-hostname.Tpo $(DEPDIR)/libzbxproxysysinfo_a-hostname.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/hostname.c' object='libzbxproxysysinfo_a-hostname.obj' libtool=no @AMDEPBACKSLASH@
+@ARCH@/libzbxproxysysinfo_a-hostname.obj: @ARCH@/hostname.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxproxysysinfo_a_CFLAGS) $(CFLAGS) -MT @ARCH@/libzbxproxysysinfo_a-hostname.obj -MD -MP -MF @ARCH@/$(DEPDIR)/libzbxproxysysinfo_a-hostname.Tpo -c -o @ARCH@/libzbxproxysysinfo_a-hostname.obj `if test -f '@ARCH@/hostname.c'; then $(CYGPATH_W) '@ARCH@/hostname.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/hostname.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) @ARCH@/$(DEPDIR)/libzbxproxysysinfo_a-hostname.Tpo @ARCH@/$(DEPDIR)/libzbxproxysysinfo_a-hostname.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='@ARCH@/hostname.c' object='@ARCH@/libzbxproxysysinfo_a-hostname.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxproxysysinfo_a_CFLAGS) $(CFLAGS) -c -o libzbxproxysysinfo_a-hostname.obj `if test -f '@ARCH@/hostname.c'; then $(CYGPATH_W) '@ARCH@/hostname.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/hostname.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxproxysysinfo_a_CFLAGS) $(CFLAGS) -c -o @ARCH@/libzbxproxysysinfo_a-hostname.obj `if test -f '@ARCH@/hostname.c'; then $(CYGPATH_W) '@ARCH@/hostname.c'; else $(CYGPATH_W) '$(srcdir)/@ARCH@/hostname.c'; fi`
 
 libzbxserversysinfo_a-sysinfo.o: sysinfo.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxserversysinfo_a_CFLAGS) $(CFLAGS) -MT libzbxserversysinfo_a-sysinfo.o -MD -MP -MF $(DEPDIR)/libzbxserversysinfo_a-sysinfo.Tpo -c -o libzbxserversysinfo_a-sysinfo.o `test -f 'sysinfo.c' || echo '$(srcdir)/'`sysinfo.c
@@ -751,6 +769,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f @ARCH@/$(DEPDIR)/$(am__dirstamp)
+	-rm -f @ARCH@/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -760,7 +780,7 @@ clean: clean-recursive
 clean-am: clean-generic clean-noinstLIBRARIES mostlyclean-am
 
 distclean: distclean-recursive
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) @ARCH@/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -806,7 +826,7 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
-	-rm -rf ./$(DEPDIR)
+	-rm -rf ./$(DEPDIR) @ARCH@/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
