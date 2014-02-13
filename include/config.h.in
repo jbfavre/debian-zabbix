@@ -1,4 +1,4 @@
-/* include/config.h.in.  Generated from configure.in by autoheader.  */
+/* include/config.h.in.  Generated from configure.ac by autoheader.  */
 
 /* Define to OS name for code managing */
 #undef ARCH
@@ -47,9 +47,6 @@
 
 /* Define to 1 if function 'initgroups' exists. */
 #undef HAVE_FUNCTION_INITGROUPS
-
-/* Define to 1 if 'PQserverVersion' exist. */
-#undef HAVE_FUNCTION_PQSERVERVERSION
 
 /* Define to 1 if functions 'seteuid' and 'setegid' exist. */
 #undef HAVE_FUNCTION_SETEUID
