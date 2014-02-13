@@ -45,9 +45,6 @@
 /* Define to 1 if function 'initgroups' exists. */
 #undef HAVE_FUNCTION_INITGROUPS
 
-/* Define to 1 if 'PQserverVersion' exist. */
-#undef HAVE_FUNCTION_PQSERVERVERSION
-
 /* Define to 1 if functions 'seteuid' and 'setegid' exist. */
 #undef HAVE_FUNCTION_SETEUID
 
