@@ -1,3 +1,10 @@
+zabbix (1:2.2.2-1~bbc72+1) stable; urgency=medium
+
+  * Imported Upstream version 2.2.2
+  * Remove fix_zabbix_mysql_gone_away patch
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Thu, 13 Feb 2014 14:06:21 +0100
+
 zabbix (1:2.2.1-1~bbc72+1) stable; urgency=low
 
   * Imported Upstream version 2.2.1
