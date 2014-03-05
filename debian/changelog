@@ -1,3 +1,9 @@
+zabbix (1:2.2.2-2~bbc74+1) stable; urgency=medium
+
+  * Add patch. Enables mysql auto_reconnect feature. Remove annoying 'Mysql has gone away' issue
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Wed, 05 Mar 2014 14:08:20 +0100
+
 zabbix (1:2.2.2-1~bbc72+1) stable; urgency=medium
 
   * Imported Upstream version 2.2.2
