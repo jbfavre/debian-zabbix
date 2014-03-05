@@ -1,0 +1,19 @@
+Description: Fix Zabbix errors [Z3005] query failed: [2006] MySQL server has
+gone away, using auto_reconnect feature from libmysqlclient
+Author: Etienne CHAMPETIER
+Origin: other, https://support.zabbix.com/browse/ZBX-6163
+Reviewed-by: Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>
+Last-Update: 2013-11-21
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/src/libs/zbxdb/db.c	2014-03-03 16:51:44.833655202 +0100
++++ b/src/libs/zbxdb/db.c	2014-03-05 13:58:46.246967291 +0100
+@@ -262,6 +262,8 @@
+ 	}
+ #elif defined(HAVE_MYSQL)
+ 	conn = mysql_init(NULL);
++	my_bool reconnect = 1;
++	mysql_options(conn, MYSQL_OPT_RECONNECT, &reconnect);
+ 
+ 	if (!mysql_real_connect(conn, host, user, password, dbname, port, dbsocket, CLIENT_MULTI_STATEMENTS))
+ 	{
