@@ -1,3 +1,10 @@
+zabbix (1:2.2.3-1~bbc74+1) stable; urgency=medium
+
+  * Imported Upstream version 2.2.3
+  * Patches refresh for 2.2.3
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Tue, 08 Apr 2014 11:55:19 +0200
+
 zabbix (1:2.2.2-2~bbc74+1) stable; urgency=medium
 
   * Add patch. Enables mysql auto_reconnect feature. Remove annoying 'Mysql has gone away' issue
