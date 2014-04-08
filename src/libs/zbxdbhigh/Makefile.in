@@ -60,7 +60,7 @@ libzbxdbhigh_a_AR = $(AR) $(ARFLAGS)
 libzbxdbhigh_a_LIBADD =
 am__libzbxdbhigh_a_SOURCES_DIST = host.c odbc.c db.c dbschema.c \
 	proxy.c discovery.c lld.c lld.h lld_common.c lld_item.c \
-	lld_graph.c lld_trigger.c lld_host.c
+	lld_graph.c lld_trigger.c lld_host.c itservices.c
 @WITH_ODBC_TRUE@am__objects_1 = libzbxdbhigh_a-odbc.$(OBJEXT)
 am_libzbxdbhigh_a_OBJECTS = libzbxdbhigh_a-host.$(OBJEXT) \
 	$(am__objects_1) libzbxdbhigh_a-db.$(OBJEXT) \
@@ -72,7 +72,8 @@ am_libzbxdbhigh_a_OBJECTS = libzbxdbhigh_a-host.$(OBJEXT) \
 	libzbxdbhigh_a-lld_item.$(OBJEXT) \
 	libzbxdbhigh_a-lld_graph.$(OBJEXT) \
 	libzbxdbhigh_a-lld_trigger.$(OBJEXT) \
-	libzbxdbhigh_a-lld_host.$(OBJEXT)
+	libzbxdbhigh_a-lld_host.$(OBJEXT) \
+	libzbxdbhigh_a-itservices.$(OBJEXT)
 libzbxdbhigh_a_OBJECTS = $(am_libzbxdbhigh_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/include
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -267,7 +268,8 @@ libzbxdbhigh_a_SOURCES = \
 	lld_item.c \
 	lld_graph.c \
 	lld_trigger.c \
-	lld_host.c
+	lld_host.c \
+	itservices.c
 
 libzbxdbhigh_a_CFLAGS = -I@top_srcdir@/src/zabbix_server/
 all: all-am
@@ -322,6 +324,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbhigh_a-dbschema.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbhigh_a-discovery.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbhigh_a-host.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbhigh_a-itservices.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbhigh_a-lld.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbhigh_a-lld_common.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbhigh_a-lld_graph.Po@am__quote@
@@ -514,6 +517,20 @@ libzbxdbhigh_a-lld_host.obj: lld_host.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='lld_host.c' object='libzbxdbhigh_a-lld_host.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxdbhigh_a_CFLAGS) $(CFLAGS) -c -o libzbxdbhigh_a-lld_host.obj `if test -f 'lld_host.c'; then $(CYGPATH_W) 'lld_host.c'; else $(CYGPATH_W) '$(srcdir)/lld_host.c'; fi`
+
+libzbxdbhigh_a-itservices.o: itservices.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxdbhigh_a_CFLAGS) $(CFLAGS) -MT libzbxdbhigh_a-itservices.o -MD -MP -MF $(DEPDIR)/libzbxdbhigh_a-itservices.Tpo -c -o libzbxdbhigh_a-itservices.o `test -f 'itservices.c' || echo '$(srcdir)/'`itservices.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libzbxdbhigh_a-itservices.Tpo $(DEPDIR)/libzbxdbhigh_a-itservices.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='itservices.c' object='libzbxdbhigh_a-itservices.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxdbhigh_a_CFLAGS) $(CFLAGS) -c -o libzbxdbhigh_a-itservices.o `test -f 'itservices.c' || echo '$(srcdir)/'`itservices.c
+
+libzbxdbhigh_a-itservices.obj: itservices.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxdbhigh_a_CFLAGS) $(CFLAGS) -MT libzbxdbhigh_a-itservices.obj -MD -MP -MF $(DEPDIR)/libzbxdbhigh_a-itservices.Tpo -c -o libzbxdbhigh_a-itservices.obj `if test -f 'itservices.c'; then $(CYGPATH_W) 'itservices.c'; else $(CYGPATH_W) '$(srcdir)/itservices.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/libzbxdbhigh_a-itservices.Tpo $(DEPDIR)/libzbxdbhigh_a-itservices.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='itservices.c' object='libzbxdbhigh_a-itservices.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxdbhigh_a_CFLAGS) $(CFLAGS) -c -o libzbxdbhigh_a-itservices.obj `if test -f 'itservices.c'; then $(CYGPATH_W) 'itservices.c'; else $(CYGPATH_W) '$(srcdir)/itservices.c'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
