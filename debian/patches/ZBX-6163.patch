@@ -6,9 +6,9 @@ Reviewed-by: Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>
 Last-Update: 2013-11-21
 ---
 This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
---- a/src/libs/zbxdb/db.c	2014-03-03 16:51:44.833655202 +0100
-+++ b/src/libs/zbxdb/db.c	2014-03-05 13:58:46.246967291 +0100
-@@ -262,6 +262,8 @@
+--- a/src/libs/zbxdb/db.c
++++ b/src/libs/zbxdb/db.c
+@@ -262,6 +262,8 @@ int	zbx_db_connect(char *host, char *use
  	}
  #elif defined(HAVE_MYSQL)
  	conn = mysql_init(NULL);
