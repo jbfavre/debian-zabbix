@@ -1,0 +1,603 @@
+--- a/frontends/php/api/classes/managers/CHttpTestManager.php
++++ b/frontends/php/api/classes/managers/CHttpTestManager.php
+@@ -279,7 +279,7 @@ class CHttpTestManager {
+ 		$httpTests = array();
+ 		$dbCursor = DBselect(
+ 			'SELECT ht.httptestid,ht.name,ht.applicationid,ht.delay,ht.status,ht.variables,ht.agent,'.
+-				'ht.authentication,ht.http_user,ht.http_password,ht.hostid,ht.templateid'.
++				'ht.authentication,ht.http_user,ht.http_password,ht.hostid,ht.templateid,ht.certfile,ht.keyfile,ht.keypass,ht.capath,ht.verifypeer,ht.verifyhost'.
+ 			' FROM httptest ht'.
+ 			' WHERE ht.hostid='.zbx_dbstr($templateId)
+ 		);
+@@ -288,7 +288,7 @@ class CHttpTestManager {
+ 		}
+ 
+ 		$dbCursor = DBselect(
+-			'SELECT hs.httpstepid,hs.httptestid,hs.name,hs.no,hs.url,hs.timeout,hs.posts,hs.variables,hs.required,hs.status_codes'.
++			'SELECT hs.httpstepid,hs.httptestid,hs.name,hs.no,hs.url,hs.timeout,hs.headers,hs.posts,hs.variables,hs.required,hs.status_codes'.
+ 			' FROM httpstep hs'.
+ 			' WHERE '.dbConditionInt('hs.httptestid', array_keys($httpTests))
+ 		);
+--- a/frontends/php/httpconf.php
++++ b/frontends/php/httpconf.php
+@@ -54,7 +54,13 @@ $fields = array(
+ 	'http_password'		=> array(T_ZBX_STR, O_OPT, null,	NOT_EMPTY,			'isset({save})&&isset({authentication})&&({authentication}=='.HTTPTEST_AUTH_BASIC.
+ 		'||{authentication}=='.HTTPTEST_AUTH_NTLM.')', _('Password')),
+ 	'http_proxy'		=> array(T_ZBX_STR, O_OPT, null,	null,				'isset({save})'),
+-	'new_application'	=> array(T_ZBX_STR, O_OPT, null,	null,				null),
++	'certfile'              => array(T_ZBX_STR, O_OPT, null,        null,                   'isset({save})'),
++	'keyfile'               => array(T_ZBX_STR, O_OPT, null,        null,                   'isset({save})'),
++	'keypass'               => array(T_ZBX_STR, O_OPT, null,        null,                   'isset({save})'),
++	'capath'                => array(T_ZBX_STR, O_OPT, null,        null,                   'isset({save})'),
++	'verifypeer'            => array(T_ZBX_STR, O_OPT, null,        null,                   null),
++	'verifyhost'            => array(T_ZBX_STR, O_OPT, null,        null,                   null),
++	'new_application'	=> array(T_ZBX_STR, O_OPT, null,	null,			null),
+ 	'hostname'			=> array(T_ZBX_STR, O_OPT, null,	null,				null),
+ 	'templated'			=> array(T_ZBX_STR, O_OPT, null,	null,				null),
+ 	// actions
+@@ -169,6 +175,12 @@ elseif (isset($_REQUEST['save'])) {
+ 			'agent' => $_REQUEST['agent'],
+ 			'variables' => $_REQUEST['variables'],
+ 			'http_proxy' => $_REQUEST['http_proxy'],
++			'certfile' => $_REQUEST['certfile'],
++			'keyfile' => $_REQUEST['keyfile'],
++			'keypass' => $_REQUEST['keypass'],
++			'capath' => $_REQUEST['capath'],
++			'verifypeer' => isset($_REQUEST['verifypeer']) ? 1 : 0,
++			'verifyhost' => isset($_REQUEST['verifyhost']) ? 1 : 0,
+ 			'steps' => $steps
+ 		);
+ 
+@@ -388,6 +400,12 @@ if (isset($_REQUEST['form'])) {
+ 		$data['http_user'] = $dbHttpTest['http_user'];
+ 		$data['http_password'] = $dbHttpTest['http_password'];
+ 		$data['http_proxy'] = $dbHttpTest['http_proxy'];
++		$data['certfile'] = $dbHttpTest['certfile'];
++		$data['keyfile'] = $dbHttpTest['keyfile'];
++		$data['keypass'] = $dbHttpTest['keypass'];
++		$data['capath'] = $dbHttpTest['capath'];
++		$data['verifypeer'] = $dbHttpTest['verifypeer'];
++		$data['verifyhost'] = $dbHttpTest['verifyhost'];
+ 		$data['templated'] = (bool) $dbHttpTest['templateid'];
+ 		$data['steps'] = DBfetchArray(DBselect('SELECT h.* FROM httpstep h WHERE h.httptestid='.zbx_dbstr($_REQUEST['httptestid']).' ORDER BY h.no'));
+ 	}
+@@ -410,6 +428,12 @@ if (isset($_REQUEST['form'])) {
+ 		$data['http_user'] = get_request('http_user', '');
+ 		$data['http_password'] = get_request('http_password', '');
+ 		$data['http_proxy'] = get_request('http_proxy', '');
++		$data['certfile'] = get_request('certfile', '');
++		$data['keyfile'] = get_request('keyfile', '');
++		$data['keypass'] = get_request('keypass', '');
++		$data['capath'] = get_request('capath', '');
++		$data['verifypeer'] = get_request('verifypeer', 0);
++		$data['verifyhost'] = get_request('verifyhost', 0);
+ 		$data['templated'] = get_request('templated');
+ 		$data['steps'] = get_request('steps', array());
+ 	}
+--- a/frontends/php/include/schema.inc.php
++++ b/frontends/php/include/schema.inc.php
+@@ -811,6 +811,42 @@ return array(
+ 				'length' => 10,
+ 				'default' => '1',
+ 			),
++			'certfile' => array(
++				'null' => false,
++				'type' => DB::FIELD_TYPE_CHAR,
++				'length' => 255,
++				'default' => '',
++			),
++			'keyfile' => array(
++				'null' => false,
++				'type' => DB::FIELD_TYPE_CHAR,
++				'length' => 255,
++				'default' => '',
++			),
++			'keypass' => array(
++				'null' => false,
++				'type' => DB::FIELD_TYPE_CHAR,
++				'length' => 64,
++				'default' => '',
++			),
++			'capath' => array(
++				'null' => false,
++				'type' => DB::FIELD_TYPE_CHAR,
++				'length' => 255,
++				'default' => '',
++			),
++			'verifypeer' => array(
++				'null' => false,
++				'type' => DB::FIELD_TYPE_INT,
++				'length' => 10,
++				'default' => '0',
++			),
++			'verifyhost' => array(
++				'null' => false,
++				'type' => DB::FIELD_TYPE_INT,
++				'length' => 10,
++				'default' => '0',
++			),
+ 		),
+ 	),
+ 	'httpstep' => array(
+@@ -874,6 +910,11 @@ return array(
+ 				'null' => false,
+ 				'type' => DB::FIELD_TYPE_TEXT,
+ 				'default' => '',
++			),
++			'headers' => array(
++				'null' => false,
++				'type' => DB::FIELD_TYPE_TEXT,
++				'default' => '',
+ 			),
+ 		),
+ 	),
+--- a/frontends/php/include/views/configuration.httpconf.edit.php
++++ b/frontends/php/include/views/configuration.httpconf.edit.php
+@@ -143,6 +143,13 @@ $httpProxyTextBox = new CTextBox('http_p
+ $httpProxyTextBox->setAttribute('placeholder', 'http://[username[:password]@]proxy.example.com[:port]');
+ $httpFormList->addRow(_('HTTP proxy'), $httpProxyTextBox);
+ 
++$httpFormList->addRow(_('Cert File'), new CTextBox('certfile', $this->data['certfile'], ZBX_TEXTBOX_STANDARD_SIZE, 'no', 255));
++$httpFormList->addRow(_('Key File'), new CTextBox('keyfile', $this->data['keyfile'], ZBX_TEXTBOX_STANDARD_SIZE, 'no', 255));
++$httpFormList->addRow(_('Key Pass'), new CTextBox('keypass', $this->data['keypass'], ZBX_TEXTBOX_STANDARD_SIZE, 'no', 255));
++$httpFormList->addRow(_('CA directory'), new CTextBox('capath', $this->data['capath'], ZBX_TEXTBOX_STANDARD_SIZE, 'no', 255));
++$httpFormList->addRow(_('Verify Peer'), new CCheckBox('verifypeer', $this->data['verifypeer']));
++$httpFormList->addRow(_('Verify Host'), new CCheckBox('verifyhost', $this->data['verifyhost']));
++
+ // append status to form list
+ $httpFormList->addRow(_('Variables'), new CTextArea('variables', $this->data['variables']));
+ $httpFormList->addRow(_('Enabled'), new CCheckBox('status', !$this->data['status']));
+@@ -178,6 +185,9 @@ foreach ($this->data['steps'] as $stepid
+ 	if (!isset($step['url'])) {
+ 		$step['url'] = '';
+ 	}
++	if (!isset($step['headers'])) {
++		$step['headers'] = '';
++	}
+ 	if (!isset($step['posts'])) {
+ 		$step['posts'] = '';
+ 	}
+--- a/frontends/php/include/views/configuration.httpconf.popup.php
++++ b/frontends/php/include/views/configuration.httpconf.popup.php
+@@ -43,6 +43,7 @@ if (isset($_REQUEST['save']) && $result)
+ 					zbx_jsvalue($_REQUEST['name']).','.
+ 					zbx_jsvalue($_REQUEST['timeout']).','.
+ 					zbx_jsvalue($_REQUEST['url']).','.
++					zbx_jsvalue($_REQUEST['headers']).','.
+ 					zbx_jsvalue($_REQUEST['posts']).','.
+ 					zbx_jsvalue($_REQUEST['variables']).','.
+ 					zbx_jsvalue($_REQUEST['required']).','.
+@@ -57,6 +58,7 @@ if (isset($_REQUEST['save']) && $result)
+ 					zbx_jsvalue($_REQUEST['name']).','.
+ 					zbx_jsvalue($_REQUEST['timeout']).','.
+ 					zbx_jsvalue($_REQUEST['url']).','.
++					zbx_jsvalue($_REQUEST['headers']).','.
+ 					zbx_jsvalue($_REQUEST['posts']).','.
+ 					zbx_jsvalue($_REQUEST['variables']).','.
+ 					zbx_jsvalue($_REQUEST['required']).','.
+@@ -76,6 +78,7 @@ else {
+ 	$httpPopupFormList = new CFormList('httpPopupFormList');
+ 	$httpPopupFormList->addRow(_('Name'), new CTextBox('name', get_request('name', ''), ZBX_TEXTBOX_STANDARD_SIZE, get_request('templated', null), 64));
+ 	$httpPopupFormList->addRow(_('URL'), new CTextBox('url', get_request('url', ''), ZBX_TEXTBOX_STANDARD_SIZE));
++	$httpPopupFormList->addRow(_('Headers'), new CTextArea('headers', get_request('headers', '')));
+ 	$httpPopupFormList->addRow(_('Post'), new CTextArea('posts', get_request('posts', '')));
+ 	$httpPopupFormList->addRow(_('Variables'), new CTextArea('variables', get_request('variables', '')));
+ 	$httpPopupFormList->addRow(_('Timeout'), new CNumericBox('timeout', get_request('timeout', 15), 5));
+--- a/frontends/php/include/views/js/configuration.httpconf.edit.js.php
++++ b/frontends/php/include/views/js/configuration.httpconf.edit.js.php
+@@ -9,6 +9,7 @@
+ 		jQuery('#steps_' + step + '_name').remove();
+ 		jQuery('#steps_' + step + '_no').remove();
+ 		jQuery('#steps_' + step + '_url').remove();
++		jQuery('#steps_' + step + '_headers').remove();
+ 		jQuery('#steps_' + step + '_timeout').remove();
+ 		jQuery('#steps_' + step + '_posts').remove();
+ 		jQuery('#steps_' + step + '_variables').remove();
+@@ -37,6 +38,7 @@
+ 			jQuery('#steps_' + step + '_name').attr('id', 'tmp_steps_' + step + '_name');
+ 			jQuery('#steps_' + step + '_no').attr('id', 'tmp_steps_' + step + '_no');
+ 			jQuery('#steps_' + step + '_url').attr('id', 'tmp_steps_' + step + '_url');
++			jQuery('#steps_' + step + '_headers').attr('id', 'tmp_steps_' + step + '_headers');
+ 			jQuery('#steps_' + step + '_timeout').attr('id', 'tmp_steps_' + step + '_timeout');
+ 			jQuery('#steps_' + step + '_posts').attr('id', 'tmp_steps_' + step + '_posts');
+ 			jQuery('#steps_' + step + '_variables').attr('id', 'tmp_steps_' + step + '_variables');
+@@ -64,6 +66,7 @@
+ 			jQuery('#tmp_steps_' + n + '_name').attr('id', 'steps_' + newStep + '_name');
+ 			jQuery('#tmp_steps_' + n + '_no').attr('id', 'steps_' + newStep + '_no');
+ 			jQuery('#tmp_steps_' + n + '_url').attr('id', 'steps_' + newStep + '_url');
++			jQuery('#tmp_steps_' + n + '_headers').attr('id', 'steps_' + newStep + '_headers');
+ 			jQuery('#tmp_steps_' + n + '_timeout').attr('id', 'steps_' + newStep + '_timeout');
+ 			jQuery('#tmp_steps_' + n + '_posts').attr('id', 'steps_' + newStep + '_posts');
+ 			jQuery('#tmp_steps_' + n + '_variables').attr('id', 'steps_' + newStep + '_variables');
+@@ -79,6 +82,7 @@
+ 				.attr('name', 'steps[' + newStep + '][no]')
+ 				.val(parseInt(newStep) + 1);
+ 			jQuery('#steps_' + newStep + '_url').attr('name', 'steps[' + newStep + '][url]');
++			jQuery('#steps_' + newStep + '_headers').attr('name', 'steps[' + newStep + '][headers]');
+ 			jQuery('#steps_' + newStep + '_timeout').attr('name', 'steps[' + newStep + '][timeout]');
+ 			jQuery('#steps_' + newStep + '_posts').attr('name', 'steps[' + newStep + '][posts]');
+ 			jQuery('#steps_' + newStep + '_variables').attr('name', 'steps[' + newStep + '][variables]');
+@@ -171,6 +175,7 @@
+ 					+ '&list_name=steps&stepid=' + jQuery(this).attr('name_step')
+ 					+ '<?php echo url_param($step['name'], false, 'name'); ?>'
+ 					+ '<?php echo url_param($step['url'], false, 'url'); ?>'
++					+ '<?php echo url_param($step['headers'], false, 'headers'); ?>'
+ 					+ '<?php echo url_param($step['posts'], false, 'posts'); ?>'
+ 					+ '<?php echo url_param($step['variables'], false, 'variables'); ?>'
+ 					+ '<?php echo url_param($step['timeout'], false, 'timeout'); ?>'
+--- a/frontends/php/include/views/js/configuration.httpconf.popup.js.php
++++ b/frontends/php/include/views/js/configuration.httpconf.popup.js.php
+@@ -7,7 +7,7 @@
+ 		obj.appendChild(new_variable);
+ 	}
+ 
+-	function add_httpstep(formname, name, timeout, url, posts, variables, required, status_codes) {
++	function add_httpstep(formname, name, timeout, url, headers, posts, variables, required, status_codes) {
+ 		var form = window.opener.document.forms[formname];
+ 		if (!form) {
+ 			close_window();
+@@ -17,6 +17,7 @@
+ 		add_var_to_opener_obj(form, 'new_httpstep[name]', name);
+ 		add_var_to_opener_obj(form, 'new_httpstep[timeout]', timeout);
+ 		add_var_to_opener_obj(form, 'new_httpstep[url]', url);
++		add_var_to_opener_obj(form, 'new_httpstep[headers]', headers);
+ 		add_var_to_opener_obj(form, 'new_httpstep[posts]', posts);
+ 		add_var_to_opener_obj(form, 'new_httpstep[variables]', variables);
+ 		add_var_to_opener_obj(form, 'new_httpstep[required]', required);
+@@ -27,7 +28,7 @@
+ 		return true;
+ 	}
+ 
+-	function update_httpstep(formname, list_name, stepid, name, timeout, url, posts, variables, required, status_codes) {
++	function update_httpstep(formname, list_name, stepid, name, timeout, url, headers, posts, variables, required, status_codes) {
+ 		var form = window.opener.document.forms[formname];
+ 		if (!form) {
+ 			close_window();
+@@ -37,6 +38,7 @@
+ 		add_var_to_opener_obj(form, list_name + '[' + stepid + '][name]', name);
+ 		add_var_to_opener_obj(form, list_name + '[' + stepid + '][timeout]', timeout);
+ 		add_var_to_opener_obj(form, list_name + '[' + stepid + '][url]', url);
++		add_var_to_opener_obj(form, list_name + '[' + stepid + '][headers]', headers);
+ 		add_var_to_opener_obj(form, list_name + '[' + stepid + '][posts]', posts);
+ 		add_var_to_opener_obj(form, list_name + '[' + stepid + '][variables]', variables);
+ 		add_var_to_opener_obj(form, list_name + '[' + stepid + '][required]', required);
+--- a/frontends/php/popup_httpstep.php
++++ b/frontends/php/popup_httpstep.php
+@@ -35,6 +35,7 @@ $fields = array(
+ 	'list_name' =>		array(T_ZBX_STR, O_OPT, P_SYS,	NOT_EMPTY,			'isset({save})&&isset({stepid})'),
+ 	'name' =>			array(T_ZBX_STR, O_OPT, null,	NOT_EMPTY.KEY_PARAM(), 'isset({save})', _('Name')),
+ 	'url' =>			array(T_ZBX_STR, O_OPT, null,	NOT_EMPTY,			'isset({save})', _('URL')),
++	'headers' =>			array(T_ZBX_STR, O_OPT, null,	null,				'isset({save})'),
+ 	'posts' =>			array(T_ZBX_STR, O_OPT, null,	null,				'isset({save})'),
+ 	'variables' =>		array(T_ZBX_STR, O_OPT, null,	null,				'isset({save})'),
+ 	'timeout' =>		array(T_ZBX_INT, O_OPT, null,	BETWEEN(0,65535),	'isset({save})', _('Timeout')),
+--- a/include/db.h
++++ b/include/db.h
+@@ -384,6 +384,12 @@ typedef struct
+ 	char		*http_proxy;
+ 	int		authentication;
+ 	int		retries;
++	char		*certfile;
++	char		*keyfile;
++	char		*keypass;
++	char		*capath;
++	int		verifypeer;
++	int		verifyhost;
+ }
+ DB_HTTPTEST;
+ 
+@@ -399,6 +405,7 @@ typedef struct
+ 	int		no;
+ 	int		timeout;
+ 	char		*variables;
++	char		*headers;
+ }
+ DB_HTTPSTEP;
+ 
+--- a/src/libs/zbxdbupgrade/dbupgrade.c
++++ b/src/libs/zbxdbupgrade/dbupgrade.c
+@@ -2391,6 +2391,54 @@ static int	DBpatch_2010199(void)
+ #endif
+ }
+ 
++static int      DBpatch_2010200(void)
++{
++	const ZBX_FIELD field = {"headers", "", NULL, NULL, 0, ZBX_TYPE_SHORTTEXT, ZBX_NOTNULL, 0};
++
++	return DBadd_field("httpstep", &field);
++}
++
++static int      DBpatch_2010201(void)
++{
++	const ZBX_FIELD field = {"certfile", "", NULL, NULL, 255, ZBX_TYPE_CHAR, ZBX_NOTNULL, 0};
++	return DBadd_field("httptest", &field);
++}
++
++static int      DBpatch_2010202(void)
++{
++	const ZBX_FIELD field = {"keyfile",  "", NULL, NULL, 255, ZBX_TYPE_CHAR, ZBX_NOTNULL, 0};
++
++	return DBadd_field("httptest", &field);
++}
++
++static int      DBpatch_2010203(void)
++{
++	const ZBX_FIELD field = {"keypass",  "", NULL, NULL, 64, ZBX_TYPE_CHAR, ZBX_NOTNULL, 0};
++
++	return DBadd_field("httptest", &field);
++}
++
++static int      DBpatch_2010204(void)
++{
++	const ZBX_FIELD field = {"capath",  "", NULL, NULL, 255, ZBX_TYPE_CHAR, ZBX_NOTNULL, 0};
++
++	return DBadd_field("httptest", &field);
++}
++
++static int      DBpatch_2010205(void)
++{
++	const ZBX_FIELD field = {"verifypeer", "0", NULL, NULL, 0, ZBX_TYPE_INT, ZBX_NOTNULL, 0};
++
++	return DBadd_field("httptest", &field);
++}
++
++static int      DBpatch_2010206(void)
++{
++	const ZBX_FIELD field = {"verifyhost", "0", NULL, NULL, 0, ZBX_TYPE_INT, ZBX_NOTNULL, 0};
++
++	return DBadd_field("httptest", &field);
++}
++
+ static int	DBpatch_2020000(void)
+ {
+ 	return SUCCEED;
+@@ -2651,6 +2699,13 @@ int	DBcheck_version(void)
+ 	DBPATCH_ADD(2010197, 0, 1)
+ 	DBPATCH_ADD(2010198, 0, 1)
+ 	DBPATCH_ADD(2010199, 0, 1)
++	DBPATCH_ADD(2010200, 0, 0)
++	DBPATCH_ADD(2010201, 0, 0)
++	DBPATCH_ADD(2010202, 0, 0)
++	DBPATCH_ADD(2010203, 0, 0)
++	DBPATCH_ADD(2010204, 0, 0)
++	DBPATCH_ADD(2010205, 0, 0)
++	DBPATCH_ADD(2010206, 0, 0)
+ 	DBPATCH_ADD(2020000, 0, 1)
+ 	DBPATCH_ADD(2020001, 0, 0)
+ 
+--- a/src/zabbix_server/httppoller/httptest.c
++++ b/src/zabbix_server/httppoller/httptest.c
+@@ -304,6 +304,8 @@ static void	process_httptest(DC_HOST *ho
+ 	int		err;
+ 	char		auth[HTTPTEST_HTTP_USER_LEN_MAX + HTTPTEST_HTTP_PASSWORD_LEN_MAX];
+ 	CURL            *easyhandle = NULL;
++
++	struct curl_slist 	*header_slist = NULL;
+ #endif
+ 
+ 	zabbix_log(LOG_LEVEL_DEBUG, "In %s() httptestid:" ZBX_FS_UI64 " name:'%s'",
+@@ -312,7 +314,7 @@ static void	process_httptest(DC_HOST *ho
+ 	lastfailedstep = 0;
+ 
+ 	result = DBselect(
+-			"select httpstepid,no,name,url,timeout,posts,required,status_codes,variables"
++			"select httpstepid,no,name,url,timeout,posts,required,status_codes,variables,headers"
+ 			" from httpstep"
+ 			" where httptestid=" ZBX_FS_UI64
+ 			" order by no",
+@@ -331,13 +333,51 @@ static void	process_httptest(DC_HOST *ho
+ 			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_FOLLOWLOCATION, 1L)) ||
+ 			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_WRITEFUNCTION, WRITEFUNCTION2)) ||
+ 			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_HEADERFUNCTION, HEADERFUNCTION2)) ||
+-			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_SSL_VERIFYPEER, 0L)) ||
+-			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_SSL_VERIFYHOST, 0L)))
++			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_SSL_VERIFYPEER, httptest->httptest.verifypeer)) ||
++			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_SSL_VERIFYHOST, httptest->httptest.verifyhost)))
+ 	{
+ 		err_str = zbx_strdup(err_str, curl_easy_strerror(err));
+ 		goto clean;
+ 	}
+ 
++
++	if ('\0' != *(httptest->httptest.capath))
++	{
++		zabbix_log(LOG_LEVEL_DEBUG, "%s() use CA certs dir \"%s\"", __function_name, httptest->httptest.capath);
++		if (CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_CAPATH, httptest->httptest.capath)))
++		{
++			err_str = zbx_strdup(err_str, curl_easy_strerror(err));
++			goto clean;
++		}
++	}
++
++	if ('\0' != *(httptest->httptest.certfile) && '\0' != *(httptest->httptest.keyfile))
++	{
++		zabbix_log(LOG_LEVEL_DEBUG, "%s() use client cert file \"%s\"", __function_name, httptest->httptest.certfile);
++		zabbix_log(LOG_LEVEL_DEBUG, "%s() use client cert key file \"%s\"", __function_name, httptest->httptest.keyfile);
++
++		if (CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_SSLENGINE_DEFAULT, 1L)) ||
++			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_SSLCERTTYPE, "PEM")) ||
++			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_SSLKEYTYPE, "PEM")) ||
++			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_SSLCERT, httptest->httptest.certfile)) ||
++			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_SSLKEY, httptest->httptest.keyfile)))
++		{
++			err_str = zbx_strdup(err_str, curl_easy_strerror(err));
++			goto clean;
++		}
++
++		if ('\0' != *(httptest->httptest.keypass))
++		{
++			zabbix_log(LOG_LEVEL_DEBUG, "%s() use password cert key file \"%s\"", __function_name, httptest->httptest.keypass);
++
++			if (CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_KEYPASSWD, httptest->httptest.keypass)))
++		        {
++				err_str = zbx_strdup(err_str, curl_easy_strerror(err));
++				goto clean;
++			}
++		}
++	}
++
+ 	while (NULL != (row = DBfetch(result)))
+ 	{
+ 		/* NOTE: do not break or return from this block! */
+@@ -368,10 +408,15 @@ static void	process_httptest(DC_HOST *ho
+ 
+ 		httpstep.variables = row[8];
+ 
++		httpstep.headers = zbx_strdup(NULL, row[9]);
++		substitute_simple_macros(NULL, NULL, NULL, NULL, NULL, host, NULL,
++				&httpstep.headers, MACRO_TYPE_HTTPTEST_FIELD, NULL, 0);
++
+ 		memset(&stat, 0, sizeof(stat));
+ 
+ 		http_substitute_variables(httptest, &httpstep.url);
+ 		http_substitute_variables(httptest, &httpstep.posts);
++		http_substitute_variables(httptest, &httpstep.headers);
+ 
+ 		zabbix_log(LOG_LEVEL_DEBUG, "%s() use step \"%s\"", __function_name, httpstep.name);
+ 
+@@ -390,6 +435,25 @@ static void	process_httptest(DC_HOST *ho
+ 			goto httpstep_error;
+ 		}
+ 
++		if ('\0' != *httpstep.headers)
++			zabbix_log(LOG_LEVEL_DEBUG, "%s() use headers\"%s\"", __function_name, httpstep.headers);
++
++		if (httpstep.headers !=NULL && strlen(httpstep.headers)>1)
++		{
++			char * header=strtok(httpstep.headers,"\n\r");
++
++			while ( header!=NULL )
++			{
++				if (strlen(header)>1) header_slist = curl_slist_append(header_slist, header);
++				header=strtok(NULL,"\n\r");
++			}
++			if (CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_HTTPHEADER, header_slist)))
++			{
++				err_str = zbx_strdup(err_str, curl_easy_strerror(err));
++				goto httpstep_error;
++			}
++		}
++
+ 		if (HTTPTEST_AUTH_NONE != httptest->httptest.authentication)
+ 		{
+ 			long	curlauth = 0;
+@@ -514,6 +578,7 @@ httpstep_error:
+ 		zbx_free(httpstep.status_codes);
+ 		zbx_free(httpstep.required);
+ 		zbx_free(httpstep.posts);
++		zbx_free(httpstep.headers);
+ 		zbx_free(httpstep.url);
+ 
+ 		zbx_timespec(&ts);
+@@ -527,6 +592,7 @@ httpstep_error:
+ 	}
+ clean:
+ 	curl_easy_cleanup(easyhandle);
++	curl_slist_free_all(header_slist);
+ #else
+ 	err_str = zbx_strdup(err_str, "cURL library is required for Web monitoring support");
+ #endif	/* HAVE_LIBCURL */
+@@ -607,7 +673,7 @@ int	process_httptests(int httppoller_num
+ 
+ 	result = DBselect(
+ 			"select h.hostid,h.host,h.name,t.httptestid,t.name,t.variables,t.agent,"
+-				"t.authentication,t.http_user,t.http_password,t.http_proxy,t.retries"
++				"t.authentication,t.http_user,t.http_password,t.http_proxy,t.retries,t.certfile,t.keyfile,t.keypass,t.capath,t.verifypeer,t.verifyhost"
+ 			" from httptest t,hosts h"
+ 			" where t.hostid=h.hostid"
+ 				" and t.nextcheck<=%d"
+@@ -658,6 +724,25 @@ int	process_httptests(int httppoller_num
+ 
+ 		httptest.httptest.retries = atoi(row[11]);
+ 
++		httptest.httptest.certfile   = zbx_strdup(NULL, row[12]);
++		substitute_simple_macros(NULL, NULL, NULL, NULL, &host.hostid, NULL, NULL,
++				&httptest.httptest.certfile, MACRO_TYPE_COMMON, NULL, 0);
++
++		httptest.httptest.keyfile    = zbx_strdup(NULL, row[13]);
++		substitute_simple_macros(NULL, NULL, NULL, NULL, &host.hostid, NULL, NULL,
++				&httptest.httptest.keyfile, MACRO_TYPE_COMMON, NULL, 0);
++
++		httptest.httptest.keypass    = zbx_strdup(NULL, row[14]);
++		substitute_simple_macros(NULL, NULL, NULL, NULL, &host.hostid, NULL, NULL,
++				&httptest.httptest.keypass, MACRO_TYPE_COMMON, NULL, 0);
++
++		httptest.httptest.capath     = zbx_strdup(NULL, row[15]);
++		substitute_simple_macros(NULL, NULL, NULL, NULL, &host.hostid, NULL, NULL,
++				&httptest.httptest.capath, MACRO_TYPE_COMMON, NULL, 0);
++
++		httptest.httptest.verifypeer = atoi(row[16]);
++		httptest.httptest.verifyhost = atoi(row[17]);
++
+ 		/* add httptest varriables to the current test macro cache */
+ 		http_process_variables(&httptest, httptest.httptest.variables, NULL, NULL);
+ 
+--- a/database/mysql/schema.sql
++++ b/database/mysql/schema.sql
+@@ -172,6 +172,12 @@ CREATE TABLE `httptest` (
+ 	`templateid`             bigint unsigned                           NULL,
+ 	`http_proxy`             varchar(255)    DEFAULT ''                NOT NULL,
+ 	`retries`                integer         DEFAULT '1'               NOT NULL,
++        `certfile`               varchar(255)    DEFAULT ''                NOT NULL,
++        `keyfile`                varchar(255)    DEFAULT ''                NOT NULL,
++        `keypass`                varchar(64)     DEFAULT ''                NOT NULL,
++        `capath`                 varchar(255)    DEFAULT ''                NOT NULL,
++        `verifypeer`             integer         DEFAULT '0'               NOT NULL,
++        `verifyhost`             integer         DEFAULT '0'               NOT NULL,
+ 	PRIMARY KEY (httptestid)
+ ) ENGINE=InnoDB;
+ CREATE INDEX `httptest_1` ON `httptest` (`applicationid`);
+@@ -189,6 +195,7 @@ CREATE TABLE `httpstep` (
+ 	`required`               varchar(255)    DEFAULT ''                NOT NULL,
+ 	`status_codes`           varchar(255)    DEFAULT ''                NOT NULL,
+ 	`variables`              text                                      NOT NULL,
++        `headers`                text                                      NOT NULL,
+ 	PRIMARY KEY (httpstepid)
+ ) ENGINE=InnoDB;
+ CREATE INDEX `httpstep_1` ON `httpstep` (`httptestid`);
+--- a/database/postgresql/schema.sql	2014-04-10 13:58:59.058524264 +0200
++++ b/database/postgresql/schema.sql	2014-04-10 13:58:40.686651438 +0200
+@@ -172,6 +172,12 @@
+ 	templateid               bigint                                    NULL,
+ 	http_proxy               varchar(255)    DEFAULT ''                NOT NULL,
+ 	retries                  integer         DEFAULT '1'               NOT NULL,
++        `certfile`               varchar(255)    DEFAULT ''                NOT NULL,
++        `keyfile`                varchar(255)    DEFAULT ''                NOT NULL,
++        `keypass`                varchar(64)     DEFAULT ''                NOT NULL,
++        `capath`                 varchar(255)    DEFAULT ''                NOT NULL,
++        `verifypeer`             integer         DEFAULT '0'               NOT NULL,
++        `verifyhost`             integer         DEFAULT '0'               NOT NULL,
+ 	PRIMARY KEY (httptestid)
+ );
+ CREATE INDEX httptest_1 ON httptest (applicationid);
+@@ -189,6 +195,7 @@
+ 	required                 varchar(255)    DEFAULT ''                NOT NULL,
+ 	status_codes             varchar(255)    DEFAULT ''                NOT NULL,
+ 	variables                text            DEFAULT ''                NOT NULL,
++        `headers`                text                                      NOT NULL,
+ 	PRIMARY KEY (httpstepid)
+ );
+ CREATE INDEX httpstep_1 ON httpstep (httptestid);
+--- a/database/sqlite3/schema.sql	2014-04-10 13:58:59.058524264 +0200
++++ b/database/sqlite3/schema.sql	2014-04-10 13:58:47.414604865 +0200
+@@ -172,6 +172,12 @@
+ 	templateid               bigint                                    NULL REFERENCES httptest (httptestid) ON DELETE CASCADE,
+ 	http_proxy               varchar(255)    DEFAULT ''                NOT NULL,
+ 	retries                  integer         DEFAULT '1'               NOT NULL,
++        certfile                 varchar(255)    DEFAULT ''                NOT NULL,
++        keyfile                  varchar(255)    DEFAULT ''                NOT NULL,
++        keypass                  varchar(64)     DEFAULT ''                NOT NULL,
++        capath                   varchar(255)    DEFAULT ''                NOT NULL,
++        verifypeer               integer         DEFAULT '0'               NOT NULL,
++        verifyhost               integer         DEFAULT '0'               NOT NULL,
+ 	PRIMARY KEY (httptestid)
+ );
+ CREATE INDEX httptest_1 ON httptest (applicationid);
+@@ -189,6 +195,7 @@
+ 	required                 varchar(255)    DEFAULT ''                NOT NULL,
+ 	status_codes             varchar(255)    DEFAULT ''                NOT NULL,
+ 	variables                text            DEFAULT ''                NOT NULL,
++        headers                  text            DEFAULT ''                NOT NULL,
+ 	PRIMARY KEY (httpstepid)
+ );
+ CREATE INDEX httpstep_1 ON httpstep (httptestid);

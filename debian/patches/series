@@ -1,3 +1,4 @@
+ZBXNEXT-282.patch
 ZBX-6163.patch
 fix_java_gateway_missing_dir.patch
 config-debian-customizations.patch
