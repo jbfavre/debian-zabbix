@@ -1,3 +1,9 @@
+zabbix (1:2.2.3-2~bbc74+1) stable; urgency=medium
+
+  * Add custom patch to handle custom headers in web scenario. Implements ZBXNEXT-282
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Thu, 10 Apr 2014 14:03:40 +0200
+
 zabbix (1:2.2.3-1~bbc74+1) stable; urgency=medium
 
   * Imported Upstream version 2.2.3
