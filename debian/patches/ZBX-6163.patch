@@ -8,12 +8,12 @@ Last-Update: 2013-11-21
 This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 --- a/src/libs/zbxdb/db.c
 +++ b/src/libs/zbxdb/db.c
-@@ -262,6 +262,8 @@ int	zbx_db_connect(char *host, char *use
+@@ -292,6 +292,8 @@ int	zbx_db_connect(char *host, char *use
  	}
  #elif defined(HAVE_MYSQL)
  	conn = mysql_init(NULL);
 +	my_bool reconnect = 1;
 +	mysql_options(conn, MYSQL_OPT_RECONNECT, &reconnect);
  
- 	if (!mysql_real_connect(conn, host, user, password, dbname, port, dbsocket, CLIENT_MULTI_STATEMENTS))
+ 	if (NULL == mysql_real_connect(conn, host, user, password, dbname, port, dbsocket, CLIENT_MULTI_STATEMENTS))
  	{

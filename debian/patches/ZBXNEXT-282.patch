@@ -48,7 +48,7 @@
  			'steps' => $steps
  		);
  
-@@ -388,6 +400,12 @@ if (isset($_REQUEST['form'])) {
+@@ -397,6 +409,12 @@ if (isset($_REQUEST['form'])) {
  		$data['http_user'] = $dbHttpTest['http_user'];
  		$data['http_password'] = $dbHttpTest['http_password'];
  		$data['http_proxy'] = $dbHttpTest['http_proxy'];
@@ -61,7 +61,7 @@
  		$data['templated'] = (bool) $dbHttpTest['templateid'];
  		$data['steps'] = DBfetchArray(DBselect('SELECT h.* FROM httpstep h WHERE h.httptestid='.zbx_dbstr($_REQUEST['httptestid']).' ORDER BY h.no'));
  	}
-@@ -410,6 +428,12 @@ if (isset($_REQUEST['form'])) {
+@@ -419,6 +437,12 @@ if (isset($_REQUEST['form'])) {
  		$data['http_user'] = get_request('http_user', '');
  		$data['http_password'] = get_request('http_password', '');
  		$data['http_proxy'] = get_request('http_proxy', '');
@@ -273,7 +273,7 @@
  	'timeout' =>		array(T_ZBX_INT, O_OPT, null,	BETWEEN(0,65535),	'isset({save})', _('Timeout')),
 --- a/include/db.h
 +++ b/include/db.h
-@@ -384,6 +384,12 @@ typedef struct
+@@ -380,6 +380,12 @@ typedef struct
  	char		*http_proxy;
  	int		authentication;
  	int		retries;
@@ -286,7 +286,7 @@
  }
  DB_HTTPTEST;
  
-@@ -399,6 +405,7 @@ typedef struct
+@@ -395,6 +401,7 @@ typedef struct
  	int		no;
  	int		timeout;
  	char		*variables;
@@ -367,7 +367,7 @@
  
 --- a/src/zabbix_server/httppoller/httptest.c
 +++ b/src/zabbix_server/httppoller/httptest.c
-@@ -304,6 +304,8 @@ static void	process_httptest(DC_HOST *ho
+@@ -316,6 +316,8 @@ static void	process_httptest(DC_HOST *ho
  	int		err;
  	char		auth[HTTPTEST_HTTP_USER_LEN_MAX + HTTPTEST_HTTP_PASSWORD_LEN_MAX];
  	CURL            *easyhandle = NULL;
@@ -376,7 +376,7 @@
  #endif
  
  	zabbix_log(LOG_LEVEL_DEBUG, "In %s() httptestid:" ZBX_FS_UI64 " name:'%s'",
-@@ -312,7 +314,7 @@ static void	process_httptest(DC_HOST *ho
+@@ -324,7 +326,7 @@ static void	process_httptest(DC_HOST *ho
  	lastfailedstep = 0;
  
  	result = DBselect(
@@ -385,7 +385,7 @@
  			" from httpstep"
  			" where httptestid=" ZBX_FS_UI64
  			" order by no",
-@@ -331,13 +333,51 @@ static void	process_httptest(DC_HOST *ho
+@@ -343,13 +345,51 @@ static void	process_httptest(DC_HOST *ho
  			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_FOLLOWLOCATION, 1L)) ||
  			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_WRITEFUNCTION, WRITEFUNCTION2)) ||
  			CURLE_OK != (err = curl_easy_setopt(easyhandle, CURLOPT_HEADERFUNCTION, HEADERFUNCTION2)) ||
@@ -439,7 +439,7 @@
  	while (NULL != (row = DBfetch(result)))
  	{
  		/* NOTE: do not break or return from this block! */
-@@ -368,10 +408,15 @@ static void	process_httptest(DC_HOST *ho
+@@ -380,10 +420,15 @@ static void	process_httptest(DC_HOST *ho
  
  		httpstep.variables = row[8];
  
@@ -455,7 +455,7 @@
  
  		zabbix_log(LOG_LEVEL_DEBUG, "%s() use step \"%s\"", __function_name, httpstep.name);
  
-@@ -390,6 +435,25 @@ static void	process_httptest(DC_HOST *ho
+@@ -402,6 +447,25 @@ static void	process_httptest(DC_HOST *ho
  			goto httpstep_error;
  		}
  
@@ -481,7 +481,7 @@
  		if (HTTPTEST_AUTH_NONE != httptest->httptest.authentication)
  		{
  			long	curlauth = 0;
-@@ -514,6 +578,7 @@ httpstep_error:
+@@ -526,6 +590,7 @@ httpstep_error:
  		zbx_free(httpstep.status_codes);
  		zbx_free(httpstep.required);
  		zbx_free(httpstep.posts);
@@ -489,7 +489,7 @@
  		zbx_free(httpstep.url);
  
  		zbx_timespec(&ts);
-@@ -527,6 +592,7 @@ httpstep_error:
+@@ -539,6 +604,7 @@ httpstep_error:
  	}
  clean:
  	curl_easy_cleanup(easyhandle);
@@ -497,7 +497,7 @@
  #else
  	err_str = zbx_strdup(err_str, "cURL library is required for Web monitoring support");
  #endif	/* HAVE_LIBCURL */
-@@ -607,7 +673,7 @@ int	process_httptests(int httppoller_num
+@@ -619,7 +685,7 @@ int	process_httptests(int httppoller_num
  
  	result = DBselect(
  			"select h.hostid,h.host,h.name,t.httptestid,t.name,t.variables,t.agent,"
@@ -506,7 +506,7 @@
  			" from httptest t,hosts h"
  			" where t.hostid=h.hostid"
  				" and t.nextcheck<=%d"
-@@ -658,6 +724,25 @@ int	process_httptests(int httppoller_num
+@@ -670,6 +736,25 @@ int	process_httptests(int httppoller_num
  
  		httptest.httptest.retries = atoi(row[11]);
  
@@ -555,9 +555,9 @@
  	PRIMARY KEY (httpstepid)
  ) ENGINE=InnoDB;
  CREATE INDEX `httpstep_1` ON `httpstep` (`httptestid`);
---- a/database/postgresql/schema.sql	2014-04-10 13:58:59.058524264 +0200
-+++ b/database/postgresql/schema.sql	2014-04-10 13:58:40.686651438 +0200
-@@ -172,6 +172,12 @@
+--- a/database/postgresql/schema.sql
++++ b/database/postgresql/schema.sql
+@@ -172,6 +172,12 @@ CREATE TABLE httptest (
  	templateid               bigint                                    NULL,
  	http_proxy               varchar(255)    DEFAULT ''                NOT NULL,
  	retries                  integer         DEFAULT '1'               NOT NULL,
@@ -570,7 +570,7 @@
  	PRIMARY KEY (httptestid)
  );
  CREATE INDEX httptest_1 ON httptest (applicationid);
-@@ -189,6 +195,7 @@
+@@ -189,6 +195,7 @@ CREATE TABLE httpstep (
  	required                 varchar(255)    DEFAULT ''                NOT NULL,
  	status_codes             varchar(255)    DEFAULT ''                NOT NULL,
  	variables                text            DEFAULT ''                NOT NULL,
@@ -578,9 +578,9 @@
  	PRIMARY KEY (httpstepid)
  );
  CREATE INDEX httpstep_1 ON httpstep (httptestid);
---- a/database/sqlite3/schema.sql	2014-04-10 13:58:59.058524264 +0200
-+++ b/database/sqlite3/schema.sql	2014-04-10 13:58:47.414604865 +0200
-@@ -172,6 +172,12 @@
+--- a/database/sqlite3/schema.sql
++++ b/database/sqlite3/schema.sql
+@@ -172,6 +172,12 @@ CREATE TABLE httptest (
  	templateid               bigint                                    NULL REFERENCES httptest (httptestid) ON DELETE CASCADE,
  	http_proxy               varchar(255)    DEFAULT ''                NOT NULL,
  	retries                  integer         DEFAULT '1'               NOT NULL,
@@ -593,7 +593,7 @@
  	PRIMARY KEY (httptestid)
  );
  CREATE INDEX httptest_1 ON httptest (applicationid);
-@@ -189,6 +195,7 @@
+@@ -189,6 +195,7 @@ CREATE TABLE httpstep (
  	required                 varchar(255)    DEFAULT ''                NOT NULL,
  	status_codes             varchar(255)    DEFAULT ''                NOT NULL,
  	variables                text            DEFAULT ''                NOT NULL,
