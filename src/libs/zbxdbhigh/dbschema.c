@@ -28,6 +28,12 @@ const ZBX_TABLE	tables[] = {
 #	define ZBX_TYPE_SHORTTEXT_LEN	65535
 #endif
 
+#if defined(HAVE_IBM_DB2)
+#	define ZBX_TYPE_LONGTEXT_LEN	2048
+#else
+#	define ZBX_TYPE_LONGTEXT_LEN	0
+#endif
+
 	{"maintenances",	"maintenanceid",	ZBX_SYNC,
 		{
 		{"maintenanceid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
@@ -1173,7 +1179,7 @@ const ZBX_TABLE	tables[] = {
 		{"timestamp",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"source",	"",	NULL,	NULL,	64,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
 		{"severity",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
-		{"value",	"",	NULL,	NULL,	0,	ZBX_TYPE_LONGTEXT,	ZBX_NOTNULL,	0},
+		{"value",	"",	NULL,	NULL,	ZBX_TYPE_LONGTEXT_LEN,	ZBX_TYPE_LONGTEXT,	ZBX_NOTNULL,	0},
 		{"logeventid",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"ns",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"state",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
@@ -1574,6 +1580,7 @@ const ZBX_TABLE	tables[] = {
 	},
 	{0}
 
+#undef ZBX_TYPE_LONGTEXT_LEN
 #undef ZBX_TYPE_SHORTTEXT_LEN
 
 };
