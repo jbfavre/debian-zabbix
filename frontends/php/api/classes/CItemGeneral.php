@@ -24,7 +24,7 @@
  *
  * @package API
  */
-abstract class CItemGeneral extends CZBXAPI {
+abstract class CItemGeneral extends CApiService {
 
 	const ERROR_EXISTS_TEMPLATE = 'existsTemplate';
 	const ERROR_EXISTS = 'exists';
@@ -136,7 +136,7 @@ abstract class CItemGeneral extends CZBXAPI {
 				'hostids' => zbx_objectValues($dbItems, 'hostid'),
 				'templated_hosts' => true,
 				'editable' => true,
-				'selectApplications' => API_OUTPUT_REFER,
+				'selectApplications' => array('applicationid'),
 				'preservekeys' => true
 			));
 		}
@@ -156,7 +156,7 @@ abstract class CItemGeneral extends CZBXAPI {
 				'hostids' => zbx_objectValues($items, 'hostid'),
 				'templated_hosts' => true,
 				'editable' => true,
-				'selectApplications' => API_OUTPUT_REFER,
+				'selectApplications' => array('applicationid'),
 				'preservekeys' => true
 			));
 		}
@@ -321,8 +321,8 @@ abstract class CItemGeneral extends CZBXAPI {
 
 			// update interval
 			if ($fullItem['type'] != ITEM_TYPE_TRAPPER && $fullItem['type'] != ITEM_TYPE_SNMPTRAP) {
-				$res = calculateItemNextcheck(0, $fullItem['type'], $fullItem['delay'], $fullItem['delay_flex'], time());
-				if ($res == ZBX_JAN_2038) {
+				$nextCheck = calculateItemNextCheck(0, $fullItem['delay'], $fullItem['delay_flex'], time());
+				if ($nextCheck == ZBX_JAN_2038) {
 					self::exception(ZBX_API_ERROR_PARAMETERS,
 						_('Item will not be refreshed. Please enter a correct update interval.'));
 				}
@@ -511,7 +511,6 @@ abstract class CItemGeneral extends CZBXAPI {
 		$ids = array_unique($ids);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'itemids' => $ids,
 			'countOutput' => true
 		));
@@ -530,7 +529,6 @@ abstract class CItemGeneral extends CZBXAPI {
 		$ids = array_unique($ids);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'itemids' => $ids,
 			'editable' => true,
 			'countOutput' => true
@@ -854,7 +852,6 @@ abstract class CItemGeneral extends CZBXAPI {
 		if ($options['selectHosts'] !== null && $options['selectHosts'] != API_OUTPUT_COUNT) {
 			$relationMap = $this->createRelationMap($result, 'itemid', 'hostid');
 			$hosts = API::Host()->get(array(
-				'nodeids' => $options['nodeids'],
 				'hostids' => $relationMap->getRelatedIds(),
 				'templated_hosts' => true,
 				'output' => $options['selectHosts'],

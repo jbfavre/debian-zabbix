@@ -24,7 +24,7 @@
  *
  * @package API
  */
-class CDRule extends CZBXAPI {
+class CDRule extends CApiService {
 
 	protected $tableName = 'drules';
 	protected $tableAlias = 'dr';
@@ -39,7 +39,6 @@ class CDRule extends CZBXAPI {
 	 */
 	public function get(array $options = array()) {
 		$result = array();
-		$nodeCheck = false;
 
 		$sqlParts = array(
 			'select'	=> array('drules' => 'dr.druleid'),
@@ -51,7 +50,6 @@ class CDRule extends CZBXAPI {
 		);
 
 		$defOptions = array(
-			'nodeids'					=> null,
 			'druleids'					=> null,
 			'dhostids'					=> null,
 			'dserviceids'				=> null,
@@ -66,7 +64,7 @@ class CDRule extends CZBXAPI {
 			'excludeSearch'				=> null,
 			'searchWildcardsEnabled'	=> null,
 			// output
-			'output'					=> API_OUTPUT_REFER,
+			'output'					=> API_OUTPUT_EXTEND,
 			'countOutput'				=> null,
 			'groupCount'				=> null,
 			'preservekeys'				=> null,
@@ -81,25 +79,16 @@ class CDRule extends CZBXAPI {
 			return array();
 		}
 
-// nodeids
-		$nodeids = !is_null($options['nodeids']) ? $options['nodeids'] : get_current_nodeid();
-
 // druleids
 		if (!is_null($options['druleids'])) {
 			zbx_value2array($options['druleids']);
 			$sqlParts['where']['druleid'] = dbConditionInt('dr.druleid', $options['druleids']);
-
-			if (!$nodeCheck) {
-				$nodeCheck = true;
-				$sqlParts['where'] = sqlPartDbNode($sqlParts['where'], 'dr.druleid', $nodeids);
-			}
 		}
 
 // dhostids
 		if (!is_null($options['dhostids'])) {
 			zbx_value2array($options['dhostids']);
 
-			$sqlParts['select']['dhostid'] = 'dh.dhostid';
 			$sqlParts['from']['dhosts'] = 'dhosts dh';
 			$sqlParts['where']['dhostid'] = dbConditionInt('dh.dhostid', $options['dhostids']);
 			$sqlParts['where']['dhdr'] = 'dh.druleid=dr.druleid';
@@ -107,18 +96,12 @@ class CDRule extends CZBXAPI {
 			if (!is_null($options['groupCount'])) {
 				$sqlParts['group']['dhostid'] = 'dh.dhostid';
 			}
-
-			if (!$nodeCheck) {
-				$nodeCheck = true;
-				$sqlParts['where'] = sqlPartDbNode($sqlParts['where'], 'dh.dhostid', $nodeids);
-			}
 		}
 
 // dserviceids
 		if (!is_null($options['dserviceids'])) {
 			zbx_value2array($options['dserviceids']);
 
-			$sqlParts['select']['dserviceid'] = 'ds.dserviceid';
 			$sqlParts['from']['dhosts'] = 'dhosts dh';
 			$sqlParts['from']['dservices'] = 'dservices ds';
 
@@ -129,17 +112,6 @@ class CDRule extends CZBXAPI {
 			if (!is_null($options['groupCount'])) {
 				$sqlParts['group']['dserviceid'] = 'ds.dserviceid';
 			}
-
-			if (!$nodeCheck) {
-				$nodeCheck = true;
-				$sqlParts['where'] = sqlPartDbNode($sqlParts['where'], 'ds.dserviceid', $nodeids);
-			}
-		}
-
-		// node check !!!!!
-		// should be last, after all ****IDS checks
-		if (!$nodeCheck) {
-			$sqlParts['where'] = sqlPartDbNode($sqlParts['where'], 'dr.druleid', $nodeids);
 		}
 
 // search
@@ -165,7 +137,6 @@ class CDRule extends CZBXAPI {
 
 		$sqlParts = $this->applyQueryOutputOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$sqlParts = $this->applyQuerySortOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
-		$sqlParts = $this->applyQueryNodeOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$dbRes = DBselect($this->createSelectQueryFromParts($sqlParts), $sqlParts['limit']);
 		while ($drule = DBfetch($dbRes)) {
 			if (!is_null($options['countOutput'])) {
@@ -174,29 +145,8 @@ class CDRule extends CZBXAPI {
 				else
 					$result = $drule['rowscount'];
 			}
-			else{
-				// dhostids
-				if (isset($drule['dhostid']) && is_null($options['selectDHosts'])) {
-					if (!isset($result[$drule['druleid']]['dhosts']))
-						$result[$drule['druleid']]['dhosts'] = array();
-
-					$result[$drule['druleid']]['dhosts'][] = array('dhostid' => $drule['dhostid']);
-					unset($drule['dhostid']);
-				}
-
-				// dchecks
-				if (isset($drule['dcheckid']) && is_null($options['selectDChecks'])) {
-					if (!isset($result[$drule['druleid']]['dchecks']))
-						$result[$drule['druleid']]['dchecks'] = array();
-
-					$result[$drule['druleid']]['dchecks'][] = array('dcheckid' => $drule['dcheckid']);
-					unset($drule['dcheckid']);
-				}
-
-				if (!isset($result[$drule['druleid']]))
-					$result[$drule['druleid']]= array();
-
-				$result[$drule['druleid']] += $drule;
+			else {
+				$result[$drule['druleid']] = $drule;
 			}
 		}
 
@@ -216,25 +166,29 @@ class CDRule extends CZBXAPI {
 	return $result;
 	}
 
-
+	/**
+	 * Check if discovery rule exists.
+	 *
+	 * @deprecated	As of version 2.4, use get method instead.
+	 *
+	 * @param array	$object
+	 *
+	 * @return bool
+	 */
 	public function exists(array $object) {
+		$this->deprecated('drule.exists method is deprecated.');
+
 		$options = array(
 			'filter' => array(),
 			'output' => array('druleid'),
-			'nopermissions' => 1,
 			'limit' => 1
 		);
 		if (isset($object['name'])) $options['filter']['name'] = $object['name'];
 		if (isset($object['druleids'])) $options['druleids'] = zbx_toArray($object['druleids']);
 
-		if (isset($object['node']))
-			$options['nodeids'] = getNodeIdByNodeName($object['node']);
-		elseif (isset($object['nodeids']))
-			$options['nodeids'] = $object['nodeids'];
-
 		$objs = $this->get($options);
 
-	return !empty($objs);
+		return !empty($objs);
 	}
 
 	public function checkInput(array &$dRules) {
@@ -294,7 +248,15 @@ class CDRule extends CZBXAPI {
 		$uniq = 0;
 
 		foreach ($dChecks as $dcnum => $dCheck) {
-			if (isset($dCheck['uniq']) && ($dCheck['uniq'] == 1)) $uniq++;
+			if (isset($dCheck['uniq']) && ($dCheck['uniq'] == 1)) {
+				if (!in_array($dCheck['type'], array(SVC_AGENT, SVC_SNMPv1, SVC_SNMPv2c, SVC_SNMPv3))) {
+					self::exception(ZBX_API_ERROR_PARAMETERS,
+						_s('Only Zabbix agent, SNMPv1, SNMPv2 and SNMPv3 checks can be made unique.')
+					);
+				}
+
+				$uniq++;
+			}
 
 			if (isset($dCheck['ports']) && !validate_port_list($dCheck['ports'])) {
 				self::exception(ZBX_API_ERROR_PARAMETERS, _s('Incorrect port range.'));
@@ -440,15 +402,26 @@ class CDRule extends CZBXAPI {
 	 * @return array
 	 */
 	public function create(array $dRules) {
-
 		$this->checkInput($dRules);
 		$this->validateRequiredFields($dRules, __FUNCTION__);
 
+		// check host name duplicates
+		$collectionValidator = new CCollectionValidator(array(
+			'uniqueField' => 'name',
+			'messageDuplicate' => _('Discovery rule "%1$s" already exists.')
+		));
+		$this->checkValidator($dRules, $collectionValidator);
+
 		// checking to the duplicate names
-		foreach ($dRules as $dRule) {
-			if ($this->exists($dRule)) {
-				self::exception(ZBX_API_ERROR_PARAMETERS, _s('Discovery rule "%s" already exists.', $dRule['name']));
-			}
+		$dbDRules = API::getApiService()->select($this->tableName(), array(
+			'output' => array('name'),
+			'filter' => array('name' => zbx_objectValues($dRules, 'name')),
+			'limit' => 1
+		));
+
+		if ($dbDRules) {
+			$dbDRule = reset($dbDRules);
+			self::exception(ZBX_API_ERROR_PARAMETERS, _s('Discovery rule "%1$s" already exists.', $dbDRule['name']));
 		}
 
 		$druleids = DB::insert('drules', $dRules);
@@ -510,16 +483,45 @@ class CDRule extends CZBXAPI {
 
 		$defaultValues = DB::getDefaults('dchecks');
 
-		$dRulesUpdate = $dCheckIdsDelete = $dChecksCreate = array();
+		$dRulesUpdate = array();
+		$dCheckIdsDelete = array();
+		$dChecksCreate = array();
+		$dRuleNamesChanged = array();
 
+		// validate drule duplicate names
 		foreach ($dRules as $dRule) {
-			// validate drule duplicate names
-			if (strcmp($dRulesDb[$dRule['druleid']]['name'], $dRule['name']) != 0) {
-				if ($this->exists($dRule)) {
-					self::exception(ZBX_API_ERROR_PARAMETERS, _s('Discovery rule "%s" already exists.', $dRule['name']));
-				}
+			if (!isset($dRulesDb[$dRule['druleid']])) {
+				self::exception(ZBX_API_ERROR_PARAMETERS, _('No permissions to referred object or it does not exist!'));
 			}
 
+			if ($dRulesDb[$dRule['druleid']]['name'] !== $dRule['name']) {
+				if (isset($dRuleNamesChanged[$dRule['name']])) {
+					self::exception(ZBX_API_ERROR_PARAMETERS, _s('Discovery rule "%1$s" already exists.',
+						$dRule['name']
+					));
+				}
+				else {
+					$dRuleNamesChanged[$dRule['name']] = $dRule['name'];
+				}
+			}
+		}
+
+		if ($dRuleNamesChanged) {
+			$dbDRules = API::getApiService()->select($this->tableName(), array(
+				'output' => array('name'),
+				'filter' => array('name' => $dRuleNamesChanged),
+				'limit' => 1
+			));
+
+			if ($dbDRules) {
+				$dbDRule = reset($dbDRules);
+				self::exception(ZBX_API_ERROR_PARAMETERS, _s('Discovery rule "%1$s" already exists.',
+					$dbDRule['name']
+				));
+			}
+		}
+
+		foreach ($dRules as $dRule) {
 			$dRulesUpdate[] = array(
 				'values' => $dRule,
 				'where' => array('druleid' => $dRule['druleid'])
@@ -529,28 +531,29 @@ class CDRule extends CZBXAPI {
 			$dbChecks = $dRulesDb[$dRule['druleid']]['dchecks'];
 
 			$newChecks = array();
+			$oldChecks = array();
 
-			foreach ($dRule['dchecks'] as $cnum => $check) {
-				if (!isset($check['druleid'])) {
-					$check['druleid'] = $dRule['druleid'];
-					unset($check['dcheckid']);
+			foreach ($dRule['dchecks'] as $check) {
+				$check['druleid'] = $dRule['druleid'];
 
+				if (!isset($check['dcheckid'])) {
 					$newChecks[] = array_merge($defaultValues, $check);
-
-					unset($dRule['dchecks'][$cnum]);
+				}
+				else {
+					$oldChecks[] = $check;
 				}
 			}
 
 			$delDCheckIds = array_diff(
 				zbx_objectValues($dbChecks, 'dcheckid'),
-				zbx_objectValues($dRule['dchecks'], 'dcheckid')
+				zbx_objectValues($oldChecks, 'dcheckid')
 			);
 
 			if ($delDCheckIds) {
 				$this->deleteActionConditions($delDCheckIds);
 			}
 
-			DB::replace('dchecks', $dbChecks, array_merge($dRule['dchecks'], $newChecks));
+			DB::replace('dchecks', $dbChecks, array_merge($oldChecks, $newChecks));
 		}
 
 		DB::update('drules', $dRulesUpdate);
@@ -563,34 +566,37 @@ class CDRule extends CZBXAPI {
 	 *
 	 * @param array $druleIds
 	 *
-	 * @return boolean
+	 * @return array
 	 */
 	public function delete(array $druleIds) {
 		$this->validateDelete($druleIds);
 
 		$actionIds = array();
+		$conditionIds = array();
 
-		$dbActions = DBselect(
-			'SELECT DISTINCT actionid'.
-			' FROM conditions'.
-			' WHERE conditiontype='.CONDITION_TYPE_DRULE.
-				' AND '.dbConditionString('value', $druleIds).
-			' ORDER BY actionid'
+		$dbConditions = DBselect(
+			'SELECT c.conditionid, c.actionid'.
+			' FROM conditions c'.
+			' WHERE (c.conditiontype='.CONDITION_TYPE_DRULE.' AND '.dbConditionInt('c.value', $druleIds).')'.
+				' OR (c.conditiontype='.CONDITION_TYPE_DCHECK.' AND c.value IN'.
+					' (SELECT dc.dcheckid FROM dchecks dc WHERE '.dbConditionInt('dc.druleid', $druleIds).')'.
+				')'
 		);
-		while ($dbAction = DBfetch($dbActions)) {
-			$actionIds[] = $dbAction['actionid'];
+
+		while ($dbCondition = DBfetch($dbConditions)) {
+			$conditionIds[] = $dbCondition['conditionid'];
+			$actionIds[] = $dbCondition['actionid'];
 		}
 
 		if ($actionIds) {
 			DB::update('actions', array(
 				'values' => array('status' => ACTION_STATUS_DISABLED),
-				'where' => array('actionid' => $actionIds),
+				'where' => array('actionid' => array_unique($actionIds)),
 			));
+		}
 
-			DB::delete('conditions', array(
-				'conditiontype' => CONDITION_TYPE_DRULE,
-				'value' => $druleIds
-			));
+		if ($conditionIds) {
+			DB::delete('conditions', array('conditionid' => $conditionIds));
 		}
 
 		$result = DB::delete('drules', array('druleid' => $druleIds));
@@ -669,7 +675,6 @@ class CDRule extends CZBXAPI {
 		$ids = array_unique($ids);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'druleids' => $ids,
 			'countOutput' => true
 		));
@@ -692,7 +697,6 @@ class CDRule extends CZBXAPI {
 		$ids = array_unique($ids);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'druleids' => $ids,
 			'editable' => true,
 			'countOutput' => true
@@ -712,7 +716,6 @@ class CDRule extends CZBXAPI {
 				$relationMap = $this->createRelationMap($result, 'druleid', 'dcheckid', 'dchecks');
 				$dchecks = API::DCheck()->get(array(
 					'output' => $options['selectDChecks'],
-					'nodeids' => $options['nodeids'],
 					'dcheckids' => $relationMap->getRelatedIds(),
 					'nopermissions' => true,
 					'preservekeys' => true
@@ -724,7 +727,6 @@ class CDRule extends CZBXAPI {
 			}
 			else {
 				$dchecks = API::DCheck()->get(array(
-					'nodeids' => $options['nodeids'],
 					'druleids' => $druleids,
 					'nopermissions' => true,
 					'countOutput' => true,
@@ -746,7 +748,6 @@ class CDRule extends CZBXAPI {
 				$relationMap = $this->createRelationMap($result, 'druleid', 'dhostid', 'dhosts');
 				$dhosts = API::DHost()->get(array(
 					'output' => $options['selectDHosts'],
-					'nodeids' => $options['nodeids'],
 					'dhostids' => $relationMap->getRelatedIds(),
 					'preservekeys' => true
 				));
@@ -757,7 +758,6 @@ class CDRule extends CZBXAPI {
 			}
 			else {
 				$dhosts = API::DHost()->get(array(
-					'nodeids' => $options['nodeids'],
 					'druleids' => $druleids,
 					'countOutput' => true,
 					'groupCount' => true

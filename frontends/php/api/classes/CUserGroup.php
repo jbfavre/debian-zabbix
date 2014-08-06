@@ -24,7 +24,7 @@
  *
  * @package API
  */
-class CUserGroup extends CZBXAPI {
+class CUserGroup extends CApiService {
 
 	protected $tableName = 'usrgrp';
 	protected $tableAlias = 'g';
@@ -34,7 +34,6 @@ class CUserGroup extends CZBXAPI {
 	 * Get user groups.
 	 *
 	 * @param array  $options
-	 * @param array  $options['nodeids']
 	 * @param array  $options['usrgrpids']
 	 * @param array  $options['userids']
 	 * @param bool   $options['status']
@@ -60,7 +59,6 @@ class CUserGroup extends CZBXAPI {
 		);
 
 		$defOptions = array(
-			'nodeids'					=> null,
 			'usrgrpids'					=> null,
 			'userids'					=> null,
 			'status'					=> null,
@@ -74,7 +72,7 @@ class CUserGroup extends CZBXAPI {
 			'searchWildcardsEnabled'	=> null,
 			// output
 			'editable'					=> null,
-			'output'					=> API_OUTPUT_REFER,
+			'output'					=> API_OUTPUT_EXTEND,
 			'selectUsers'				=> null,
 			'countOutput'				=> null,
 			'preservekeys'				=> null,
@@ -110,7 +108,6 @@ class CUserGroup extends CZBXAPI {
 		if (!is_null($options['userids'])) {
 			zbx_value2array($options['userids']);
 
-			$sqlParts['select']['userid'] = 'ug.userid';
 			$sqlParts['from']['users_groups'] = 'users_groups ug';
 			$sqlParts['where'][] = dbConditionInt('ug.userid', $options['userids']);
 			$sqlParts['where']['gug'] = 'g.usrgrpid=ug.usrgrpid';
@@ -143,26 +140,13 @@ class CUserGroup extends CZBXAPI {
 
 		$sqlParts = $this->applyQueryOutputOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$sqlParts = $this->applyQuerySortOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
-		$sqlParts = $this->applyQueryNodeOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$res = DBselect($this->createSelectQueryFromParts($sqlParts), $sqlParts['limit']);
 		while ($usrgrp = DBfetch($res)) {
 			if ($options['countOutput']) {
 				$result = $usrgrp['rowscount'];
 			}
 			else {
-				if (!isset($result[$usrgrp['usrgrpid']])) {
-					$result[$usrgrp['usrgrpid']]= array();
-				}
-
-				// groupids
-				if (isset($usrgrp['userid']) && is_null($options['selectUsers'])) {
-					if (!isset($result[$usrgrp['usrgrpid']]['users'])) {
-						$result[$usrgrp['usrgrpid']]['users'] = array();
-					}
-					$result[$usrgrp['usrgrpid']]['users'][] = array('userid' => $usrgrp['userid']);
-					unset($usrgrp['userid']);
-				}
-				$result[$usrgrp['usrgrpid']] += $usrgrp;
+				$result[$usrgrp['usrgrpid']] = $usrgrp;
 			}
 		}
 
@@ -193,11 +177,11 @@ class CUserGroup extends CZBXAPI {
 		$usrgrpids = array();
 
 		$res = DBselect(
-				'SELECT g.usrgrpid'.
-				' FROM usrgrp g'.
-				' WHERE g.name='.zbx_dbstr($groupData['name']).
-					andDbNode('g.usrgrpid', false)
+			'SELECT g.usrgrpid'.
+			' FROM usrgrp g'.
+			' WHERE g.name='.zbx_dbstr($groupData['name'])
 		);
+
 		while ($group = DBfetch($res)) {
 			$usrgrpids[$group['usrgrpid']] = $group['usrgrpid'];
 		}
@@ -209,19 +193,23 @@ class CUserGroup extends CZBXAPI {
 		return $result;
 	}
 
+	/**
+	 * Check if user group exists.
+	 *
+	 * @deprecated	As of version 2.4, use get method instead.
+	 *
+	 * @param array	$object
+	 *
+	 * @return bool
+	 */
 	public function exists($object) {
-		$options = array(
+		$this->deprecated('usergroup.exists method is deprecated.');
+
+		$objs = $this->get(array(
 			'filter' => array('name' => $object['name']),
 			'output' => array('usrgrpid'),
-			'nopermissions' => 1,
 			'limit' => 1,
-		);
-		if (isset($object['node']))
-			$options['nodeids'] = getNodeIdByNodeName($object['node']);
-		elseif (isset($object['nodeids']))
-			$options['nodeids'] = $object['nodeids'];
-
-		$objs = $this->get($options);
+		));
 
 		return !empty($objs);
 	}
@@ -248,8 +236,13 @@ class CUserGroup extends CZBXAPI {
 				self::exception(ZBX_API_ERROR_PARAMETERS, _('Incorrect parameters for user group.'));
 			}
 
-			if ($this->exists(array('name' => $usrgrp['name'], 'nodeids' => get_current_nodeid(false)))) {
-				self::exception(ZBX_API_ERROR_PARAMETERS, _('User group').' [ '.$usrgrp['name'].' ] '._('already exists'));
+			$userGroupExists = $this->get(array(
+				'output' => array('usrgrpid'),
+				'filter' => array('name' => $usrgrp['name']),
+				'limit' => 1
+			));
+			if ($userGroupExists) {
+				self::exception(ZBX_API_ERROR_PARAMETERS, _s('User group "%1$s" already exists.', $usrgrp['name']));
 			}
 			$insert[$gnum] = $usrgrp;
 		}
@@ -312,7 +305,7 @@ class CUserGroup extends CZBXAPI {
 			self::exception(ZBX_API_ERROR_PERMISSIONS, _('Only Super Admins can delete user groups.'));
 		}
 
-		$usrgrpids = zbx_toArray($data['usrgrpids']);
+		$usrgrpids = array_keys(array_flip(zbx_toArray($data['usrgrpids'])));
 		$userids = (isset($data['userids']) && !is_null($data['userids'])) ? zbx_toArray($data['userids']) : null;
 		$rights = (isset($data['rights']) && !is_null($data['rights'])) ? zbx_toArray($data['rights']) : null;
 
@@ -359,8 +352,8 @@ class CUserGroup extends CZBXAPI {
 			$linkedRights = array();
 			$sql = 'SELECT groupid,id'.
 				' FROM rights'.
-				' WHERE '.dbConditionInt('groupid', $usrgrpids);
-			' AND '.dbConditionInt('id', zbx_objectValues($rights, 'id'));
+				' WHERE '.dbConditionInt('groupid', $usrgrpids).
+					' AND '.dbConditionInt('id', zbx_objectValues($rights, 'id'));
 			$linkedRightsDb = DBselect($sql);
 			while ($link = DBfetch($linkedRightsDb)) {
 				if (!isset($linkedRights[$link['groupid']])) $linkedRights[$link['groupid']] = array();
@@ -370,7 +363,7 @@ class CUserGroup extends CZBXAPI {
 			$rightInsert = array();
 			foreach ($usrgrpids as $usrgrpid) {
 				foreach ($rights as $right) {
-					if (!isset($linkedUsers[$usrgrpid][$right['id']])) {
+					if (!isset($linkedRights[$usrgrpid][$right['id']])) {
 						$rightInsert[] = array(
 							'groupid' => $usrgrpid,
 							'permission' => $right['permission'],
@@ -701,7 +694,6 @@ class CUserGroup extends CZBXAPI {
 		$ids = array_unique($ids);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'usrgrpids' => $ids,
 			'countOutput' => true
 		));
@@ -720,7 +712,6 @@ class CUserGroup extends CZBXAPI {
 		$ids = array_unique($ids);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'usrgrpids' => $ids,
 			'editable' => true,
 			'countOutput' => true

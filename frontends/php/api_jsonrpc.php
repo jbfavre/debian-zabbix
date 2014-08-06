@@ -19,6 +19,15 @@
 **/
 
 
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Max-Age: 1000');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+	return;
+}
+
 require_once dirname(__FILE__).'/include/func.inc.php';
 require_once dirname(__FILE__).'/include/classes/class.chttp_request.php';
 
@@ -34,9 +43,8 @@ $content_type = $content_type[0];
 
 if (!isset($allowed_content[$content_type])) {
 	header('HTTP/1.0 412 Precondition Failed');
-	exit();
+	return;
 }
-
 
 require_once dirname(__FILE__).'/include/classes/core/Z.php';
 
@@ -46,7 +54,12 @@ $data = $http_request->body();
 try {
 	Z::getInstance()->run(ZBase::EXEC_MODE_API);
 
-	$jsonRpc = new CJSONrpc($data);
+	$apiClient = API::getWrapper()->getClient();
+
+	// unset wrappers so that calls between methods would be made directly to the services
+	API::setWrapper();
+
+	$jsonRpc = new CJSONrpc($apiClient, $data);
 	echo $jsonRpc->execute();
 }
 catch (Exception $e) {
@@ -64,4 +77,3 @@ catch (Exception $e) {
 
 	echo CJs::encodeJson($response);
 }
-

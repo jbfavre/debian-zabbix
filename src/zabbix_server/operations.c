@@ -62,9 +62,8 @@ static zbx_uint64_t	select_discovered_host(const DB_EVENT *event)
 					" and " ZBX_SQL_NULLCMP("dr.proxy_hostid", "h.proxy_hostid")
 					" and i.useip=1"
 					" and ds.dhostid=" ZBX_FS_UI64
-					ZBX_SQL_NODE
 				" order by i.hostid",
-				event->objectid, DBand_node_local("i.interfaceid"));
+				event->objectid);
 			break;
 		case EVENT_OBJECT_DSERVICE:
 			sql = zbx_dsprintf(sql,
@@ -77,9 +76,8 @@ static zbx_uint64_t	select_discovered_host(const DB_EVENT *event)
 					" and " ZBX_SQL_NULLCMP("dr.proxy_hostid", "h.proxy_hostid")
 					" and i.useip=1"
 					" and ds.dserviceid =" ZBX_FS_UI64
-					ZBX_SQL_NODE
 				" order by i.hostid",
-				event->objectid, DBand_node_local("i.interfaceid"));
+				event->objectid);
 			break;
 		default:
 			goto exit;
@@ -267,11 +265,8 @@ static zbx_uint64_t	add_discovered_host(const DB_EVENT *event)
 							" and i.ip=ds.ip"
 							" and h.proxy_hostid%s"
 							" and ds.dhostid=" ZBX_FS_UI64
-							ZBX_SQL_NODE
 						" order by h.hostid",
-						DBsql_id_cmp(proxy_hostid),
-						dhostid,
-						DBand_node_local("h.hostid"));
+						DBsql_id_cmp(proxy_hostid), dhostid);
 
 				if (NULL != (row2 = DBfetch(result2)))
 					ZBX_STR2UINT64(hostid, row2[0]);
@@ -292,11 +287,17 @@ static zbx_uint64_t	add_discovered_host(const DB_EVENT *event)
 
 				zbx_free(host);
 
-				DBexecute("insert into hosts"
-							" (hostid,proxy_hostid,host,name)"
-						" values"
-							" (" ZBX_FS_UI64 ",%s,'%s','%s')",
+#ifdef HAVE_MYSQL
+				/* MySQL: BLOB and TEXT columns doesn't have a default value; */
+				/* we shall add them into an insert statement */
+				DBexecute("insert into hosts (hostid,proxy_hostid,host,name,description)"
+						" values (" ZBX_FS_UI64 ",%s,'%s','%s','')",
 						hostid, DBsql_id_ins(proxy_hostid), host_esc, host_esc);
+#else
+				DBexecute("insert into hosts (hostid,proxy_hostid,host,name)"
+						" values (" ZBX_FS_UI64 ",%s,'%s','%s')",
+						hostid, DBsql_id_ins(proxy_hostid), host_esc, host_esc);
+#endif
 
 				DBadd_interface(hostid, interface_type, 1, row[2], row[3], port);
 
@@ -351,11 +352,9 @@ static zbx_uint64_t	add_discovered_host(const DB_EVENT *event)
 					" where host='%s'"
 						" and flags<>%d"
 						" and status in (%d,%d)"
-						ZBX_SQL_NODE
 					" order by hostid",
 					host_esc, ZBX_FLAG_DISCOVERY_PROTOTYPE,
-					HOST_STATUS_MONITORED, HOST_STATUS_NOT_MONITORED,
-					DBand_node_local("hostid"));
+					HOST_STATUS_MONITORED, HOST_STATUS_NOT_MONITORED);
 
 			result2 = DBselectN(sql, 1);
 
@@ -365,11 +364,17 @@ static zbx_uint64_t	add_discovered_host(const DB_EVENT *event)
 			{
 				hostid = DBget_maxid("hosts");
 
-				DBexecute("insert into hosts"
-							" (hostid,proxy_hostid,host,name)"
-						" values"
-							" (" ZBX_FS_UI64 ",%s,'%s','%s')",
+#ifdef HAVE_MYSQL
+				/* MySQL: BLOB and TEXT columns doesn't have a default value; */
+				/* we shall add them into an insert statement */
+				DBexecute("insert into hosts (hostid,proxy_hostid,host,name,description)"
+						" values (" ZBX_FS_UI64 ",%s,'%s','%s','')",
 						hostid, DBsql_id_ins(proxy_hostid), host_esc, host_esc);
+#else
+				DBexecute("insert into hosts (hostid,proxy_hostid,host,name)"
+						" values (" ZBX_FS_UI64 ",%s,'%s','%s')",
+						hostid, DBsql_id_ins(proxy_hostid), host_esc, host_esc);
+#endif
 
 				DBadd_interface(hostid, INTERFACE_TYPE_AGENT, 1, row[2], row[3], port);
 

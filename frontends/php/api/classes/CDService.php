@@ -24,7 +24,7 @@
  *
  * @package API
  */
-class CDService extends CZBXAPI{
+class CDService extends CApiService {
 
 	protected $tableName = 'dservices';
 	protected $tableAlias = 'ds';
@@ -34,7 +34,6 @@ class CDService extends CZBXAPI{
 	 * Get discovery service data.
 	 *
 	 * @param array  $options
-	 * @param array  $options['nodeids']				Node IDs
 	 * @param array  $options['groupids']				ServiceGroup IDs
 	 * @param array  $options['hostids']				Service IDs
 	 * @param bool   $options['monitored_hosts']		only monitored Services
@@ -60,7 +59,6 @@ class CDService extends CZBXAPI{
 	 */
 	public function get($options = array()) {
 		$result = array();
-		$nodeCheck = false;
 		$userType = self::$userData['type'];
 
 		$sqlParts = array(
@@ -73,7 +71,6 @@ class CDService extends CZBXAPI{
 		);
 
 		$defOptions = array(
-			'nodeids'					=> null,
 			'dserviceids'				=> null,
 			'dhostids'					=> null,
 			'dcheckids'					=> null,
@@ -88,7 +85,7 @@ class CDService extends CZBXAPI{
 			'excludeSearch'				=> null,
 			'searchWildcardsEnabled'	=> null,
 			// output
-			'output'					=> API_OUTPUT_REFER,
+			'output'					=> API_OUTPUT_EXTEND,
 			'selectDRules'				=> null,
 			'selectDHosts'				=> null,
 			'selectHosts'				=> null,
@@ -111,43 +108,27 @@ class CDService extends CZBXAPI{
 			return array();
 		}
 
-// nodeids
-		$nodeids = !is_null($options['nodeids']) ? $options['nodeids'] : get_current_nodeid();
-
 // dserviceids
 		if (!is_null($options['dserviceids'])) {
 			zbx_value2array($options['dserviceids']);
 			$sqlParts['where']['dserviceid'] = dbConditionInt('ds.dserviceid', $options['dserviceids']);
-
-			if (!$nodeCheck) {
-				$nodeCheck = true;
-				$sqlParts['where'] = sqlPartDbNode($sqlParts['where'], 'ds.dserviceid', $nodeids);
-			}
 		}
 
 // dhostids
 		if (!is_null($options['dhostids'])) {
 			zbx_value2array($options['dhostids']);
 
-			$sqlParts['select']['dhostid'] = 'ds.dhostid';
 			$sqlParts['where'][] = dbConditionInt('ds.dhostid', $options['dhostids']);
 
 			if (!is_null($options['groupCount'])) {
 				$sqlParts['group']['dhostid'] = 'ds.dhostid';
 			}
-
-			if (!$nodeCheck) {
-				$nodeCheck = true;
-				$sqlParts['where'] = sqlPartDbNode($sqlParts['where'], 'ds.dhostid', $nodeids);
-			}
 		}
-
 
 // dcheckids
 		if (!is_null($options['dcheckids'])) {
 			zbx_value2array($options['dcheckids']);
 
-			$sqlParts['select']['dcheckid'] = 'dc.dcheckid';
 			$sqlParts['from']['dhosts'] = 'dhosts dh';
 			$sqlParts['from']['dchecks'] = 'dchecks dc';
 
@@ -164,7 +145,6 @@ class CDService extends CZBXAPI{
 		if (!is_null($options['druleids'])) {
 			zbx_value2array($options['druleids']);
 
-			$sqlParts['select']['druleid'] = 'dh.druleid';
 			$sqlParts['from']['dhosts'] = 'dhosts dh';
 
 			$sqlParts['where']['druleid'] = dbConditionInt('dh.druleid', $options['druleids']);
@@ -173,17 +153,6 @@ class CDService extends CZBXAPI{
 			if (!is_null($options['groupCount'])) {
 				$sqlParts['group']['druleid'] = 'dh.druleid';
 			}
-
-			if (!$nodeCheck) {
-				$nodeCheck = true;
-				$sqlParts['where'] = sqlPartDbNode($sqlParts['where'], 'dh.druleid', $nodeids);
-			}
-		}
-
-		// node check !!!!!
-		// should last, after all ****IDS checks
-		if (!$nodeCheck) {
-			$sqlParts['where'] = sqlPartDbNode($sqlParts['where'], 'ds.dserviceid', $nodeids);
 		}
 
 // filter
@@ -204,7 +173,6 @@ class CDService extends CZBXAPI{
 
 		$sqlParts = $this->applyQueryOutputOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$sqlParts = $this->applyQuerySortOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
-		$sqlParts = $this->applyQueryNodeOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$res = DBselect($this->createSelectQueryFromParts($sqlParts), $sqlParts['limit']);
 		while ($dservice = DBfetch($res)) {
 			if (!is_null($options['countOutput'])) {
@@ -213,28 +181,8 @@ class CDService extends CZBXAPI{
 				else
 					$result = $dservice['rowscount'];
 			}
-			else{
-				if (!isset($result[$dservice['dserviceid']])) {
-					$result[$dservice['dserviceid']]= array();
-				}
-
-				// druleids
-				if (isset($dservice['druleid']) && is_null($options['selectDRules'])) {
-					if (!isset($result[$dservice['dserviceid']]['drules']))
-						$result[$dservice['dserviceid']]['drules'] = array();
-
-					$result[$dservice['dserviceid']]['drules'][] = array('druleid' => $dservice['druleid']);
-				}
-
-				// dhostids
-				if (isset($dservice['dhostid']) && is_null($options['selectDHosts'])) {
-					if (!isset($result[$dservice['dserviceid']]['dhosts']))
-						$result[$dservice['dserviceid']]['dhosts'] = array();
-
-					$result[$dservice['dserviceid']]['dhosts'][] = array('dhostid' => $dservice['dhostid']);
-				}
-
-				$result[$dservice['dserviceid']] += $dservice;
+			else {
+				$result[$dservice['dserviceid']] = $dservice;
 			}
 		}
 
@@ -255,23 +203,25 @@ class CDService extends CZBXAPI{
 	return $result;
 	}
 
+	/**
+	 * Check if discovered service exists.
+	 *
+	 * @deprecated	As of version 2.4, use get method instead.
+	 *
+	 * @param array	$object
+	 *
+	 * @return bool
+	 */
 	public function exists($object) {
-		$keyFields = array(array('dserviceid'));
+		$this->deprecated('dservice.exists method is deprecated.');
 
-		$options = array(
-			'filter' => zbx_array_mintersect($keyFields, $object),
+		$objs = $this->get(array(
+			'filter' => zbx_array_mintersect(array(array('dserviceid')), $object),
 			'output' => array('dserviceid'),
-			'nopermissions' => 1,
 			'limit' => 1
-		);
-		if (isset($object['node']))
-			$options['nodeids'] = getNodeIdByNodeName($object['node']);
-		elseif (isset($object['nodeids']))
-			$options['nodeids'] = $object['nodeids'];
+		));
 
-		$objs = $this->get($options);
-
-	return !empty($objs);
+		return !empty($objs);
 	}
 
 	protected function applyQueryOutputOptions($tableName, $tableAlias, array $options, array $sqlParts) {
@@ -307,7 +257,6 @@ class CDService extends CZBXAPI{
 
 			$drules = API::DRule()->get(array(
 				'output' => $options['selectDRules'],
-				'nodeids' => $options['nodeids'],
 				'druleids' => $relationMap->getRelatedIds(),
 				'preservekeys' => true
 			));
@@ -322,7 +271,6 @@ class CDService extends CZBXAPI{
 			$relationMap = $this->createRelationMap($result, 'dserviceid', 'dhostid');
 			$dhosts = API::DHost()->get(array(
 				'output' => $options['selectDHosts'],
-				'nodeids' => $options['nodeids'],
 				'dhosts' => $relationMap->getRelatedIds(),
 				'preservekeys' => true
 			));
@@ -349,7 +297,6 @@ class CDService extends CZBXAPI{
 
 				$hosts = API::Host()->get(array(
 					'output' => $options['selectHosts'],
-					'nodeids' => $options['nodeids'],
 					'hostids' => $relationMap->getRelatedIds(),
 					'preservekeys' => true,
 					'sortfield' => 'status'
@@ -361,7 +308,6 @@ class CDService extends CZBXAPI{
 			}
 			else {
 				$hosts = API::Host()->get(array(
-					'nodeids' => $options['nodeids'],
 					'dserviceids' => $dserviceIds,
 					'countOutput' => true,
 					'groupCount' => true

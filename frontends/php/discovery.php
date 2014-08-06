@@ -17,8 +17,8 @@
 ** along with this program; if not, write to the Free Software
 ** Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **/
-?>
-<?php
+
+
 require_once dirname(__FILE__).'/include/config.inc.php';
 require_once dirname(__FILE__).'/include/discovery.inc.php';
 
@@ -34,10 +34,10 @@ $fields = array(
 	'fullscreen' =>	array(T_ZBX_INT, O_OPT, P_SYS, IN('0,1'),	null)
 );
 check_fields($fields);
-validate_sort_and_sortorder('ip', ZBX_SORT_UP);
+validate_sort_and_sortorder('ip', ZBX_SORT_UP, array('ip'));
 
 // check discovery for existing if defined druleid
-if ($druleid = get_request('druleid')) {
+if ($druleid = getRequest('druleid')) {
 	$dbDRule = API::DRule()->get(array(
 			'druleids' => $druleid,
 			'countOutput' => true
@@ -52,16 +52,16 @@ if ($druleid = get_request('druleid')) {
  */
 $data = array(
 	'fullscreen' => $_REQUEST['fullscreen'],
-	'druleid' => get_request('druleid', 0),
-	'sort' => get_request('sort'),
-	'sortorder' => get_request('sortorder'),
+	'druleid' => getRequest('druleid', 0),
+	'sort' => getRequest('sort'),
+	'sortorder' => getRequest('sortorder'),
 	'services' => array(),
 	'drules' => array()
 );
 
 $data['pageFilter'] = new CPageFilter(array(
 	'drules' => array('filter' => array('status' => DRULE_STATUS_ACTIVE)),
-	'druleid' => get_request('druleid', null)
+	'druleid' => getRequest('druleid')
 ));
 
 if ($data['pageFilter']->drulesSelected) {
@@ -126,8 +126,8 @@ if ($data['pageFilter']->drulesSelected) {
 	// discovery hosts
 	$data['dhosts'] = API::DHost()->get(array(
 		'druleids' => zbx_objectValues($data['drules'], 'druleid'),
-		'selectDServices' => API_OUTPUT_REFER,
-		'output' => API_OUTPUT_REFER
+		'selectDServices' => array('dserviceid', 'ip', 'dns', 'type', 'status', 'key_'),
+		'output' => array('dhostid', 'lastdown', 'lastup', 'druleid')
 	));
 	$data['dhosts'] = zbx_toHash($data['dhosts'], 'dhostid');
 }
@@ -138,4 +138,3 @@ $discoveryView->render();
 $discoveryView->show();
 
 require_once dirname(__FILE__).'/include/page_footer.php';
-?>

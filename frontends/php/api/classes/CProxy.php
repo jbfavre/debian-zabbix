@@ -24,7 +24,7 @@
  *
  * @package API
  */
-class CProxy extends CZBXAPI {
+class CProxy extends CApiService {
 
 	protected $tableName = 'hosts';
 	protected $tableAlias = 'h';
@@ -34,7 +34,6 @@ class CProxy extends CZBXAPI {
 	 * Get proxy data.
 	 *
 	 * @param array  $options
-	 * @param array  $options['nodeids']
 	 * @param array  $options['proxyids']
 	 * @param bool   $options['editable']	only with read-write permission. Ignored for SuperAdmins
 	 * @param int    $options['count']		returns value in rowscount
@@ -59,7 +58,6 @@ class CProxy extends CZBXAPI {
 		);
 
 		$defOptions = array(
-			'nodeids'					=> null,
 			'proxyids'					=> null,
 			'editable'					=> null,
 			'nopermissions'				=> null,
@@ -71,20 +69,16 @@ class CProxy extends CZBXAPI {
 			'excludeSearch'				=> null,
 			'searchWildcardsEnabled'	=> null,
 			// output
-			'output'					=> API_OUTPUT_REFER,
+			'output'					=> API_OUTPUT_EXTEND,
 			'countOutput'				=> null,
 			'preservekeys'				=> null,
 			'selectHosts'				=> null,
 			'selectInterface'			=> null,
-			'selectInterfaces'			=> null, // deprecated
 			'sortfield'					=> '',
 			'sortorder'					=> '',
 			'limit'						=> null
 		);
 		$options = zbx_array_merge($defOptions, $options);
-
-		// deprecated
-		$this->checkDeprecatedParam($options, 'selectInterfaces');
 
 		// editable + PERMISSION CHECK
 		if ($userType != USER_TYPE_SUPER_ADMIN && !$options['nopermissions']) {
@@ -131,7 +125,6 @@ class CProxy extends CZBXAPI {
 
 		$sqlParts = $this->applyQueryOutputOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$sqlParts = $this->applyQuerySortOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
-		$sqlParts = $this->applyQueryNodeOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$res = DBselect($this->createSelectQueryFromParts($sqlParts), $sqlParts['limit']);
 		while ($proxy = DBfetch($res)) {
 			if ($options['countOutput']) {
@@ -141,11 +134,7 @@ class CProxy extends CZBXAPI {
 				$proxy['proxyid'] = $proxy['hostid'];
 				unset($proxy['hostid']);
 
-				if (!isset($result[$proxy['proxyid']])) {
-					$result[$proxy['proxyid']]= array();
-				}
-
-				$result[$proxy['proxyid']] += $proxy;
+				$result[$proxy['proxyid']] = $proxy;
 			}
 		}
 
@@ -242,6 +231,7 @@ class CProxy extends CZBXAPI {
 				}
 
 				$proxiesExists = $this->get(array(
+					'output' => array('proxyid'),
 					'filter' => array('host' => $proxy['host'])
 				));
 				foreach ($proxiesExists as $proxyExists) {
@@ -300,7 +290,14 @@ class CProxy extends CZBXAPI {
 		)));
 	}
 
-	public function create($proxies) {
+	/**
+	 * Create proxy.
+	 *
+	 * @param array $proxies
+	 *
+	 * @return array
+	 */
+	public function create(array $proxies) {
 		$proxies = zbx_toArray($proxies);
 
 		$proxies = $this->convertDeprecatedValues($proxies);
@@ -333,16 +330,21 @@ class CProxy extends CZBXAPI {
 		return array('proxyids' => $proxyIds);
 	}
 
-	public function update($proxies) {
+	/**
+	 * Update proxy.
+	 *
+	 * @param array $proxies
+	 *
+	 * @return array
+	 */
+	public function update(array $proxies) {
 		$proxies = zbx_toArray($proxies);
 
 		$proxies = $this->convertDeprecatedValues($proxies);
 
 		$this->checkInput($proxies, __FUNCTION__);
 
-		$proxyIds = array();
-		$proxyUpdate = array();
-		$hostUpdate = array();
+		$proxyIds = $proxyUpdate = $hostUpdate = array();
 
 		foreach ($proxies as $proxy) {
 			$proxyIds[] = $proxy['proxyid'];
@@ -404,26 +406,11 @@ class CProxy extends CZBXAPI {
 	/**
 	 * Delete proxy.
 	 *
-	 * @param string|array $proxyIds
+	 * @param array	$proxyIds
 	 *
 	 * @return array
 	 */
-	public function delete($proxyIds) {
-		$proxyIds = zbx_toArray($proxyIds);
-
-		// deprecated input support
-		if ($proxyIds && is_array($proxyIds[0])) {
-			$this->deprecated('Passing objects is deprecated, use an array of IDs instead.');
-
-			foreach ($proxyIds as $proxyId) {
-				if (!check_db_fields(array('proxyid' => null), $proxyId)) {
-					self::exception(ZBX_API_ERROR_PARAMETERS, _('No proxy ID given.'));
-				}
-			}
-
-			$proxyIds = zbx_objectValues($proxyIds, 'proxyid');
-		}
-
+	public function delete(array $proxyIds) {
 		$this->validateDelete($proxyIds);
 
 		$dbProxies = DBselect(
@@ -507,7 +494,6 @@ class CProxy extends CZBXAPI {
 		$proxyIds = array_unique($proxyIds);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'proxyids' => $proxyIds,
 			'countOutput' => true
 		));
@@ -530,7 +516,6 @@ class CProxy extends CZBXAPI {
 		$proxyIds = array_unique($proxyIds);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'proxyids' => $proxyIds,
 			'editable' => true,
 			'countOutput' => true
@@ -610,8 +595,7 @@ class CProxy extends CZBXAPI {
 		// selectHosts
 		if ($options['selectHosts'] !== null && $options['selectHosts'] != API_OUTPUT_COUNT) {
 			$hosts = API::Host()->get(array(
-				'output' => $this->outputExtend('hosts', array('hostid', 'proxy_hostid'), $options['selectHosts']),
-				'nodeids' => $options['nodeids'],
+				'output' => $this->outputExtend($options['selectHosts'], array('hostid', 'proxy_hostid')),
 				'proxyids' => $proxyIds,
 				'preservekeys' => true
 			));
@@ -624,8 +608,7 @@ class CProxy extends CZBXAPI {
 		// adding host interface
 		if ($options['selectInterface'] !== null && $options['selectInterface'] != API_OUTPUT_COUNT) {
 			$interfaces = API::HostInterface()->get(array(
-				'output' => $this->outputExtend('interface', array('interfaceid', 'hostid'), $options['selectInterface']),
-				'nodeids' => $options['nodeids'],
+				'output' => $this->outputExtend($options['selectInterface'], array('interfaceid', 'hostid')),
 				'hostids' => $proxyIds,
 				'nopermissions' => true,
 				'preservekeys' => true
@@ -638,27 +621,6 @@ class CProxy extends CZBXAPI {
 			foreach ($result as $key => $proxy) {
 				if (!empty($proxy['interface'])) {
 					$result[$key]['interface'] = $proxy['interface'];
-				}
-			}
-		}
-
-		// adding host interfaces (deprecated)
-		if ($options['selectInterfaces'] !== null && $options['selectInterfaces'] != API_OUTPUT_COUNT) {
-			$interfaces = API::HostInterface()->get(array(
-				'output' => $this->outputExtend('interface', array('interfaceid', 'hostid'), $options['selectInterfaces']),
-				'nodeids' => $options['nodeids'],
-				'hostids' => $proxyIds,
-				'nopermissions' => true,
-				'preservekeys' => true
-			));
-
-			$relationMap = $this->createRelationMap($interfaces, 'hostid', 'interfaceid');
-			$interfaces = $this->unsetExtraFields($interfaces, array('hostid', 'interfaceid'), $options['selectInterfaces']);
-			$result = $relationMap->mapOne($result, $interfaces, 'interfaces');
-
-			foreach ($result as $key => $proxy) {
-				if (!empty($proxy['interfaces'])) {
-					$result[$key]['interfaces'] = array($proxy['interfaces']);
 				}
 			}
 		}
