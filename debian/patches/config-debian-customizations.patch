@@ -26,8 +26,8 @@
 +
  ### Option: DebugLevel
  #	Specifies debug level
- #	0 - no debug
-@@ -233,14 +237,15 @@ Hostname=Zabbix server
+ #	0 - basic information about starting and stopping of Zabbix processes
+@@ -242,15 +246,15 @@ Hostname=Zabbix server
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.
@@ -40,6 +40,7 @@
  
 -# Include=/usr/local/etc/zabbix_agentd.userparams.conf
 -# Include=/usr/local/etc/zabbix_agentd.conf.d/
+-# Include=/usr/local/etc/zabbix_agentd.conf.d/*.conf
 +# Include=/etc/zabbix/zabbix_agentd.userparams.conf
 +# Include=/etc/zabbix/zabbix_agentd.conf.d/
 +Include=/etc/zabbix/zabbix_agentd.conf.d/
@@ -59,7 +60,7 @@
  #	Maximum size of log file in MB.
 --- a/conf/zabbix_server.conf
 +++ b/conf/zabbix_server.conf
-@@ -36,7 +36,7 @@
+@@ -27,7 +27,7 @@
  # Default:
  # LogFile=
  
@@ -68,7 +69,7 @@
  
  ### Option: LogFileSize
  #	Maximum size of log file in MB.
-@@ -66,6 +66,7 @@ LogFile=/tmp/zabbix_server.log
+@@ -57,6 +57,7 @@ LogFile=/tmp/zabbix_server.log
  # Mandatory: no
  # Default:
  # PidFile=/tmp/zabbix_server.pid
@@ -76,7 +77,7 @@
  
  ### Option: DBHost
  #	Database host name.
-@@ -100,7 +101,7 @@ DBName=zabbix
+@@ -91,7 +92,7 @@ DBName=zabbix
  # Default:
  # DBUser=
  
@@ -85,7 +86,7 @@
  
  ### Option: DBPassword
  #	Database password. Ignored for SQLite.
-@@ -433,6 +434,8 @@ DBUser=root
+@@ -406,6 +407,8 @@ DBUser=root
  # Default:
  # AlertScriptsPath=${datadir}/zabbix/alertscripts
  
@@ -94,7 +95,7 @@
  ### Option: ExternalScripts
  #	Full path to location of external scripts.
  #	Default depends on compilation options.
-@@ -449,6 +452,8 @@ DBUser=root
+@@ -422,6 +425,8 @@ DBUser=root
  # Default:
  # FpingLocation=/usr/sbin/fping
  
@@ -103,7 +104,7 @@
  ### Option: Fping6Location
  #	Location of fping6.
  #	Make sure that fping6 binary has root ownership and SUID flag set.
-@@ -458,6 +463,8 @@ DBUser=root
+@@ -431,6 +436,8 @@ DBUser=root
  # Default:
  # Fping6Location=/usr/sbin/fping6
  
@@ -112,7 +113,7 @@
  ### Option: SSHKeyLocation
  #	Location of public and private keys for SSH checks and actions.
  #
-@@ -520,14 +527,14 @@ DBUser=root
+@@ -502,15 +509,15 @@ DBUser=root
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.
@@ -125,11 +126,13 @@
  
 -# Include=/usr/local/etc/zabbix_server.general.conf
 -# Include=/usr/local/etc/zabbix_server.conf.d/
+-# Include=/usr/local/etc/zabbix_server.conf.d/*.conf
 +# Include=/etc/zabbix/zabbix_server.general.conf
 +# Include=/etc/zabbix/zabbix_server.conf.d/
++# Include=/etc/zabbix/zabbix_server.conf.d/*.conf
  
- ####### LOADABLE MODULES #######
- 
+ ### Option: SSLCertLocation
+ #	Location of SSL client certificates.
 --- a/frontends/php/conf/zabbix.conf.php.example
 +++ b/frontends/php/conf/zabbix.conf.php.example
 @@ -2,16 +2,17 @@

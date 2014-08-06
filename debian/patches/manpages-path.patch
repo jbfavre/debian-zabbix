@@ -27,7 +27,7 @@ Description: correct location of config files in man pages
  .BR zabbix_agentd (8),
 --- a/man/zabbix_server.man
 +++ b/man/zabbix_server.man
-@@ -30,7 +30,7 @@ Display this help and exit.
+@@ -28,7 +28,7 @@ Display this help and exit.
  Output version information and exit.
  .SH FILES
  .TP

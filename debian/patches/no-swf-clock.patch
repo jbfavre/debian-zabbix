@@ -5,7 +5,7 @@ Forwarded: 2012-03-22
 
 --- a/frontends/php/api/classes/CScreenItem.php
 +++ b/frontends/php/api/classes/CScreenItem.php
-@@ -42,7 +42,8 @@ class CScreenItem extends CZBXAPI {
+@@ -42,7 +42,8 @@ class CScreenItem extends CApiService {
  		SCREEN_RESOURCE_HOSTS_INFO,
  		SCREEN_RESOURCE_TRIGGERS_INFO,
  		SCREEN_RESOURCE_SERVER_INFO,
@@ -26,4 +26,4 @@ Forwarded: 2012-03-22
 +		#SCREEN_RESOURCE_CLOCK => _('Clock'),
  		SCREEN_RESOURCE_DATA_OVERVIEW => _('Data overview'),
  		SCREEN_RESOURCE_GRAPH => _('Graph'),
- 		SCREEN_RESOURCE_ACTIONS => _('History of actions'),
+ 		SCREEN_RESOURCE_ACTIONS => _('Action log'),
