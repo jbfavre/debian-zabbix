@@ -1,7 +1,7 @@
 <?php
 /*
 ** Zabbix
-** Copyright (C) 2000-2012 Zabbix SIA
+** Copyright (C) 2001-2014 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@ class CHostPrototype extends CHostBase {
 		$hostPrototypeValidator = new CSchemaValidator($this->getHostPrototypeSchema());
 		$hostPrototypeValidator->setValidator('ruleid', new CIdValidator(array(
 			'messageEmpty' => _('No discovery rule ID given for host prototype "%1$s".'),
-			'messageRegex' => _('Incorrect discovery rule ID for host prototype "%1$s".')
+			'messageInvalid' => _('Incorrect discovery rule ID for host prototype "%1$s".')
 		)));
 
 		// group validators
@@ -143,7 +143,7 @@ class CHostPrototype extends CHostBase {
 		$this->checkHostGroupsPermissions($groupPrototypeGroupIds);
 
 		// check if the host is discovered
-		$discoveryRules = API::getApi()->select('items', array(
+		$discoveryRules = API::getApiService()->select('items', array(
 			'output' => array('hostid'),
 			'itemids' => zbx_objectValues($hostPrototypes, 'ruleid')
 		));
@@ -180,7 +180,7 @@ class CHostPrototype extends CHostBase {
 					// just in case
 					'messageEmpty' => _('Empty name for host prototype "%1$s".')
 				)),
-				'status' => new CSetValidator(array(
+				'status' => new CLimitedSetValidator(array(
 					'values' => array(HOST_STATUS_MONITORED, HOST_STATUS_NOT_MONITORED),
 					'messageInvalid' => _('Incorrect status for host prototype "%1$s".')
 				)),
@@ -238,7 +238,7 @@ class CHostPrototype extends CHostBase {
 			'validators' => array(
 				'groupid' => new CIdValidator(array(
 					'messageEmpty' => _('No host group ID for group prototype.'),
-					'messageRegex' => _('Incorrect host group ID for group prototype.')
+					'messageInvalid' => _('Incorrect host group ID for group prototype.')
 				))
 			),
 			'required' => array('groupid'),
@@ -393,14 +393,14 @@ class CHostPrototype extends CHostBase {
 		$groupLinkValidator = new CPartialSchemaValidator($this->getGroupLinkSchema());
 		$groupLinkValidator->setValidator('group_prototypeid', new CIdValidator(array(
 			'messageEmpty' => _('Group prototype ID cannot be empty.'),
-			'messageRegex' => _('Incorrect group prototype ID.')
+			'messageInvalid' => _('Incorrect group prototype ID.')
 		)));
 
 		// group prototype validator
 		$groupPrototypeValidator = new CPartialSchemaValidator($this->getGroupPrototypeSchema());
 		$groupPrototypeValidator->setValidator('group_prototypeid', new CIdValidator(array(
 			'messageEmpty' => _('Group prototype ID cannot be empty.'),
-			'messageRegex' => _('Incorrect group prototype ID.')
+			'messageInvalid' => _('Incorrect group prototype ID.')
 		)));
 
 		$groupPrototypeGroupIds = array();
@@ -915,13 +915,12 @@ class CHostPrototype extends CHostBase {
 	/**
 	 * Delete host prototypes.
 	 *
-	 * @param string|array 	$hostPrototypeIds
-	 * @param bool 			$nopermissions		if set to true, permission and template checks will be skipped
+	 * @param array 	$hostPrototypeIds
+	 * @param bool 		$nopermissions		if set to true, permission and template checks will be skipped
 	 *
 	 * @return array
 	 */
-	public function delete($hostPrototypeIds, $nopermissions = false) {
-		$hostPrototypeIds = zbx_toArray($hostPrototypeIds);
+	public function delete(array $hostPrototypeIds, $nopermissions = false) {
 		$this->validateDelete($hostPrototypeIds, $nopermissions);
 
 		// include child IDs
@@ -1209,7 +1208,6 @@ class CHostPrototype extends CHostBase {
 			$relationMap = $this->createRelationMap($result, 'hostid', 'parent_itemid', 'host_discovery');
 			$discoveryRules = API::DiscoveryRule()->get(array(
 				'output' => $options['selectDiscoveryRule'],
-				'nodeids' => $options['nodeids'],
 				'itemids' => $relationMap->getRelatedIds(),
 				'nopermissions' => true,
 				'preservekeys' => true,
@@ -1226,9 +1224,8 @@ class CHostPrototype extends CHostBase {
 					' AND hg.groupid IS NOT NULL'
 			));
 			$relationMap = $this->createRelationMap($groupPrototypes, 'hostid', 'group_prototypeid');
-			$groupPrototypes = API::getApi()->select('group_prototype', array(
+			$groupPrototypes = API::getApiService()->select('group_prototype', array(
 				'output' => $options['selectGroupLinks'],
-				'nodeids' => $options['nodeids'],
 				'group_prototypeids' => $relationMap->getRelatedIds(),
 				'preservekeys' => true
 			));
@@ -1248,9 +1245,8 @@ class CHostPrototype extends CHostBase {
 					' AND hg.groupid IS NULL'
 			));
 			$relationMap = $this->createRelationMap($groupPrototypes, 'hostid', 'group_prototypeid');
-			$groupPrototypes = API::getApi()->select('group_prototype', array(
+			$groupPrototypes = API::getApiService()->select('group_prototype', array(
 				'output' => $options['selectGroupPrototypes'],
-				'nodeids' => $options['nodeids'],
 				'group_prototypeids' => $relationMap->getRelatedIds(),
 				'preservekeys' => true
 			));
@@ -1276,7 +1272,6 @@ class CHostPrototype extends CHostBase {
 
 			$hosts = API::Host()->get(array(
 				'output' => $options['selectParentHost'],
-				'nodeids' => $options['nodeids'],
 				'hostids' => $relationMap->getRelatedIds(),
 				'templated_hosts' => true,
 				'nopermissions' => true,
@@ -1291,7 +1286,6 @@ class CHostPrototype extends CHostBase {
 				$relationMap = $this->createRelationMap($result, 'hostid', 'templateid', 'hosts_templates');
 				$templates = API::Template()->get(array(
 					'output' => $options['selectTemplates'],
-					'nodeids' => $options['nodeids'],
 					'templateids' => $relationMap->getRelatedIds(),
 					'preservekeys' => true
 				));
@@ -1299,7 +1293,6 @@ class CHostPrototype extends CHostBase {
 			}
 			else {
 				$templates = API::Template()->get(array(
-					'nodeids' => $options['nodeids'],
 					'hostids' => $hostPrototypeIds,
 					'countOutput' => true,
 					'groupCount' => true
@@ -1323,10 +1316,9 @@ class CHostPrototype extends CHostBase {
 			if ($this->outputIsRequested('inventory_mode', $options['selectInventory'])) {
 				$output[] = 'inventory_mode';
 			}
-			$inventory = API::getApi()->select('host_inventory', array(
+			$inventory = API::getApiService()->select('host_inventory', array(
 				'output' => $output,
-				'filter' => array('hostid' => $hostPrototypeIds),
-				'nodeids' => get_current_nodeid(true)
+				'filter' => array('hostid' => $hostPrototypeIds)
 			));
 			$result = $relationMap->mapOne($result, zbx_toHash($inventory, 'hostid'), 'inventory');
 		}

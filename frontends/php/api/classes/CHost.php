@@ -32,7 +32,6 @@ class CHost extends CHostGeneral {
 	 * Get host data.
 	 *
 	 * @param array         $options
-	 * @param array         $options['nodeids']                  Node IDs
 	 * @param array         $options['groupids']                 HostGroup IDs
 	 * @param array         $options['hostids']                  Host IDs
 	 * @param boolean       $options['monitored_hosts']          only monitored Hosts
@@ -77,7 +76,6 @@ class CHost extends CHostGeneral {
 		);
 
 		$defOptions = array(
-			'nodeids'					=> null,
 			'groupids'					=> null,
 			'hostids'					=> null,
 			'proxyids'					=> null,
@@ -108,12 +106,13 @@ class CHost extends CHostGeneral {
 			// filter
 			'filter'					=> null,
 			'search'					=> null,
+			'searchInventory'			=> null,
 			'searchByAny'				=> null,
 			'startSearch'				=> null,
 			'excludeSearch'				=> null,
 			'searchWildcardsEnabled'	=> null,
 			// output
-			'output'					=> API_OUTPUT_REFER,
+			'output'					=> API_OUTPUT_EXTEND,
 			'selectGroups'				=> null,
 			'selectParentTemplates'		=> null,
 			'selectItems'				=> null,
@@ -167,7 +166,6 @@ class CHost extends CHostGeneral {
 		if (!is_null($options['groupids'])) {
 			zbx_value2array($options['groupids']);
 
-			$sqlParts['select']['groupid'] = 'hg.groupid';
 			$sqlParts['from']['hosts_groups'] = 'hosts_groups hg';
 			$sqlParts['where'][] = dbConditionInt('hg.groupid', $options['groupids']);
 			$sqlParts['where']['hgh'] = 'hg.hostid=h.hostid';
@@ -181,7 +179,6 @@ class CHost extends CHostGeneral {
 		if (!is_null($options['proxyids'])) {
 			zbx_value2array($options['proxyids']);
 
-			$sqlParts['select']['proxy_hostid'] = 'h.proxy_hostid';
 			$sqlParts['where'][] = dbConditionInt('h.proxy_hostid', $options['proxyids']);
 		}
 
@@ -189,7 +186,6 @@ class CHost extends CHostGeneral {
 		if (!is_null($options['templateids'])) {
 			zbx_value2array($options['templateids']);
 
-			$sqlParts['select']['parent_templateid'] = 'ht.templateid as parent_templateid';
 			$sqlParts['from']['hosts_templates'] = 'hosts_templates ht';
 			$sqlParts['where'][] = dbConditionInt('ht.templateid', $options['templateids']);
 			$sqlParts['where']['hht'] = 'h.hostid=ht.hostid';
@@ -203,7 +199,6 @@ class CHost extends CHostGeneral {
 		if (!is_null($options['interfaceids'])) {
 			zbx_value2array($options['interfaceids']);
 
-			$sqlParts['select']['interfaceid'] = 'hi.interfaceid';
 			$sqlParts['from']['interface'] = 'interface hi';
 			$sqlParts['where'][] = dbConditionInt('hi.interfaceid', $options['interfaceids']);
 			$sqlParts['where']['hi'] = 'h.hostid=hi.hostid';
@@ -213,7 +208,6 @@ class CHost extends CHostGeneral {
 		if (!is_null($options['itemids'])) {
 			zbx_value2array($options['itemids']);
 
-			$sqlParts['select']['itemid'] = 'i.itemid';
 			$sqlParts['from']['items'] = 'items i';
 			$sqlParts['where'][] = dbConditionInt('i.itemid', $options['itemids']);
 			$sqlParts['where']['hi'] = 'h.hostid=i.hostid';
@@ -223,7 +217,6 @@ class CHost extends CHostGeneral {
 		if (!is_null($options['triggerids'])) {
 			zbx_value2array($options['triggerids']);
 
-			$sqlParts['select']['triggerid'] = 'f.triggerid';
 			$sqlParts['from']['functions'] = 'functions f';
 			$sqlParts['from']['items'] = 'items i';
 			$sqlParts['where'][] = dbConditionInt('f.triggerid', $options['triggerids']);
@@ -235,7 +228,6 @@ class CHost extends CHostGeneral {
 		if (!is_null($options['httptestids'])) {
 			zbx_value2array($options['httptestids']);
 
-			$sqlParts['select']['httptestid'] = 'ht.httptestid';
 			$sqlParts['from']['httptest'] = 'httptest ht';
 			$sqlParts['where'][] = dbConditionInt('ht.httptestid', $options['httptestids']);
 			$sqlParts['where']['aht'] = 'ht.hostid=h.hostid';
@@ -245,7 +237,6 @@ class CHost extends CHostGeneral {
 		if (!is_null($options['graphids'])) {
 			zbx_value2array($options['graphids']);
 
-			$sqlParts['select']['graphid'] = 'gi.graphid';
 			$sqlParts['from']['graphs_items'] = 'graphs_items gi';
 			$sqlParts['from']['items'] = 'items i';
 			$sqlParts['where'][] = dbConditionInt('gi.graphid', $options['graphids']);
@@ -257,7 +248,6 @@ class CHost extends CHostGeneral {
 		if (!is_null($options['applicationids'])) {
 			zbx_value2array($options['applicationids']);
 
-			$sqlParts['select']['applicationid'] = 'a.applicationid';
 			$sqlParts['from']['applications'] = 'applications a';
 			$sqlParts['where'][] = dbConditionInt('a.applicationid', $options['applicationids']);
 			$sqlParts['where']['ah'] = 'a.hostid=h.hostid';
@@ -267,7 +257,6 @@ class CHost extends CHostGeneral {
 		if (!is_null($options['dserviceids'])) {
 			zbx_value2array($options['dserviceids']);
 
-			$sqlParts['select']['dserviceid'] = 'ds.dserviceid';
 			$sqlParts['from']['dservices'] = 'dservices ds';
 			$sqlParts['from']['interface'] = 'interface i';
 			$sqlParts['where'][] = dbConditionInt('ds.dserviceid', $options['dserviceids']);
@@ -283,7 +272,6 @@ class CHost extends CHostGeneral {
 		if (!is_null($options['maintenanceids'])) {
 			zbx_value2array($options['maintenanceids']);
 
-			$sqlParts['select']['maintenanceid'] = 'mh.maintenanceid';
 			$sqlParts['from']['maintenances_hosts'] = 'maintenances_hosts mh';
 			$sqlParts['where'][] = dbConditionInt('mh.maintenanceid', $options['maintenanceids']);
 			$sqlParts['where']['hmh'] = 'h.hostid=mh.hostid';
@@ -409,6 +397,23 @@ class CHost extends CHostGeneral {
 			}
 		}
 
+		// search inventory
+		if ($options['searchInventory'] !== null) {
+			$sqlParts['from']['host_inventory'] = 'host_inventory hii';
+			$sqlParts['where']['hii'] = 'h.hostid=hii.hostid';
+
+			zbx_db_search('host_inventory hii',
+				array(
+					'search' => $options['searchInventory'],
+					'startSearch' => $options['startSearch'],
+					'excludeSearch' => $options['excludeSearch'],
+					'searchWildcardsEnabled' => $options['searchWildcardsEnabled'],
+					'searchByAny' => $options['searchByAny']
+				),
+				$sqlParts
+			);
+		}
+
 		// filter
 		if (is_array($options['filter'])) {
 			$this->dbFilter('hosts h', $options, $sqlParts);
@@ -426,7 +431,6 @@ class CHost extends CHostGeneral {
 
 		$sqlParts = $this->applyQueryOutputOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$sqlParts = $this->applyQuerySortOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
-		$sqlParts = $this->applyQueryNodeOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$res = DBselect($this->createSelectQueryFromParts($sqlParts), $sqlParts['limit']);
 		while ($host = DBfetch($res)) {
 			if (!is_null($options['countOutput'])) {
@@ -438,115 +442,7 @@ class CHost extends CHostGeneral {
 				}
 			}
 			else {
-				if (!isset($result[$host['hostid']])) {
-					$result[$host['hostid']] = array();
-				}
-
-				// groupids
-				if (isset($host['groupid']) && is_null($options['selectGroups'])) {
-					if (!isset($result[$host['hostid']]['groups'])) {
-						$result[$host['hostid']]['groups'] = array();
-					}
-
-					$result[$host['hostid']]['groups'][] = array('groupid' => $host['groupid']);
-					unset($host['groupid']);
-				}
-
-				// templateids
-				if (isset($host['parent_templateid'])) {
-					if (!isset($result[$host['hostid']]['templates'])) {
-						$result[$host['hostid']]['templates'] = array();
-					}
-
-					$result[$host['hostid']]['templates'][] = array(
-						'templateid' => $host['parent_templateid'],
-						'hostid' => $host['parent_templateid']
-					);
-					unset($host['parent_templateid']);
-				}
-
-				// triggerids
-				if (isset($host['triggerid']) && is_null($options['selectTriggers'])) {
-					if (!isset($result[$host['hostid']]['triggers'])) {
-						$result[$host['hostid']]['triggers'] = array();
-					}
-
-					$result[$host['hostid']]['triggers'][] = array('triggerid' => $host['triggerid']);
-					unset($host['triggerid']);
-				}
-
-				// interfaceids
-				if (isset($host['interfaceid']) && is_null($options['selectInterfaces'])) {
-					if (!isset($result[$host['hostid']]['interfaces'])) {
-						$result[$host['hostid']]['interfaces'] = array();
-					}
-
-					$result[$host['hostid']]['interfaces'][] = array('interfaceid' => $host['interfaceid']);
-					unset($host['interfaceid']);
-				}
-
-				// itemids
-				if (isset($host['itemid']) && is_null($options['selectItems'])) {
-					if (!isset($result[$host['hostid']]['items'])) {
-						$result[$host['hostid']]['items'] = array();
-					}
-
-					$result[$host['hostid']]['items'][] = array('itemid' => $host['itemid']);
-					unset($host['itemid']);
-				}
-
-				// graphids
-				if (isset($host['graphid']) && is_null($options['selectGraphs'])) {
-					if (!isset($result[$host['hostid']]['graphs'])) {
-						$result[$host['hostid']]['graphs'] = array();
-					}
-
-					$result[$host['hostid']]['graphs'][] = array('graphid' => $host['graphid']);
-					unset($host['graphid']);
-				}
-
-				// graphids
-				if (isset($host['applicationid'])) {
-					if (!isset($result[$host['hostid']]['applications'])) {
-						$result[$host['hostid']]['applications'] = array();
-					}
-
-					$result[$host['hostid']]['applications'][] = array('applicationid' => $host['applicationid']);
-					unset($host['applicationid']);
-				}
-
-				// httptestids
-				if (isset($host['httptestid'])) {
-					if (!isset($result[$host['hostid']]['httptests'])) {
-						$result[$host['hostid']]['httptests'] = array();
-					}
-
-					$result[$host['hostid']]['httptests'][] = array('httptestid' => $host['httptestid']);
-					unset($host['httptestid']);
-				}
-
-				// dserviceids
-				if (isset($host['dserviceid'])) {
-					if (!isset($result[$host['hostid']]['dservices'])) {
-						$result[$host['hostid']]['dservices'] = array();
-					}
-
-					$result[$host['hostid']]['dservices'][] = array('dserviceid' => $host['dserviceid']);
-					unset($host['dserviceid']);
-				}
-
-				// maintenanceids
-				if (isset($host['maintenanceid'])) {
-					if (!isset($result[$host['hostid']]['maintenances'])) {
-						$result[$host['hostid']]['maintenances'] = array();
-					}
-
-					if ($host['maintenanceid'] > 0) {
-						$result[$host['hostid']]['maintenances'][] = array('maintenanceid' => $host['maintenanceid']);
-					}
-				}
-
-				$result[$host['hostid']] += $host;
+				$result[$host['hostid']] = $host;
 			}
 		}
 
@@ -567,55 +463,37 @@ class CHost extends CHostGeneral {
 	}
 
 	/**
-	 * Get Host ID by Host name
+	 * Get Host ID by Host name.
 	 *
 	 * @param array $host_data
 	 * @param string $host_data['host']
 	 *
-	 * @return int|boolean
+	 * @return array
 	 */
 	public function getObjects($hostData) {
-		$options = array(
+		return $this->get(array(
 			'filter' => $hostData,
 			'output' => API_OUTPUT_EXTEND
-		);
-
-		if (isset($hostData['node'])) {
-			$options['nodeids'] = getNodeIdByNodeName($hostData['node']);
-		}
-		elseif (isset($hostData['nodeids'])) {
-			$options['nodeids'] = $hostData['nodeids'];
-		}
-
-		$result = $this->get($options);
-
-		return $result;
+		));
 	}
 
+	/**
+	 * Check if host exists.
+	 *
+	 * @deprecated	As of version 2.4, use get method instead.
+	 *
+	 * @param array	$object
+	 *
+	 * @return bool
+	 */
 	public function exists($object) {
-		$keyFields = array(
-			array(
-				'hostid',
-				'host',
-				'name'
-			)
-		);
+		$this->deprecated('host.exists method is deprecated.');
 
-		$options = array(
-			'filter' => zbx_array_mintersect($keyFields, $object),
+		$objs = $this->get(array(
+			'filter' => zbx_array_mintersect(array(array('hostid', 'host', 'name')), $object),
 			'output' => array('hostid'),
-			'nopermissions' => 1,
 			'limit' => 1
-		);
-
-		if (isset($object['node'])) {
-			$options['nodeids'] = getNodeIdByNodeName($object['node']);
-		}
-		elseif (isset($object['nodeids'])) {
-			$options['nodeids'] = $object['nodeids'];
-		}
-
-		$objs = $this->get($options);
+		));
 
 		return !empty($objs);
 	}
@@ -641,6 +519,14 @@ class CHost extends CHostGeneral {
 				'editable' => true,
 				'preservekeys' => true
 			));
+
+			foreach ($hosts as $host) {
+				if (!isset($dbHosts[$host['hostid']])) {
+					self::exception(ZBX_API_ERROR_PARAMETERS, _(
+						'No permissions to referred object or it does not exist!'
+					));
+				}
+			}
 		}
 		else {
 			$hostDBfields = array('host' => null);
@@ -658,6 +544,11 @@ class CHost extends CHostGeneral {
 		$inventoryFields = getHostInventories();
 		$inventoryFields = zbx_objectValues($inventoryFields, 'db_field');
 
+		$statusValidator = new CLimitedSetValidator(array(
+			'values' => array(HOST_STATUS_MONITORED, HOST_STATUS_NOT_MONITORED),
+			'messageInvalid' => _('Incorrect status for host "%1$s".')
+		));
+
 		$hostNames = array();
 		foreach ($hosts as &$host) {
 			if (!check_db_fields($hostDBfields, $host)) {
@@ -665,8 +556,14 @@ class CHost extends CHostGeneral {
 					_s('Wrong fields for host "%s".', isset($host['host']) ? $host['host'] : ''));
 			}
 
-			if (isset($host['inventory']) && !empty($host['inventory'])) {
+			if (isset($host['status'])) {
+				$hostName = (isset($host['host'])) ? $host['host'] : $dbHosts[$host['hostid']]['host'];
 
+				$statusValidator->setObjectName($hostName);
+				$this->checkValidator($host['status'], $statusValidator);
+			}
+
+			if (isset($host['inventory']) && !empty($host['inventory'])) {
 				if (isset($host['inventory_mode']) && $host['inventory_mode'] == HOST_INVENTORY_DISABLED) {
 					self::exception(ZBX_API_ERROR_PARAMETERS, _('Cannot set inventory fields for disabled inventory.'));
 				}
@@ -680,14 +577,10 @@ class CHost extends CHostGeneral {
 			}
 
 			$updateDiscoveredValidator = new CUpdateDiscoveredValidator(array(
-				'allowed' => array('hostid', 'status', 'inventory'),
+				'allowed' => array('hostid', 'status', 'inventory', 'description'),
 				'messageAllowedField' => _('Cannot update "%1$s" for a discovered host.')
 			));
 			if ($update) {
-				if (!isset($dbHosts[$host['hostid']])) {
-					self::exception(ZBX_API_ERROR_PARAMETERS, _('No permissions to referred object or it does not exist!'));
-				}
-
 				// cannot update certain fields for discovered hosts
 				$this->checkPartialValidator($host, $updateDiscoveredValidator, $dbHosts[$host['hostid']]);
 			}
@@ -726,7 +619,7 @@ class CHost extends CHostGeneral {
 
 			if (isset($host['host'])) {
 				// Check if host name isn't longer than 64 chars
-				if (zbx_strlen($host['host']) > 64) {
+				if (mb_strlen($host['host']) > 64) {
 					self::exception(
 						ZBX_API_ERROR_PARAMETERS,
 						_n(
@@ -734,7 +627,7 @@ class CHost extends CHostGeneral {
 							'Maximum host name length is %1$d characters, "%2$s" is %3$d characters.',
 							64,
 							$host['host'],
-							zbx_strlen($host['host'])
+							mb_strlen($host['host'])
 						)
 					);
 				}
@@ -762,7 +655,7 @@ class CHost extends CHostGeneral {
 				}
 
 				// Check if visible name isn't longer than 64 chars
-				if (zbx_strlen($host['name']) > 64) {
+				if (mb_strlen($host['name']) > 64) {
 					self::exception(
 						ZBX_API_ERROR_PARAMETERS,
 						_n(
@@ -770,7 +663,7 @@ class CHost extends CHostGeneral {
 							'Maximum visible host name length is %1$d characters, "%2$s" is %3$d characters.',
 							64,
 							$host['name'],
-							zbx_strlen($host['name'])
+							mb_strlen($host['name'])
 						)
 					);
 				}
@@ -849,6 +742,7 @@ class CHost extends CHostGeneral {
 	 * @param int    $hosts ['useip'] Use IP. OPTIONAL
 	 * @param string $hosts ['dns'] DNS. OPTIONAL
 	 * @param string $hosts ['ip'] IP. OPTIONAL
+	 * @param int    $hosts ['bulk'] bulk. OPTIONAL
 	 * @param int    $hosts ['proxy_hostid'] Proxy Host ID. OPTIONAL
 	 * @param int    $hosts ['ipmi_authtype'] IPMI authentication type. OPTIONAL
 	 * @param int    $hosts ['ipmi_privilege'] IPMI privilege. OPTIONAL
@@ -926,6 +820,7 @@ class CHost extends CHostGeneral {
 	 * @param int    $hosts ['useip'] Use IP. OPTIONAL
 	 * @param string $hosts ['dns'] DNS. OPTIONAL
 	 * @param string $hosts ['ip'] IP. OPTIONAL
+	 * @param int    $hosts ['bulk'] bulk. OPTIONAL
 	 * @param int    $hosts ['proxy_hostid'] Proxy Host ID. OPTIONAL
 	 * @param int    $hosts ['ipmi_authtype'] IPMI authentication type. OPTIONAL
 	 * @param int    $hosts ['ipmi_privilege'] IPMI privilege. OPTIONAL
@@ -1044,6 +939,7 @@ class CHost extends CHostGeneral {
 	 * @param int    $hosts['fields']['useip']			Use IP. OPTIONAL
 	 * @param string $hosts['fields']['dns']			DNS. OPTIONAL
 	 * @param string $hosts['fields']['ip']				IP. OPTIONAL
+	 * @param int    $hosts['fields']['bulk']			bulk. OPTIONAL
 	 * @param int    $hosts['fields']['proxy_hostid']	Proxy Host ID. OPTIONAL
 	 * @param int    $hosts['fields']['ipmi_authtype']	IPMI authentication type. OPTIONAL
 	 * @param int    $hosts['fields']['ipmi_privilege']	IPMI privilege. OPTIONAL
@@ -1097,10 +993,10 @@ class CHost extends CHostGeneral {
 			$curHost = reset($hosts);
 
 			$hostExists = $this->get(array(
-				'filter' => array('host' => $curHost['host']),
 				'output' => array('hostid'),
-				'editable' => true,
-				'nopermissions' => true
+				'filter' => array('host' => $data['host']),
+				'nopermissions' => true,
+				'limit' => 1
 			));
 			$hostExist = reset($hostExists);
 			if ($hostExist && (bccomp($hostExist['hostid'], $curHost['hostid']) != 0)) {
@@ -1108,8 +1004,14 @@ class CHost extends CHostGeneral {
 			}
 
 			// can't add host with the same name as existing template
-			if (API::Template()->exists(array('host' => $curHost['host']))) {
-				self::exception(ZBX_API_ERROR_PARAMETERS, _s('Template "%1$s" already exists.', $curHost['host']));
+			$templateExists = API::Template()->get(array(
+				'output' => array('templateid'),
+				'filter' => array('host' => $data['host']),
+				'nopermissions' => true,
+				'limit' => 1
+			));
+			if ($templateExists) {
+				self::exception(ZBX_API_ERROR_PARAMETERS, _s('Template "%1$s" already exists.', $data['host']));
 			}
 		}
 
@@ -1174,7 +1076,10 @@ class CHost extends CHostGeneral {
 		if (isset($updateGroups)) {
 			$updateGroups = zbx_toArray($updateGroups);
 
-			$hostGroups = API::HostGroup()->get(array('hostids' => $hostids));
+			$hostGroups = API::HostGroup()->get(array(
+				'output' => array('groupid'),
+				'hostids' => $hostids
+			));
 			$hostGroupids = zbx_objectValues($hostGroups, 'groupid');
 			$newGroupids = zbx_objectValues($updateGroups, 'groupid');
 
@@ -1380,10 +1285,7 @@ class CHost extends CHostGeneral {
 	public function massRemove(array $data) {
 		$hostids = zbx_toArray($data['hostids']);
 
-		// check permissions
-		if (!$this->isWritable($hostids)) {
-			self::exception(ZBX_API_ERROR_PERMISSIONS, _('You do not have permission to perform this operation.'));
-		}
+		$this->checkPermissions($hostids);
 
 		if (isset($data['interfaces'])) {
 			$options = array(
@@ -1415,7 +1317,7 @@ class CHost extends CHostGeneral {
 	 * @return void
 	 */
 	protected function validateDelete(array $hostIds, $nopermissions = false) {
-		if (empty($hostIds)) {
+		if (!$hostIds) {
 			self::exception(ZBX_API_ERROR_PARAMETERS, _('Empty input parameter.'));
 		}
 
@@ -1425,31 +1327,19 @@ class CHost extends CHostGeneral {
 	}
 
 	/**
-	 * Delete Host
+	 * Delete Host.
 	 *
-	 * @param string|array 	$hostIds
-	 * @param bool			$nopermissions
+	 * @param array	$hostIds
+	 * @param bool	$nopermissions
 	 *
-	 * @return array|boolean
+	 * @return array
 	 */
-	public function delete($hostIds, $nopermissions = false) {
-		$hostIds = zbx_toArray($hostIds);
-
-		// deprecated input support
-		if ($hostIds && is_array($hostIds[0])) {
-			$this->deprecated('Passing objects is deprecated, use an array of IDs instead.');
-			foreach ($hostIds as $host) {
-				if (!check_db_fields(array('hostid' => null), $host)) {
-					self::exception(ZBX_API_ERROR_PARAMETERS, _('No host ID given.'));
-				}
-			}
-			$hostIds = zbx_objectValues($hostIds, 'hostid');
-		}
-
+	public function delete(array $hostIds, $nopermissions = false) {
 		$this->validateDelete($hostIds, $nopermissions);
 
 		// delete the discovery rules first
 		$delRules = API::DiscoveryRule()->get(array(
+			'output' => array('itemid'),
 			'hostids' => $hostIds,
 			'nopermissions' => true,
 			'preservekeys' => true
@@ -1608,7 +1498,6 @@ class CHost extends CHostGeneral {
 		$ids = array_unique($ids);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'hostids' => $ids,
 			'templated_hosts' => true,
 			'countOutput' => true
@@ -1635,7 +1524,6 @@ class CHost extends CHostGeneral {
 		$ids = array_unique($ids);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'hostids' => $ids,
 			'editable' => true,
 			'templated_hosts' => true,
@@ -1643,27 +1531,6 @@ class CHost extends CHostGeneral {
 		));
 
 		return (count($ids) == $count);
-	}
-
-	protected function applyQueryNodeOptions($tableName, $tableAlias, array $options, array $sqlParts) {
-		// only apply the node option if no specific ids are given
-		if ($options['hostids'] === null &&
-				$options['proxyids'] === null &&
-				$options['templateids'] === null &&
-				$options['interfaceids'] === null &&
-				$options['itemids'] === null &&
-				$options['triggerids'] === null &&
-				$options['maintenanceids'] === null &&
-				$options['graphids'] === null &&
-				$options['applicationids'] === null &&
-				$options['dserviceids'] === null &&
-				$options['httptestids'] === null &&
-				$options['groupids'] === null) {
-
-			$sqlParts = parent::applyQueryNodeOptions($tableName, $tableAlias, $options, $sqlParts);
-		}
-
-		return $sqlParts;
 	}
 
 	protected function addRelatedObjects(array $options, array $result) {
@@ -1674,10 +1541,9 @@ class CHost extends CHostGeneral {
 		// adding inventories
 		if ($options['selectInventory'] !== null) {
 			$relationMap = $this->createRelationMap($result, 'hostid', 'hostid');
-			$inventory = API::getApi()->select('host_inventory', array(
+			$inventory = API::getApiService()->select('host_inventory', array(
 				'output' => $options['selectInventory'],
-				'filter' => array('hostid' => $hostids),
-				'nodeids' => get_current_nodeid(true)
+				'filter' => array('hostid' => $hostids)
 			));
 			$result = $relationMap->mapOne($result, zbx_toHash($inventory, 'hostid'), 'inventory');
 		}
@@ -1686,8 +1552,7 @@ class CHost extends CHostGeneral {
 		if ($options['selectInterfaces'] !== null) {
 			if ($options['selectInterfaces'] != API_OUTPUT_COUNT) {
 				$interfaces = API::HostInterface()->get(array(
-					'output' => $this->outputExtend('interface', array('hostid', 'interfaceid'), $options['selectInterfaces']),
-					'nodeids' => $options['nodeids'],
+					'output' => $this->outputExtend($options['selectInterfaces'], array('hostid', 'interfaceid')),
 					'hostids' => $hostids,
 					'nopermissions' => true,
 					'preservekeys' => true
@@ -1703,7 +1568,6 @@ class CHost extends CHostGeneral {
 			}
 			else {
 				$interfaces = API::HostInterface()->get(array(
-					'nodeids' => $options['nodeids'],
 					'hostids' => $hostids,
 					'nopermissions' => true,
 					'countOutput' => true,
@@ -1721,8 +1585,7 @@ class CHost extends CHostGeneral {
 		if ($options['selectScreens'] !== null) {
 			if ($options['selectScreens'] != API_OUTPUT_COUNT) {
 				$screens = API::TemplateScreen()->get(array(
-					'output' => $this->outputExtend('screens', 'hostid', $options['selectScreens']),
-					'nodeids' => $options['nodeids'],
+					'output' => $this->outputExtend($options['selectScreens'], array('hostid')),
 					'hostids' => $hostids,
 					'nopermissions' => true
 				));
@@ -1741,7 +1604,6 @@ class CHost extends CHostGeneral {
 			}
 			else {
 				$screens = API::TemplateScreen()->get(array(
-					'nodeids' => $options['nodeids'],
 					'hostids' => $hostids,
 					'nopermissions' => true,
 					'countOutput' => true,
@@ -1768,7 +1630,6 @@ class CHost extends CHostGeneral {
 
 			$discoveryRules = API::DiscoveryRule()->get(array(
 				'output' => $options['selectDiscoveryRule'],
-				'nodeids' => $options['nodeids'],
 				'itemids' => $relationMap->getRelatedIds(),
 				'preservekeys' => true
 			));
@@ -1777,11 +1638,10 @@ class CHost extends CHostGeneral {
 
 		// adding host discovery
 		if ($options['selectHostDiscovery'] !== null) {
-			$hostDiscoveries = API::getApi()->select('host_discovery', array(
-				'output' => $this->outputExtend('host_discovery', array('hostid'), $options['selectHostDiscovery']),
+			$hostDiscoveries = API::getApiService()->select('host_discovery', array(
+				'output' => $this->outputExtend($options['selectHostDiscovery'], array('hostid')),
 				'filter' => array('hostid' => $hostids),
-				'preservekeys' => true,
-				'nodeids' => get_current_nodeid(true)
+				'preservekeys' => true
 			));
 			$relationMap = $this->createRelationMap($hostDiscoveries, 'hostid', 'hostid');
 

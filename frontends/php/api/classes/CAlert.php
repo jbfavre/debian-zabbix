@@ -24,7 +24,7 @@
  *
  * @package API
  */
-class CAlert extends CZBXAPI {
+class CAlert extends CApiService {
 
 	protected $tableName = 'alerts';
 	protected $tableAlias = 'a';
@@ -63,13 +63,11 @@ class CAlert extends CZBXAPI {
 		);
 
 		$defOptions = array(
-			'nodeids'					=> null,
 			'eventsource'				=> EVENT_SOURCE_TRIGGERS,
 			'eventobject'				=> EVENT_OBJECT_TRIGGER,
 			'groupids'					=> null,
 			'hostids'					=> null,
 			'alertids'					=> null,
-			'triggerids'				=> null,
 			'objectids'					=> null,
 			'eventids'					=> null,
 			'actionids'					=> null,
@@ -86,7 +84,7 @@ class CAlert extends CZBXAPI {
 			'time_till'					=> null,
 			'searchWildcardsEnabled'	=> null,
 			// output
-			'output'					=> API_OUTPUT_REFER,
+			'output'					=> API_OUTPUT_EXTEND,
 			'selectMediatypes'			=> null,
 			'selectUsers'				=> null,
 			'selectHosts'				=> null,
@@ -99,7 +97,6 @@ class CAlert extends CZBXAPI {
 		);
 		$options = zbx_array_merge($defOptions, $options);
 
-		$options = $this->convertDeprecatedParam($options, 'triggerids', 'objectids');
 		$this->validateGet($options);
 
 		// editable + PERMISSION CHECK
@@ -246,7 +243,6 @@ class CAlert extends CZBXAPI {
 		if (!is_null($options['actionids'])) {
 			zbx_value2array($options['actionids']);
 
-			$sqlParts['select']['actionid'] = 'a.actionid';
 			$sqlParts['where'][] = dbConditionInt('a.actionid', $options['actionids']);
 		}
 
@@ -265,7 +261,6 @@ class CAlert extends CZBXAPI {
 		if (!is_null($options['mediatypeids'])) {
 			zbx_value2array($options['mediatypeids']);
 
-			$sqlParts['select']['mediatypeid'] = 'a.mediatypeid';
 			$sqlParts['where'][] = dbConditionInt('a.mediatypeid', $options['mediatypeids']);
 		}
 
@@ -296,7 +291,6 @@ class CAlert extends CZBXAPI {
 
 		$sqlParts = $this->applyQueryOutputOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$sqlParts = $this->applyQuerySortOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
-		$sqlParts = $this->applyQueryNodeOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$dbRes = DBselect($this->createSelectQueryFromParts($sqlParts), $sqlParts['limit']);
 		while ($alert = DBfetch($dbRes)) {
 			if ($options['countOutput']) {
@@ -334,14 +328,14 @@ class CAlert extends CZBXAPI {
 	 * @return void
 	 */
 	protected function validateGet(array $options) {
-		$sourceValidator = new CSetValidator(array(
+		$sourceValidator = new CLimitedSetValidator(array(
 			'values' => array_keys(eventSource())
 		));
 		if (!$sourceValidator->validate($options['eventsource'])) {
 			self::exception(ZBX_API_ERROR_PARAMETERS, _('Incorrect eventsource value.'));
 		}
 
-		$objectValidator = new CSetValidator(array(
+		$objectValidator = new CLimitedSetValidator(array(
 			'values' => array_keys(eventObject())
 		));
 		if (!$objectValidator->validate($options['eventobject'])) {
@@ -429,11 +423,10 @@ class CAlert extends CZBXAPI {
 		// adding media types
 		if ($options['selectMediatypes'] !== null && $options['selectMediatypes'] !== API_OUTPUT_COUNT) {
 			$relationMap = $this->createRelationMap($result, 'alertid', 'mediatypeid');
-			$mediatypes = API::getApi()->select('media_type', array(
+			$mediatypes = API::getApiService()->select('media_type', array(
 				'output' => $options['selectMediatypes'],
 				'filter' => array('mediatypeid' => $relationMap->getRelatedIds()),
-				'preservekeys' => true,
-				'nodeids' => get_current_nodeid(true)
+				'preservekeys' => true
 			));
 			$result = $relationMap->mapMany($result, $mediatypes, 'mediatypes');
 		}

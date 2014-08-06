@@ -24,13 +24,13 @@ if (!isset($_REQUEST['form_refresh'])) {
 	$divTabs->setSelected(0);
 }
 
-$templateid = get_request('templateid', 0);
-$host = get_request('template_name', '');
-$visiblename = get_request('visiblename', '');
-$newgroup = get_request('newgroup', '');
-$templateIds = get_request('templates', array());
-$clear_templates = get_request('clear_templates', array());
-$macros = get_request('macros', array());
+$templateid = getRequest('templateid', 0);
+$host = getRequest('template_name', '');
+$visiblename = getRequest('visiblename', '');
+$newgroup = getRequest('newgroup', '');
+$templateIds = getRequest('templates', array());
+$clear_templates = getRequest('clear_templates', array());
+$macros = getRequest('macros', array());
 
 $frm_title = _('Template');
 
@@ -40,7 +40,7 @@ if ($templateid > 0) {
 $frmHost = new CForm();
 $frmHost->setName('tpl_for');
 
-$frmHost->addVar('form', get_request('form', 1));
+$frmHost->addVar('form', getRequest('form', 1));
 $frmHost->addVar('groupid', $_REQUEST['groupid']);
 
 if ($templateid) {
@@ -64,6 +64,7 @@ if ($templateid > 0 && !hasRequest('form_refresh')) {
 
 	// get template hosts from db
 	$hosts_linked_to = API::Host()->get(array(
+		'output' => array('hostid'),
 		'templateids' => $templateid,
 		'editable' => true,
 		'templated_hosts' => true
@@ -74,11 +75,11 @@ if ($templateid > 0 && !hasRequest('form_refresh')) {
 	$templateIds = $this->data['original_templates'];
 }
 else {
-	$groups = get_request('groups', array());
+	$groups = getRequest('groups', array());
 	if (isset($_REQUEST['groupid']) && ($_REQUEST['groupid'] > 0) && !uint_in_array($_REQUEST['groupid'], $groups)) {
 		array_push($groups, $_REQUEST['groupid']);
 	}
-	$hosts_linked_to = get_request('hosts', array());
+	$hosts_linked_to = getRequest('hosts', array());
 }
 
 $clear_templates = array_intersect($clear_templates, array_keys($this->data['original_templates']));
@@ -125,7 +126,7 @@ if (CWebUser::$data['type'] != USER_TYPE_SUPER_ADMIN) {
 $templateList->addRow(SPACE, array($tmp_label, BR(), $newgroupTB), null, null, 'new');
 
 // FORM ITEM : linked Hosts tween box [  ] [  ]
-$twb_groupid = get_request('twb_groupid', 0);
+$twb_groupid = getRequest('twb_groupid', 0);
 if ($twb_groupid == 0) {
 	$gr = reset($all_groups);
 	$twb_groupid = $gr['groupid'];
@@ -172,6 +173,8 @@ $templateList->addRow(_('Hosts / templates'), $host_tb->Get(_('In'), array(
 	_('Other | group').SPACE,
 	$cmbGroups
 )));
+
+$templateList->addRow(_('Description'), new CTextArea('description', $this->data['description']));
 
 // FULL CLONE {
 if ($_REQUEST['form'] == 'full_clone') {
@@ -383,16 +386,17 @@ $tmplList = new CFormList('tmpllist');
 // create linked template table
 $linkedTemplateTable = new CTable(_('No templates linked.'), 'formElementTable');
 $linkedTemplateTable->attr('id', 'linkedTemplateTable');
-$linkedTemplateTable->attr('style', 'min-width: 400px;');
 $linkedTemplateTable->setHeader(array(_('Name'), _('Action')));
 
 $ignoredTemplates = array();
 foreach ($this->data['linkedTemplates'] as $template) {
 	$tmplList->addVar('templates[]', $template['templateid']);
+	$templateLink = new CLink($template['name'], 'templates.php?form=update&templateid='.$template['templateid']);
+	$templateLink->setTarget('_blank');
 
 	$linkedTemplateTable->addRow(
 		array(
-			$template['name'],
+			$templateLink,
 			array(
 				new CSubmit('unlink['.$template['templateid'].']', _('Unlink'), null, 'link_menu'),
 				SPACE,
@@ -408,7 +412,7 @@ foreach ($this->data['linkedTemplates'] as $template) {
 	$ignoredTemplates[$template['templateid']] = $template['name'];
 }
 
-$tmplList->addRow(_('Linked templates'), new CDiv($linkedTemplateTable, 'objectgroup inlineblock border_dotted ui-corner-all'));
+$tmplList->addRow(_('Linked templates'), new CDiv($linkedTemplateTable, 'template-link-block objectgroup inlineblock border_dotted ui-corner-all'));
 
 // create new linked template table
 $newTemplateTable = new CTable(null, 'formElementTable');
@@ -433,7 +437,7 @@ $newTemplateTable->addRow(
 	)
 );
 
-$tmplList->addRow(_('Link new templates'), new CDiv($newTemplateTable, 'objectgroup inlineblock border_dotted ui-corner-all'));
+$tmplList->addRow(_('Link new templates'), new CDiv($newTemplateTable, 'template-link-block objectgroup inlineblock border_dotted ui-corner-all'));
 
 $divTabs->addTab('tmplTab', _('Linked templates'), $tmplList);
 // } TEMPLATES

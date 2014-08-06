@@ -24,7 +24,7 @@
  *
  * @package API
  */
-class CDCheck extends CZBXAPI {
+class CDCheck extends CApiService {
 
 	protected $tableName = 'dchecks';
 	protected $tableAlias = 'dc';
@@ -32,7 +32,6 @@ class CDCheck extends CZBXAPI {
 
 	public function get($options) {
 		$result = array();
-		$nodeCheck = false;
 		$userType = self::$userData['type'];
 
 		$sqlParts = array(
@@ -45,7 +44,6 @@ class CDCheck extends CZBXAPI {
 		);
 
 		$defOptions = array(
-			'nodeids'					=> null,
 			'dcheckids'					=> null,
 			'druleids'					=> null,
 			'dserviceids'				=> null,
@@ -59,7 +57,7 @@ class CDCheck extends CZBXAPI {
 			'excludeSearch'				=> null,
 			'searchWildcardsEnabled'	=> null,
 			// output
-			'output'					=> API_OUTPUT_REFER,
+			'output'					=> API_OUTPUT_EXTEND,
 			'selectDRules'				=> null,
 			'countOutput'				=> null,
 			'groupCount'				=> null,
@@ -80,34 +78,20 @@ class CDCheck extends CZBXAPI {
 			return array();
 		}
 
-// nodeids
-		$nodeids = !is_null($options['nodeids']) ? $options['nodeids'] : get_current_nodeid();
-
 // dcheckids
 		if (!is_null($options['dcheckids'])) {
 			zbx_value2array($options['dcheckids']);
 			$sqlParts['where']['dcheckid'] = dbConditionInt('dc.dcheckid', $options['dcheckids']);
-
-			if (!$nodeCheck) {
-				$nodeCheck = true;
-				$sqlParts['where'] = sqlPartDbNode($sqlParts['where'], 'dc.dcheckid', $nodeids);
-			}
 		}
 
 // druleids
 		if (!is_null($options['druleids'])) {
 			zbx_value2array($options['druleids']);
 
-			$sqlParts['select']['druleid'] = 'dc.druleid';
 			$sqlParts['where'][] = dbConditionInt('dc.druleid', $options['druleids']);
 
 			if (!is_null($options['groupCount'])) {
 				$sqlParts['group']['druleid'] = 'dc.druleid';
-			}
-
-			if (!$nodeCheck) {
-				$nodeCheck = true;
-				$sqlParts['where'] = sqlPartDbNode($sqlParts['where'], 'dc.druleid', $nodeids);
 			}
 		}
 
@@ -115,7 +99,6 @@ class CDCheck extends CZBXAPI {
 		if (!is_null($options['dserviceids'])) {
 			zbx_value2array($options['dserviceids']);
 
-			$sqlParts['select']['dserviceid'] = 'ds.dserviceid';
 			$sqlParts['from']['dhosts'] = 'dhosts dh';
 			$sqlParts['from']['dservices'] = 'dservices ds';
 
@@ -126,12 +109,6 @@ class CDCheck extends CZBXAPI {
 			if (!is_null($options['groupCount'])) {
 				$sqlParts['group']['dserviceid'] = 'ds.dserviceid';
 			}
-		}
-
-		// node check !!!!
-		// should last, after all ****IDS checks
-		if (!$nodeCheck) {
-			$sqlParts['where'] = sqlPartDbNode($sqlParts['where'], 'dc.dcheckid', $nodeids);
 		}
 
 // filter
@@ -152,7 +129,6 @@ class CDCheck extends CZBXAPI {
 
 		$sqlParts = $this->applyQueryOutputOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$sqlParts = $this->applyQuerySortOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
-		$sqlParts = $this->applyQueryNodeOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$res = DBselect($this->createSelectQueryFromParts($sqlParts), $sqlParts['limit']);
 		while ($dcheck = DBfetch($res)) {
 			if (!is_null($options['countOutput'])) {
@@ -161,20 +137,8 @@ class CDCheck extends CZBXAPI {
 				else
 					$result = $dcheck['rowscount'];
 			}
-			else{
-				if (!isset($result[$dcheck['dcheckid']])) {
-					$result[$dcheck['dcheckid']]= array();
-				}
-
-				// druleids
-				if (isset($dcheck['druleid']) && is_null($options['selectDRules'])) {
-					if (!isset($result[$dcheck['dcheckid']]['drules']))
-						$result[$dcheck['dcheckid']]['drules'] = array();
-
-					$result[$dcheck['dcheckid']]['drules'][] = array('druleid' => $dcheck['druleid']);
-				}
-
-				$result[$dcheck['dcheckid']] += $dcheck;
+			else {
+				$result[$dcheck['dcheckid']] = $dcheck;
 			}
 		}
 
@@ -209,7 +173,6 @@ class CDCheck extends CZBXAPI {
 		$ids = array_unique($ids);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'dcheckids' => $ids,
 			'countOutput' => true
 		));
@@ -231,7 +194,6 @@ class CDCheck extends CZBXAPI {
 		$ids = array_unique($ids);
 
 		$count = $this->get(array(
-			'nodeids' => get_current_nodeid(true),
 			'dcheckids' => $ids,
 			'editable' => true,
 			'countOutput' => true
@@ -261,8 +223,7 @@ class CDCheck extends CZBXAPI {
 			$drules = API::DRule()->get(array(
 				'output' => $options['selectDRules'],
 				'druleids' => $relationMap->getRelatedIds(),
-				'nodeids' => $options['nodeids'],
-				'preservekeys' => 1
+				'preservekeys' => true
 			));
 			if (!is_null($options['limitSelects'])) {
 				order_result($drules, 'name');

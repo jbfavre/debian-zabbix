@@ -42,13 +42,12 @@ $userGroupsForm->setName('userGroupsForm');
 $userGroupTable = new CTableInfo(_('No user groups found.'));
 $userGroupTable->setHeader(array(
 	new CCheckBox('all_groups', null, "checkAll('".$userGroupsForm->getName()."','all_groups','group_groupid');"),
-	$this->data['displayNodes'] ? _('Node') : null,
 	make_sorting_header(_('Name'), 'name'),
 	'#',
 	_('Members'),
-	_('Status'),
 	_('Frontend access'),
-	_('Debug mode')
+	_('Debug mode'),
+	_('Status')
 ));
 
 foreach ($this->data['usergroups'] as $usrgrp) {
@@ -93,41 +92,37 @@ foreach ($this->data['usergroups'] as $usrgrp) {
 		order_result($userGroupUsers, 'alias');
 
 		$users = array();
+		$i = 0;
+
 		foreach ($userGroupUsers as $user) {
-			$userTypeStyle = 'enabled';
-			if ($user['type'] == USER_TYPE_ZABBIX_ADMIN) {
-				$userTypeStyle = 'orange';
-			}
-			if ($user['type'] == USER_TYPE_SUPER_ADMIN) {
-				$userTypeStyle = 'disabled';
+			$i++;
+
+			if ($i > $this->data['config']['max_in_table']) {
+				$users[] = ' &hellip;';
+
+				break;
 			}
 
-			$userStatusStyle = 'enabled';
-			if ($user['gui_access'] == GROUP_GUI_ACCESS_DISABLED) {
-				$userStatusStyle = 'disabled';
-			}
-			if ($user['users_status'] == GROUP_STATUS_DISABLED) {
-				$userStatusStyle = 'disabled';
+			if ($users) {
+				$users[] = ', ';
 			}
 
 			$users[] = new CLink(getUserFullname($user),
 				'users.php?form=update&userid='.$user['userid'],
-				$userStatusStyle
+				($user['gui_access'] == GROUP_GUI_ACCESS_DISABLED || $user['users_status'] == GROUP_STATUS_DISABLED)
+					? 'disabled' : 'enabled'
 			);
-			$users[] = ', ';
 		}
-		array_pop($users);
 	}
 
 	$userGroupTable->addRow(array(
 		new CCheckBox('group_groupid['.$userGroupId.']', null, null, $userGroupId),
-		$this->data['displayNodes'] ? $usrgrp['nodename'] : null,
 		new CLink($usrgrp['name'], 'usergrps.php?form=update&usrgrpid='.$userGroupId),
 		array(new CLink(_('Users'), 'users.php?&filter_usrgrpid='.$userGroupId), ' (', count($usrgrp['users']), ')'),
 		new CCol($users, 'wraptext'),
-		$usersStatus,
 		$guiAccess,
-		$debugMode
+		$debugMode,
+		$usersStatus
 	));
 }
 
@@ -142,11 +137,11 @@ $goOption = new CComboItem('disable_status', _('Disable selected'));
 $goOption->setAttribute('confirm', _('Disable selected groups?'));
 $goComboBox->addItem($goOption);
 
-$goOption = new CComboItem('enable_debug', _('Enable DEBUG'));
+$goOption = new CComboItem('enable_debug', _('Enable debug mode'));
 $goOption->setAttribute('confirm', _('Enable debug mode in selected groups?'));
 $goComboBox->addItem($goOption);
 
-$goOption = new CComboItem('disable_debug', _('Disable DEBUG'));
+$goOption = new CComboItem('disable_debug', _('Disable debug mode'));
 $goOption->setAttribute('confirm', _('Disable debug mode in selected groups?'));
 $goComboBox->addItem($goOption);
 

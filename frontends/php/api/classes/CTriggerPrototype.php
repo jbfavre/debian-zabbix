@@ -63,7 +63,6 @@ class CTriggerPrototype extends CTriggerGeneral {
 		);
 
 		$defOptions = array(
-			'nodeids'						=> null,
 			'groupids'						=> null,
 			'templateids'					=> null,
 			'hostids'						=> null,
@@ -92,7 +91,7 @@ class CTriggerPrototype extends CTriggerGeneral {
 			// output
 			'expandExpression'				=> null,
 			'expandData'					=> null,
-			'output'						=> API_OUTPUT_REFER,
+			'output'						=> API_OUTPUT_EXTEND,
 			'selectGroups'					=> null,
 			'selectHosts'					=> null,
 			'selectItems'					=> null,
@@ -134,7 +133,6 @@ class CTriggerPrototype extends CTriggerGeneral {
 		if (!is_null($options['groupids'])) {
 			zbx_value2array($options['groupids']);
 
-			$sqlParts['select']['groupid'] = 'hg.groupid';
 			$sqlParts['from']['functions'] = 'functions f';
 			$sqlParts['from']['items'] = 'items i';
 			$sqlParts['from']['hosts_groups'] = 'hosts_groups hg';
@@ -165,7 +163,6 @@ class CTriggerPrototype extends CTriggerGeneral {
 		if (!is_null($options['hostids'])) {
 			zbx_value2array($options['hostids']);
 
-			$sqlParts['select']['hostid'] = 'i.hostid';
 			$sqlParts['from']['functions'] = 'functions f';
 			$sqlParts['from']['items'] = 'items i';
 			$sqlParts['where']['hostid'] = dbConditionInt('i.hostid', $options['hostids']);
@@ -188,7 +185,6 @@ class CTriggerPrototype extends CTriggerGeneral {
 		if (!is_null($options['itemids'])) {
 			zbx_value2array($options['itemids']);
 
-			$sqlParts['select']['itemid'] = 'f.itemid';
 			$sqlParts['from']['functions'] = 'functions f';
 			$sqlParts['where']['itemid'] = dbConditionInt('f.itemid', $options['itemids']);
 			$sqlParts['where']['ft'] = 'f.triggerid=t.triggerid';
@@ -202,7 +198,6 @@ class CTriggerPrototype extends CTriggerGeneral {
 		if (!is_null($options['applicationids'])) {
 			zbx_value2array($options['applicationids']);
 
-			$sqlParts['select']['applicationid'] = 'a.applicationid';
 			$sqlParts['from']['functions'] = 'functions f';
 			$sqlParts['from']['items'] = 'items i';
 			$sqlParts['from']['applications'] = 'applications a';
@@ -216,7 +211,6 @@ class CTriggerPrototype extends CTriggerGeneral {
 		if (!is_null($options['discoveryids'])) {
 			zbx_value2array($options['discoveryids']);
 
-			$sqlParts['select']['itemid'] = 'id.parent_itemid';
 			$sqlParts['from']['functions'] = 'functions f';
 			$sqlParts['from']['item_discovery'] = 'item_discovery id';
 			$sqlParts['where']['fid'] = 'f.itemid=id.itemid';
@@ -357,7 +351,6 @@ class CTriggerPrototype extends CTriggerGeneral {
 
 		// group
 		if (!is_null($options['group'])) {
-			$sqlParts['select']['name'] = 'g.name';
 			$sqlParts['from']['functions'] = 'functions f';
 			$sqlParts['from']['items'] = 'items i';
 			$sqlParts['from']['hosts_groups'] = 'hosts_groups hg';
@@ -371,7 +364,6 @@ class CTriggerPrototype extends CTriggerGeneral {
 
 		// host
 		if (!is_null($options['host'])) {
-			$sqlParts['select']['host'] = 'h.host';
 			$sqlParts['from']['functions'] = 'functions f';
 			$sqlParts['from']['items'] = 'items i';
 			$sqlParts['from']['hosts'] = 'hosts h';
@@ -392,10 +384,8 @@ class CTriggerPrototype extends CTriggerGeneral {
 			$sqlParts['limit'] = $options['limit'];
 		}
 
-		$triggerids = array();
 		$sqlParts = $this->applyQueryOutputOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$sqlParts = $this->applyQuerySortOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
-		$sqlParts = $this->applyQueryNodeOptions($this->tableName(), $this->tableAlias(), $options, $sqlParts);
 		$dbRes = DBselect($this->createSelectQueryFromParts($sqlParts), $sqlParts['limit']);
 		while ($trigger = DBfetch($dbRes)) {
 			if (!is_null($options['countOutput'])) {
@@ -407,51 +397,12 @@ class CTriggerPrototype extends CTriggerGeneral {
 				}
 			}
 			else {
-				$triggerids[$trigger['triggerid']] = $trigger['triggerid'];
-
-				if (!isset($result[$trigger['triggerid']])) {
-					$result[$trigger['triggerid']] = array();
-				}
-
-				// groups
-				if (isset($trigger['groupid']) && is_null($options['selectGroups'])) {
-					if (!isset($result[$trigger['triggerid']]['groups'])) {
-						$result[$trigger['triggerid']]['groups'] = array();
-					}
-
-					$result[$trigger['triggerid']]['groups'][] = array('groupid' => $trigger['groupid']);
-					unset($trigger['groupid']);
-				}
-
-				// hostids
-				if (isset($trigger['hostid']) && is_null($options['selectHosts'])) {
-					if (!isset($result[$trigger['triggerid']]['hosts'])) {
-						$result[$trigger['triggerid']]['hosts'] = array();
-					}
-
-					$result[$trigger['triggerid']]['hosts'][] = array('hostid' => $trigger['hostid']);
-
-					if (is_null($options['expandData'])) {
-						unset($trigger['hostid']);
-					}
-				}
-
-				// itemids
-				if (isset($trigger['itemid']) && is_null($options['selectItems'])) {
-					if (!isset($result[$trigger['triggerid']]['items'])) {
-						$result[$trigger['triggerid']]['items'] = array();
-					}
-
-					$result[$trigger['triggerid']]['items'][] = array('itemid' => $trigger['itemid']);
-					unset($trigger['itemid']);
-				}
-
 				// expand expression
 				if ($options['expandExpression'] !== null && isset($trigger['expression'])) {
 					$trigger['expression'] = explode_exp($trigger['expression'], false, true);
 				}
 
-				$result[$trigger['triggerid']] += $trigger;
+				$result[$trigger['triggerid']] = $trigger;
 			}
 		}
 
@@ -615,20 +566,17 @@ class CTriggerPrototype extends CTriggerGeneral {
 	}
 
 	/**
-	 * Delete triggers.
+	 * Delete trigger prototypes.
 	 *
-	 * @param int|string|array $triggerIds array with trigger ids
-	 * @param bool             $nopermissions
+	 * @param array 	$triggerIds array with trigger ids
+	 * @param bool      $nopermissions
 	 *
 	 * @return array
 	 */
-	public function delete($triggerIds, $nopermissions = false) {
+	public function delete(array $triggerIds, $nopermissions = false) {
 		if (empty($triggerIds)) {
 			self::exception(ZBX_API_ERROR_PARAMETERS, _('Empty input parameter.'));
 		}
-
-		$triggerIds = zbx_toArray($triggerIds);
-		$triggerPrototypeIds = $triggerIds;
 
 		$delTriggers = $this->get(array(
 			'triggerids' => $triggerIds,
@@ -699,7 +647,7 @@ class CTriggerPrototype extends CTriggerGeneral {
 
 		DB::delete('triggers', array('triggerid' => $triggerIds));
 
-		return array('triggerids' => $triggerPrototypeIds);
+		return array('triggerids' => $triggerIds);
 	}
 
 	protected function createReal(array &$triggers) {
@@ -866,7 +814,6 @@ class CTriggerPrototype extends CTriggerGeneral {
 		if ($options['selectItems'] !== null && $options['selectItems'] != API_OUTPUT_COUNT) {
 			$relationMap = $this->createRelationMap($result, 'triggerid', 'itemid', 'functions');
 			$items = API::Item()->get(array(
-				'nodeids' => $options['nodeids'],
 				'output' => $options['selectItems'],
 				'itemids' => $relationMap->getRelatedIds(),
 				'webitems' => true,
@@ -892,7 +839,6 @@ class CTriggerPrototype extends CTriggerGeneral {
 
 			$discoveryRules = API::DiscoveryRule()->get(array(
 				'output' => $options['selectDiscoveryRule'],
-				'nodeids' => $options['nodeids'],
 				'itemids' => $relationMap->getRelatedIds(),
 				'nopermissions' => true,
 				'preservekeys' => true,
@@ -914,8 +860,7 @@ class CTriggerPrototype extends CTriggerGeneral {
 	 */
 	protected function checkDiscoveryRuleCount(array $trigger, array $items) {
 		if ($items) {
-			$itemDiscoveries = API::getApi()->select('item_discovery', array(
-				'nodeids' => get_current_nodeid(true),
+			$itemDiscoveries = API::getApiService()->select('item_discovery', array(
 				'output' => array('parent_itemid'),
 				'filter' => array('itemid' => zbx_objectValues($items, 'itemid')),
 			));

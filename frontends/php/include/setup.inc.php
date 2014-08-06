@@ -21,9 +21,9 @@
 
 class CSetupWizard extends CForm {
 
-	function __construct(&$ZBX_CONFIG) {
+	function __construct($ZBX_CONFIG) {
 		$this->DISABLE_NEXT_BUTTON = false;
-		$this->ZBX_CONFIG = &$ZBX_CONFIG;
+		$this->ZBX_CONFIG = $ZBX_CONFIG;
 
 		$this->stage = array(
 			0 => array(
@@ -71,7 +71,7 @@ class CSetupWizard extends CForm {
 
 	function doNext() {
 		if (isset($this->stage[$this->getStep() + 1])) {
-			$this->ZBX_CONFIG['step']++;
+			$this->ZBX_CONFIG['step'] = $this->ZBX_CONFIG['step'] + 1;
 
 			return true;
 		}
@@ -81,7 +81,7 @@ class CSetupWizard extends CForm {
 
 	function doBack() {
 		if (isset($this->stage[$this->getStep() - 1])) {
-			$this->ZBX_CONFIG['step']--;
+			$this->ZBX_CONFIG['step'] = $this->ZBX_CONFIG['step'] - 1;
 
 			return true;
 		}
@@ -304,7 +304,7 @@ class CSetupWizard extends CForm {
 					$database
 				));
 
-				if ($DB['TYPE'] == ZBX_DB_DB2) {
+				if ($DB['TYPE'] == ZBX_DB_DB2 || $DB['TYPE'] == ZBX_DB_POSTGRESQL) {
 					$schema = new CTextBox('schema', $this->getConfig('DB_SCHEMA', ''));
 					$schema->attr('onchange', "disableSetupStepButton('#next_2')");
 					$table->addRow(array(
@@ -422,7 +422,7 @@ class CSetupWizard extends CForm {
 				$table->addRow(array(new CCol(_('Database name'), 'header'), $this->getConfig('DB_DATABASE')));
 				$table->addRow(array(new CCol(_('Database user'), 'header'), $this->getConfig('DB_USER')));
 				$table->addRow(array(new CCol(_('Database password'), 'header'), preg_replace('/./', '*', $this->getConfig('DB_PASSWORD'))));
-				if ($dbType == ZBX_DB_DB2) {
+				if ($dbType == ZBX_DB_DB2 || $dbType == ZBX_DB_POSTGRESQL) {
 					$table->addRow(array(new CCol(_('Database schema'), 'header'), $this->getConfig('DB_SCHEMA')));
 				}
 				break;
@@ -482,7 +482,8 @@ class CSetupWizard extends CForm {
 			elseif ($config->config['DB']['PASSWORD'] != $this->getConfig('DB_PASSWORD')) {
 				$error = true;
 			}
-			elseif ($this->getConfig('DB_TYPE') == ZBX_DB_DB2 && $config->config['DB']['SCHEMA'] != $this->getConfig('DB_SCHEMA')) {
+			elseif (($this->getConfig('DB_TYPE') == ZBX_DB_DB2 || $this->getConfig('DB_TYPE') == ZBX_DB_POSTGRESQL)
+					&& $config->config['DB']['SCHEMA'] != $this->getConfig('DB_SCHEMA')) {
 				$error = true;
 			}
 			elseif ($config->config['ZBX_SERVER'] != $this->getConfig('ZBX_SERVER')) {
@@ -566,6 +567,11 @@ class CSetupWizard extends CForm {
 				$result = DBfetch($db_schema);
 			}
 
+			if (!zbx_empty($DB['SCHEMA']) && $DB['TYPE'] == ZBX_DB_POSTGRESQL) {
+				$db_schema = DBselect('SELECT schema_name FROM information_schema.schemata WHERE schema_name = \''.pg_escape_string($DB['SCHEMA']).'\';');
+				$result = DBfetch($db_schema);
+			}
+
 			if ($result) {
 				$result = DBexecute('CREATE TABLE zabbix_installation_test (test_row INTEGER)');
 				$result &= DBexecute('DROP TABLE zabbix_installation_test');
@@ -590,13 +596,13 @@ class CSetupWizard extends CForm {
 			$this->DISABLE_NEXT_BUTTON = true;
 		}
 		elseif ($this->getStep() == 2) {
-			$this->setConfig('DB_TYPE', get_request('type', $this->getConfig('DB_TYPE')));
-			$this->setConfig('DB_SERVER', get_request('server', $this->getConfig('DB_SERVER', 'localhost')));
-			$this->setConfig('DB_PORT', get_request('port', $this->getConfig('DB_PORT', '0')));
-			$this->setConfig('DB_DATABASE', get_request('database', $this->getConfig('DB_DATABASE', 'zabbix')));
-			$this->setConfig('DB_USER', get_request('user', $this->getConfig('DB_USER', 'root')));
-			$this->setConfig('DB_PASSWORD', get_request('password', $this->getConfig('DB_PASSWORD', '')));
-			$this->setConfig('DB_SCHEMA', get_request('schema', $this->getConfig('DB_SCHEMA', '')));
+			$this->setConfig('DB_TYPE', getRequest('type', $this->getConfig('DB_TYPE')));
+			$this->setConfig('DB_SERVER', getRequest('server', $this->getConfig('DB_SERVER', 'localhost')));
+			$this->setConfig('DB_PORT', getRequest('port', $this->getConfig('DB_PORT', '0')));
+			$this->setConfig('DB_DATABASE', getRequest('database', $this->getConfig('DB_DATABASE', 'zabbix')));
+			$this->setConfig('DB_USER', getRequest('user', $this->getConfig('DB_USER', 'root')));
+			$this->setConfig('DB_PASSWORD', getRequest('password', $this->getConfig('DB_PASSWORD', '')));
+			$this->setConfig('DB_SCHEMA', getRequest('schema', $this->getConfig('DB_SCHEMA', '')));
 
 			if (isset($_REQUEST['retry'])) {
 				if (!$this->checkConnection()) {
@@ -614,9 +620,9 @@ class CSetupWizard extends CForm {
 			}
 		}
 		elseif ($this->getStep() == 3) {
-			$this->setConfig('ZBX_SERVER', get_request('zbx_server', $this->getConfig('ZBX_SERVER', 'localhost')));
-			$this->setConfig('ZBX_SERVER_PORT', get_request('zbx_server_port', $this->getConfig('ZBX_SERVER_PORT', '10051')));
-			$this->setConfig('ZBX_SERVER_NAME', get_request('zbx_server_name', $this->getConfig('ZBX_SERVER_NAME', '')));
+			$this->setConfig('ZBX_SERVER', getRequest('zbx_server', $this->getConfig('ZBX_SERVER', 'localhost')));
+			$this->setConfig('ZBX_SERVER_PORT', getRequest('zbx_server_port', $this->getConfig('ZBX_SERVER_PORT', '10051')));
+			$this->setConfig('ZBX_SERVER_NAME', getRequest('zbx_server_name', $this->getConfig('ZBX_SERVER_NAME', '')));
 			if (isset($_REQUEST['next'][$this->getStep()])) {
 				$this->doNext();
 			}

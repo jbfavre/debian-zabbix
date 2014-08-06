@@ -23,6 +23,16 @@ class CWebUser {
 
 	public static $data = null;
 
+	/**
+	 * Tries to login a user and populates self::$data on success.
+	 *
+	 * @param string $login			user login
+	 * @param string $password		user password
+	 *
+	 * @throws Exception if user cannot be logged in
+	 *
+	 * @return bool
+	 */
 	public static function login($login, $password) {
 		try {
 			self::setDefault();
@@ -46,20 +56,26 @@ class CWebUser {
 				self::$data['url'] = CProfile::get('web.menu.view.last', 'index.php');
 			}
 
+			$result = (bool) self::$data;
+
 			if (isset(self::$data['attempt_failed']) && self::$data['attempt_failed']) {
 				CProfile::init();
 				CProfile::update('web.login.attempt.failed', self::$data['attempt_failed'], PROFILE_TYPE_INT);
 				CProfile::update('web.login.attempt.ip', self::$data['attempt_ip'], PROFILE_TYPE_STR);
 				CProfile::update('web.login.attempt.clock', self::$data['attempt_clock'], PROFILE_TYPE_INT);
-				CProfile::flush();
+				$result &= CProfile::flush();
 			}
 
 			// remove guest session after successful login
-			DBexecute('DELETE FROM sessions WHERE sessionid='.zbx_dbstr(get_cookie('zbx_sessionid')));
+			$result &= DBexecute('DELETE FROM sessions WHERE sessionid='.zbx_dbstr(get_cookie('zbx_sessionid')));
 
-			zbx_setcookie('zbx_sessionid', self::$data['sessionid'], self::$data['autologin'] ? time() + SEC_PER_DAY * 31 : 0);
+			if ($result) {
+				self::setSessionCookie(self::$data['sessionid']);
 
-			return true;
+				add_audit_ext(AUDIT_ACTION_LOGIN, AUDIT_RESOURCE_USER, self::$data['userid'], '', null, null, null);
+			}
+
+			return $result;
 		}
 		catch (Exception $e) {
 			self::setDefault();
@@ -68,18 +84,18 @@ class CWebUser {
 	}
 
 	public static function logout() {
-		self::$data['sessionid'] = get_cookie('zbx_sessionid');
+		self::$data['sessionid'] = self::getSessionCookie();
 		self::$data = API::User()->logout();
 		zbx_unsetcookie('zbx_sessionid');
 	}
 
-	public static function checkAuthentication($sessionid) {
+	public static function checkAuthentication($sessionId) {
 		try {
-			if ($sessionid !== null) {
-				self::$data = API::User()->checkAuthentication($sessionid);
+			if ($sessionId !== null) {
+				self::$data = API::User()->checkAuthentication(array($sessionId));
 			}
 
-			if ($sessionid === null || empty(self::$data)) {
+			if ($sessionId === null || empty(self::$data)) {
 				self::setDefault();
 				self::$data = API::User()->login(array(
 					'user' => ZBX_GUEST_USER,
@@ -91,22 +107,41 @@ class CWebUser {
 					clear_messages(1);
 					throw new Exception();
 				}
-				$sessionid = self::$data['sessionid'];
+				$sessionId = self::$data['sessionid'];
 			}
 
 			if (self::$data['gui_access'] == GROUP_GUI_ACCESS_DISABLED) {
-				error(_('GUI access disabled.'));
 				throw new Exception();
 			}
 
-			zbx_setcookie('zbx_sessionid', $sessionid, self::$data['autologin'] ? time() + SEC_PER_DAY * 31 : 0);
+			self::setSessionCookie($sessionId);
 
-			return true;
+			return $sessionId;
 		}
 		catch (Exception $e) {
 			self::setDefault();
 			return false;
 		}
+	}
+
+	/**
+	 * Shorthand method for setting current session ID in cookies.
+	 *
+	 * @param string $sessionId		Session ID string
+	 */
+	public static function setSessionCookie($sessionId) {
+		$autoLogin = self::isGuest() ? false : (bool) self::$data['autologin'];
+
+		zbx_setcookie('zbx_sessionid', $sessionId,  $autoLogin ? strtotime('+1 month') : 0);
+	}
+
+	/**
+	 * Retrieves current session ID from zbx_sessionid cookie.
+	 *
+	 * @return string
+	 */
+	public static function getSessionCookie() {
+		return get_cookie('zbx_sessionid');
 	}
 
 	public static function setDefault() {
@@ -115,7 +150,7 @@ class CWebUser {
 			'userid' => 0,
 			'lang' => 'en_gb',
 			'type' => '0',
-			'node' => array('name' => '- unknown -', 'nodeid' => 0)
+			'debug_mode' => false
 		);
 	}
 
@@ -128,6 +163,15 @@ class CWebUser {
 	 */
 	public static function getType() {
 		return self::$data['type'];
+	}
+
+	/**
+	 * Returns true if debug mode is enabled.
+	 *
+	 * @return bool
+	 */
+	public static function getDebugMode() {
+		return (self::$data['debug_mode']);
 	}
 
 	/**
