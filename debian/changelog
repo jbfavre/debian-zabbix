@@ -1,3 +1,12 @@
+zabbix (1:2.3.3-1~bbc+76+1) stable; urgency=medium
+
+  * Imported Upstream version 2.3.3
+  * Patches refresh for 2.4 serie
+  * Remove ZBXNEXT-282 patch. Applied upstream
+  * Last patch refresh for 2.4 serie. Removed action simulator for now
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Wed, 06 Aug 2014 16:10:27 +0200
+
 zabbix (1:2.2.5-1~bbc76+1) stable; urgency=medium
 
   * Imported Upstream version 2.2.5
