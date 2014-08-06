@@ -1,7 +1,6 @@
-diff -urN zabbix-2.2.1.orig/frontends/php/include/classes/validators/CTriggerFunctionValidator.php zabbix-2.2.1/frontends/php/include/classes/validators/CTriggerFunctionValidator.php
---- zabbix-2.2.1.orig/frontends/php/include/classes/validators/CTriggerFunctionValidator.php	2014-01-13 08:29:57.505651636 -0800
-+++ zabbix-2.2.1/frontends/php/include/classes/validators/CTriggerFunctionValidator.php	2014-01-13 08:42:02.381312201 -0800
-@@ -175,6 +175,14 @@
+--- a/frontends/php/include/classes/validators/CTriggerFunctionValidator.php
++++ b/frontends/php/include/classes/validators/CTriggerFunctionValidator.php
+@@ -175,6 +175,14 @@ class CTriggerFunctionValidator extends
  				),
  				'value_types' => $valueTypesNum
  			),
@@ -16,10 +15,9 @@ diff -urN zabbix-2.2.1.orig/frontends/php/include/classes/validators/CTriggerFun
  			'nodata'=> array(
  				'args' => array(
  					array('type' => 'sec_zero', 'mandat' => true)
-diff -urN zabbix-2.2.1.orig/frontends/php/include/triggers.inc.php zabbix-2.2.1/frontends/php/include/triggers.inc.php
---- zabbix-2.2.1.orig/frontends/php/include/triggers.inc.php	2014-01-13 08:29:57.515651575 -0800
-+++ zabbix-2.2.1/frontends/php/include/triggers.inc.php	2014-01-13 08:46:28.529728215 -0800
-@@ -2229,6 +2229,7 @@
+--- a/frontends/php/include/triggers.inc.php
++++ b/frontends/php/include/triggers.inc.php
+@@ -2268,6 +2268,7 @@ function get_item_function_info($expr) {
  		'logsource' =>	array('value_type' => _('0 or 1'),	'type' => T_ZBX_INT,			'validation' => IN('0,1')),
  		'max' =>		array('value_type' => $value_type,	'type' => $type_of_value_type,	'validation' => NOT_EMPTY),
  		'min' =>		array('value_type' => $value_type,	'type' => $type_of_value_type,	'validation' => NOT_EMPTY),
@@ -27,10 +25,9 @@ diff -urN zabbix-2.2.1.orig/frontends/php/include/triggers.inc.php zabbix-2.2.1/
  		'nodata' =>		array('value_type' => _('0 or 1'),	'type' => T_ZBX_INT,			'validation' => IN('0,1')),
  		'now' =>		array('value_type' => _('Numeric (integer 64bit)'), 'type' => T_ZBX_INT, 'validation' => NOT_EMPTY),
  		'prev' =>		array('value_type' => $value_type,	'type' => $type_of_value_type,	'validation' => NOT_EMPTY),
-diff -urN zabbix-2.2.1.orig/frontends/php/popup_trexpr.php zabbix-2.2.1/frontends/php/popup_trexpr.php
---- zabbix-2.2.1.orig/frontends/php/popup_trexpr.php	2014-01-13 08:29:57.415652177 -0800
-+++ zabbix-2.2.1/frontends/php/popup_trexpr.php	2014-01-13 09:00:19.524777811 -0800
-@@ -77,6 +77,21 @@
+--- a/frontends/php/popup_trexpr.php
++++ b/frontends/php/popup_trexpr.php
+@@ -77,6 +77,21 @@ $param2SecCount = array(
  		'M' => $metrics // metrcis
  	)
  );
@@ -52,7 +49,7 @@ diff -urN zabbix-2.2.1.orig/frontends/php/popup_trexpr.php zabbix-2.2.1/frontend
  $param3SecVal = array(
  	array(
  		'C' => _('Last of').' (T)', // caption
-@@ -295,6 +310,26 @@
+@@ -295,6 +310,26 @@ $functions = array(
  		'params' => $param1SecCount,
  		'allowed_types' => $allowedTypesNumeric
  		),
@@ -79,10 +76,9 @@ diff -urN zabbix-2.2.1.orig/frontends/php/popup_trexpr.php zabbix-2.2.1/frontend
  	'prev[<]' => array(
  		'description' =>  _('Previous value is < N'),
  		'allowed_types' => $allowedTypesAny
-diff -urN zabbix-2.2.1.orig/src/libs/zbxserver/evalfunc.c zabbix-2.2.1/src/libs/zbxserver/evalfunc.c
---- zabbix-2.2.1.orig/src/libs/zbxserver/evalfunc.c	2014-01-13 08:29:57.615650979 -0800
-+++ zabbix-2.2.1/src/libs/zbxserver/evalfunc.c	2014-01-13 12:16:16.595717765 -0800
-@@ -30,6 +30,16 @@
+--- a/src/libs/zbxserver/evalfunc.c
++++ b/src/libs/zbxserver/evalfunc.c
+@@ -30,6 +30,16 @@ int	cmp_double(double a, double b)
  	return fabs(a - b) < TRIGGER_EPSILON ? SUCCEED : FAIL;
  }
  
@@ -99,7 +95,7 @@ diff -urN zabbix-2.2.1.orig/src/libs/zbxserver/evalfunc.c zabbix-2.2.1/src/libs/
  static int	__get_function_parameter_uint31(zbx_uint64_t hostid, const char *parameters, int Nparam,
  		int *value, int *flag, int defaults_on_empty, int def_value, int def_flag)
  {
-@@ -1009,6 +1019,141 @@
+@@ -1002,6 +1012,141 @@ out:
  
  /******************************************************************************
   *                                                                            *
@@ -241,7 +237,7 @@ diff -urN zabbix-2.2.1.orig/src/libs/zbxserver/evalfunc.c zabbix-2.2.1/src/libs/
   * Function: evaluate_DELTA                                                   *
   *                                                                            *
   * Purpose: evaluate function 'delta' for the item                            *
-@@ -1725,6 +1870,10 @@
+@@ -1714,6 +1859,10 @@ int	evaluate_function(char *value, DC_IT
  	{
  		ret = evaluate_MAX(value, item, function, parameter, now);
  	}
@@ -252,9 +248,8 @@ diff -urN zabbix-2.2.1.orig/src/libs/zbxserver/evalfunc.c zabbix-2.2.1/src/libs/
  	else if (0 == strcmp(function, "avg"))
  	{
  		ret = evaluate_AVG(value, item, function, parameter, now);
-diff -urN zabbix-2.2.1.orig/src/libs/zbxserver/evalfunc.h zabbix-2.2.1/src/libs/zbxserver/evalfunc.h
---- zabbix-2.2.1.orig/src/libs/zbxserver/evalfunc.h	2014-01-13 08:29:57.615650979 -0800
-+++ zabbix-2.2.1/src/libs/zbxserver/evalfunc.h	2014-01-13 12:16:47.265539330 -0800
+--- a/src/libs/zbxserver/evalfunc.h
++++ b/src/libs/zbxserver/evalfunc.h
 @@ -27,6 +27,7 @@
  #define ZBX_FLAG_VALUES	1
  
