@@ -1,3 +1,14 @@
+zabbix (1:2.2.6-1~bbc76+1) stable; urgency=medium
+
+  * Add action simulator
+  * Add ZBXNEXT-7576 patch. 95th percentile function
+  * Patches refresh
+  * Stick watch file to 2.2.x version
+  * Imported Upstream version 2.2.6
+  * Patches refresh for 2.2.6
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Mon, 01 Sep 2014 16:25:16 +0200
+
 zabbix (1:2.2.5-1~bbc76+1) stable; urgency=medium
 
   * Imported Upstream version 2.2.5
