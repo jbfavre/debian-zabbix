@@ -17,7 +17,7 @@
  					array('type' => 'sec_zero', 'mandat' => true)
 --- a/frontends/php/include/triggers.inc.php
 +++ b/frontends/php/include/triggers.inc.php
-@@ -2268,6 +2268,7 @@ function get_item_function_info($expr) {
+@@ -2256,6 +2256,7 @@ function get_item_function_info($expr) {
  		'logsource' =>	array('value_type' => _('0 or 1'),	'type' => T_ZBX_INT,			'validation' => IN('0,1')),
  		'max' =>		array('value_type' => $value_type,	'type' => $type_of_value_type,	'validation' => NOT_EMPTY),
  		'min' =>		array('value_type' => $value_type,	'type' => $type_of_value_type,	'validation' => NOT_EMPTY),

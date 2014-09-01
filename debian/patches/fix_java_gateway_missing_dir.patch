@@ -1,6 +1,6 @@
 --- a/src/zabbix_java/Makefile.in
 +++ b/src/zabbix_java/Makefile.in
-@@ -426,6 +426,7 @@ test: class
+@@ -490,6 +490,7 @@ test: class
  class:
  	$(MKDIR_P) class/src
  	$(MKDIR_P) class/tests
