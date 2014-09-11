@@ -50,7 +50,7 @@ const ZBX_TABLE	tables[] = {
 		{
 		{"hostid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
 		{"proxy_hostid",	NULL,	"hosts",	"hostid",	0,	ZBX_TYPE_ID,	0,	0},
-		{"host",	"",	NULL,	NULL,	64,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
+		{"host",	"",	NULL,	NULL,	128,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{"status",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{"disable_until",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"error",	"",	NULL,	NULL,	128,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
@@ -77,7 +77,7 @@ const ZBX_TABLE	tables[] = {
 		{"jmx_available",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"jmx_errors_from",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"jmx_error",	"",	NULL,	NULL,	128,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
-		{"name",	"",	NULL,	NULL,	64,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
+		{"name",	"",	NULL,	NULL,	128,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{"flags",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"templateid",	NULL,	"hosts",	"hostid",	0,	ZBX_TYPE_ID,	0,	ZBX_FK_CASCADE_DELETE},
 		{"description",	"",	NULL,	NULL,	ZBX_TYPE_SHORTTEXT_LEN,	ZBX_TYPE_SHORTTEXT,	ZBX_NOTNULL,	0},
@@ -148,6 +148,7 @@ const ZBX_TABLE	tables[] = {
 		{"dynamic",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"sort_triggers",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"application",	"",	NULL,	NULL,	255,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
+		{"max_columns",	"3",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{0}
 		},
 		NULL
@@ -176,7 +177,7 @@ const ZBX_TABLE	tables[] = {
 		{
 		{"druleid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
 		{"proxy_hostid",	NULL,	"hosts",	"hostid",	0,	ZBX_TYPE_ID,	0,	0},
-		{"name",	"",	NULL,	NULL,	255,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
+		{"name",	"",	NULL,	NULL,	255,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{"iprange",	"",	NULL,	NULL,	255,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{"delay",	"3600",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{"nextcheck",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
@@ -1543,7 +1544,6 @@ const ZBX_TABLE	tables[] = {
 #undef ZBX_TYPE_SHORTTEXT_LEN
 
 };
-
 #if defined(HAVE_SQLITE3)
 const char	*const db_schema = "\
 CREATE TABLE maintenances (\n\
@@ -1560,7 +1560,7 @@ CREATE UNIQUE INDEX maintenances_2 ON maintenances (name);\n\
 CREATE TABLE hosts (\n\
 hostid bigint  NOT NULL,\n\
 proxy_hostid bigint  NULL REFERENCES hosts (hostid),\n\
-host varchar(64) DEFAULT '' NOT NULL,\n\
+host varchar(128) DEFAULT '' NOT NULL,\n\
 status integer DEFAULT '0' NOT NULL,\n\
 disable_until integer DEFAULT '0' NOT NULL,\n\
 error varchar(128) DEFAULT '' NOT NULL,\n\
@@ -1587,7 +1587,7 @@ jmx_disable_until integer DEFAULT '0' NOT NULL,\n\
 jmx_available integer DEFAULT '0' NOT NULL,\n\
 jmx_errors_from integer DEFAULT '0' NOT NULL,\n\
 jmx_error varchar(128) DEFAULT '' NOT NULL,\n\
-name varchar(64) DEFAULT '' NOT NULL,\n\
+name varchar(128) DEFAULT '' NOT NULL,\n\
 flags integer DEFAULT '0' NOT NULL,\n\
 templateid bigint  NULL REFERENCES hosts (hostid) ON DELETE CASCADE,\n\
 description text DEFAULT '' NOT NULL,\n\
@@ -1651,6 +1651,7 @@ url varchar(255) DEFAULT '' NOT NULL,\n\
 dynamic integer DEFAULT '0' NOT NULL,\n\
 sort_triggers integer DEFAULT '0' NOT NULL,\n\
 application varchar(255) DEFAULT '' NOT NULL,\n\
+max_columns integer DEFAULT '3' NOT NULL,\n\
 PRIMARY KEY (screenitemid)\n\
 );\n\
 CREATE INDEX screens_items_1 ON screens_items (screenid);\n\
@@ -2896,8 +2897,11 @@ CREATE TABLE dbversion (\n\
 mandatory integer DEFAULT '0' NOT NULL,\n\
 optional integer DEFAULT '0' NOT NULL\n\
 );\n\
-INSERT INTO dbversion VALUES ('2030112','2030115');\n\
+INSERT INTO dbversion VALUES ('2040000','2040000');\n\
 ";
+const char	*const db_schema_fkeys[] = {
+	NULL
+};
 #else	/* HAVE_SQLITE3 */
 const char	*const db_schema = NULL;
 #endif	/* not HAVE_SQLITE3 */

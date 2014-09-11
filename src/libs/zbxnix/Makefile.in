@@ -108,7 +108,7 @@ am__v_AR_1 =
 libzbxnix_a_AR = $(AR) $(ARFLAGS)
 libzbxnix_a_LIBADD =
 am_libzbxnix_a_OBJECTS = daemon.$(OBJEXT) pid.$(OBJEXT) ipc.$(OBJEXT) \
-	fatal.$(OBJEXT) sighandler.$(OBJEXT)
+	fatal.$(OBJEXT) sighandler.$(OBJEXT) control.$(OBJEXT)
 libzbxnix_a_OBJECTS = $(am_libzbxnix_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -338,7 +338,8 @@ libzbxnix_a_SOURCES = \
 	ipc.c \
 	fatal.c fatal.h \
 	sighandler.c \
-	sigcommon.h
+	sigcommon.h \
+	control.c control.h
 
 all: all-am
 
@@ -389,6 +390,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/control.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/daemon.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fatal.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ipc.Po@am__quote@

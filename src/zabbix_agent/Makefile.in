@@ -137,7 +137,8 @@ am_zabbix_agentd_OBJECTS = zabbix_agentd-active.$(OBJEXT) \
 	zabbix_agentd-zbxconf.$(OBJEXT) \
 	zabbix_agentd-listener.$(OBJEXT)
 zabbix_agentd_OBJECTS = $(am_zabbix_agentd_OBJECTS)
-zabbix_agentd_DEPENDENCIES = $(am__DEPENDENCIES_1)
+zabbix_agentd_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(top_srcdir)/src/libs/zbxself/libzbxself.a
 zabbix_agentd_LINK = $(CCLD) $(zabbix_agentd_CFLAGS) $(CFLAGS) \
 	$(zabbix_agentd_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
@@ -408,7 +409,9 @@ zabbix_agentd_SOURCES = \
 	zbxconf.c zbxconf.h \
 	listener.c listener.h
 
-zabbix_agentd_LDADD = $(agents_ldadd)
+zabbix_agentd_LDADD = $(agents_ldadd) \
+	$(top_srcdir)/src/libs/zbxself/libzbxself.a
+
 zabbix_agentd_LDFLAGS = @AGENT_LDFLAGS@
 zabbix_agentd_CFLAGS = \
 	-DZABBIX_DAEMON \
