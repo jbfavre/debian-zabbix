@@ -12,7 +12,7 @@ CREATE UNIQUE INDEX maintenances_2 ON maintenances (name);
 CREATE TABLE hosts (
 	hostid                   bigint                                    NOT NULL,
 	proxy_hostid             bigint                                    NULL REFERENCES hosts (hostid),
-	host                     varchar(64)     DEFAULT ''                NOT NULL,
+	host                     varchar(128)    DEFAULT ''                NOT NULL,
 	status                   integer         DEFAULT '0'               NOT NULL,
 	disable_until            integer         DEFAULT '0'               NOT NULL,
 	error                    varchar(128)    DEFAULT ''                NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE hosts (
 	jmx_available            integer         DEFAULT '0'               NOT NULL,
 	jmx_errors_from          integer         DEFAULT '0'               NOT NULL,
 	jmx_error                varchar(128)    DEFAULT ''                NOT NULL,
-	name                     varchar(64)     DEFAULT ''                NOT NULL,
+	name                     varchar(128)    DEFAULT ''                NOT NULL,
 	flags                    integer         DEFAULT '0'               NOT NULL,
 	templateid               bigint                                    NULL REFERENCES hosts (hostid) ON DELETE CASCADE,
 	description              text            DEFAULT ''                NOT NULL,
@@ -103,6 +103,7 @@ CREATE TABLE screens_items (
 	dynamic                  integer         DEFAULT '0'               NOT NULL,
 	sort_triggers            integer         DEFAULT '0'               NOT NULL,
 	application              varchar(255)    DEFAULT ''                NOT NULL,
+	max_columns              integer         DEFAULT '3'               NOT NULL,
 	PRIMARY KEY (screenitemid)
 );
 CREATE INDEX screens_items_1 ON screens_items (screenid);
@@ -1348,4 +1349,4 @@ CREATE TABLE dbversion (
 	mandatory                integer         DEFAULT '0'               NOT NULL,
 	optional                 integer         DEFAULT '0'               NOT NULL
 );
-INSERT INTO dbversion VALUES ('2030112','2030115');
+INSERT INTO dbversion VALUES ('2040000','2040000');

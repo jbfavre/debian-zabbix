@@ -390,6 +390,9 @@ DIST_SUBDIRS = \
 @PROXY_TRUE@@SERVER_FALSE@	zbxicmpping \
 @PROXY_TRUE@@SERVER_FALSE@	zbxself
 
+@AGENT_TRUE@@PROXY_FALSE@@SERVER_FALSE@AGENT_SUBDIRS = \
+@AGENT_TRUE@@PROXY_FALSE@@SERVER_FALSE@	zbxself
+
 SUBDIRS = \
 	zbxcrypto \
 	zbxcommon \
@@ -405,7 +408,8 @@ SUBDIRS = \
 	zbxmodules \
 	zbxregexp \
 	$(PROXY_SUBDIRS) \
-	$(SERVER_SUBDIRS)
+	$(SERVER_SUBDIRS) \
+	$(AGENT_SUBDIRS)
 
 EXTRA_DIST = zbxwin32
 all: all-recursive

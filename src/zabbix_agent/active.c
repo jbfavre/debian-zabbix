@@ -19,6 +19,8 @@
 
 #include "common.h"
 #include "active.h"
+#include "zbxconf.h"
+#include "zbxself.h"
 
 #include "cfg.h"
 #include "log.h"
@@ -33,21 +35,18 @@
 #include "threads.h"
 #include "zbxjson.h"
 
+extern unsigned char	process_type, daemon_type;
+extern int		server_num, process_num;
+
 #if defined(ZABBIX_SERVICE)
 #	include "service.h"
 #elif defined(ZABBIX_DAEMON)
 #	include "daemon.h"
 #endif
 
-#ifdef _WINDOWS
-__declspec(thread) static ZBX_ACTIVE_METRIC	*active_metrics = NULL;
-__declspec(thread) static ZBX_ACTIVE_BUFFER	buffer;
-__declspec(thread) static zbx_vector_ptr_t	regexps;
-#else
-static ZBX_ACTIVE_METRIC	*active_metrics = NULL;
-static ZBX_ACTIVE_BUFFER	buffer;
-static zbx_vector_ptr_t		regexps;
-#endif
+ZBX_THREAD_LOCAL static ZBX_ACTIVE_METRIC	*active_metrics = NULL;
+ZBX_THREAD_LOCAL static ZBX_ACTIVE_BUFFER	buffer;
+ZBX_THREAD_LOCAL static zbx_vector_ptr_t	regexps;
 
 #ifdef _WINDOWS
 LONG WINAPI	DelayLoadDllExceptionFilter(PEXCEPTION_POINTERS excpointers)
@@ -415,10 +414,11 @@ json_error:
 static int	refresh_active_checks(const char *host, unsigned short port)
 {
 	const char	*__function_name = "refresh_active_checks";
-	zbx_sock_t	s;
-	int		ret;
-	struct zbx_json	json;
-	static int	last_ret = SUCCEED;
+
+	ZBX_THREAD_LOCAL static int	last_ret = SUCCEED;
+	zbx_sock_t			s;
+	int				ret;
+	struct zbx_json			json;
 
 	zabbix_log(LOG_LEVEL_DEBUG, "In %s() host:'%s' port:%hu", __function_name, host, port);
 
@@ -1185,6 +1185,8 @@ static void	process_active_checks(char *server, unsigned short port)
 								/* buffer is full, stop processing active checks*/
 								/* till the buffer is cleared */
 								lastlogsize = active_metrics[i].lastlogsize;
+								finalize_eventlog6(&eventlog6_render_context,
+										&eventlog6_query);
 								goto ret;
 							}
 
@@ -1348,15 +1350,17 @@ ZBX_THREAD_ENTRY(active_checks_thread, args)
 {
 	ZBX_THREAD_ACTIVECHK_ARGS activechk_args;
 
-	int	nextcheck = 0, nextrefresh = 0, nextsend = 0, thread_num, thread_num2;
+	int	nextcheck = 0, nextrefresh = 0, nextsend = 0;
 
 	assert(args);
 	assert(((zbx_thread_args_t *)args)->args);
 
-	thread_num = ((zbx_thread_args_t *)args)->thread_num;
-	thread_num2 = ((zbx_thread_args_t *)args)->thread_num2;
+	process_type = ((zbx_thread_args_t *)args)->process_type;
+	server_num = ((zbx_thread_args_t *)args)->server_num;
+	process_num = ((zbx_thread_args_t *)args)->process_num;
 
-	zabbix_log(LOG_LEVEL_INFORMATION, "agent #%d started [active checks #%d]", thread_num, thread_num2);
+	zabbix_log(LOG_LEVEL_INFORMATION, "%s #%d started [%s #%d]", get_daemon_type_string(daemon_type),
+			server_num, get_process_type_string(process_type), process_num);
 
 	activechk_args.host = zbx_strdup(NULL, ((ZBX_THREAD_ACTIVECHK_ARGS *)((zbx_thread_args_t *)args)->args)->host);
 	activechk_args.port = ((ZBX_THREAD_ACTIVECHK_ARGS *)((zbx_thread_args_t *)args)->args)->port;
@@ -1375,7 +1379,7 @@ ZBX_THREAD_ENTRY(active_checks_thread, args)
 
 		if (time(NULL) >= nextrefresh)
 		{
-			zbx_setproctitle("active checks #%d [getting list of active checks]", thread_num2);
+			zbx_setproctitle("active checks #%d [getting list of active checks]", process_num);
 
 			if (FAIL == refresh_active_checks(activechk_args.host, activechk_args.port))
 			{
@@ -1389,7 +1393,7 @@ ZBX_THREAD_ENTRY(active_checks_thread, args)
 
 		if (time(NULL) >= nextcheck && CONFIG_BUFFER_SIZE / 2 > buffer.pcount)
 		{
-			zbx_setproctitle("active checks #%d [processing active checks]", thread_num2);
+			zbx_setproctitle("active checks #%d [processing active checks]", process_num);
 
 			process_active_checks(activechk_args.host, activechk_args.port);
 			if (CONFIG_BUFFER_SIZE / 2 <= buffer.pcount)	/* failed to complete processing active checks */
@@ -1401,7 +1405,7 @@ ZBX_THREAD_ENTRY(active_checks_thread, args)
 		}
 		else
 		{
-			zbx_setproctitle("active checks #%d [idle 1 sec]", thread_num2);
+			zbx_setproctitle("active checks #%d [idle 1 sec]", process_num);
 			zbx_sleep(1);
 		}
 	}

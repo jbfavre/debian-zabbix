@@ -93,7 +93,7 @@ const char	*zbx_result_string(int result);
 #define MAX_ID_LEN		21
 #define MAX_STRING_LEN		2048
 #define MAX_BUFFER_LEN		65536
-#define MAX_ZBX_HOSTNAME_LEN	64
+#define MAX_ZBX_HOSTNAME_LEN	128
 #define MAX_EXECUTE_OUTPUT_LEN	(512 * ZBX_KIBIBYTE)
 
 #define ZBX_MAX_UINT64_LEN	21
@@ -380,6 +380,8 @@ zbx_graph_yaxis_types_t;
 
 /* runtime control options */
 #define ZBX_CONFIG_CACHE_RELOAD	"config_cache_reload"
+#define ZBX_LOG_LEVEL_INCREASE	"log_level_increase"
+#define ZBX_LOG_LEVEL_DECREASE	"log_level_decrease"
 
 /* value for not supported items */
 #define ZBX_NOTSUPPORTED	"ZBX_NOTSUPPORTED"
@@ -636,6 +638,8 @@ zbx_script_t;
 #define POLLER_DELAY		5
 #define DISCOVERER_DELAY	60
 
+#define HOUSEKEEPER_STARTUP_DELAY	30	/* in minutes */
+
 #define	GET_SENDER_TIMEOUT	60
 
 #ifndef MAX
@@ -713,9 +717,13 @@ typedef enum
 	ZBX_TASK_UNINSTALL_SERVICE,
 	ZBX_TASK_START_SERVICE,
 	ZBX_TASK_STOP_SERVICE,
-	ZBX_TASK_CONFIG_CACHE_RELOAD
+	ZBX_TASK_RUNTIME_CONTROL
 }
 zbx_task_t;
+
+#define ZBX_RTC_LOG_LEVEL_INCREASE	1
+#define ZBX_RTC_LOG_LEVEL_DECREASE	2
+#define ZBX_RTC_CONFIG_CACHE_RELOAD	8
 
 typedef enum
 {
@@ -733,6 +741,21 @@ typedef struct
 	int		flags;
 }
 ZBX_TASK_EX;
+
+#define ZBX_RTC_MSG_SHIFT	0
+#define ZBX_RTC_SCOPE_SHIFT	8
+#define ZBX_RTC_DATA_SHIFT	16
+
+#define ZBX_RTC_MSG_MASK	0x000000ff
+#define ZBX_RTC_SCOPE_MASK	0x0000ff00
+#define ZBX_RTC_DATA_MASK	0xffff0000
+
+#define ZBX_RTC_GET_MSG(task)	(int)((task & ZBX_RTC_MSG_MASK) >> ZBX_RTC_MSG_SHIFT)
+#define ZBX_RTC_GET_SCOPE(task)	(int)((task & ZBX_RTC_SCOPE_MASK) >> ZBX_RTC_SCOPE_SHIFT)
+#define ZBX_RTC_GET_DATA(task)	(int)((task & ZBX_RTC_DATA_MASK) >> ZBX_RTC_DATA_SHIFT)
+
+#define ZBX_RTC_MAKE_MESSAGE(msg, scope, data)	((msg << ZBX_RTC_MSG_SHIFT) | (scope << ZBX_RTC_SCOPE_SHIFT) | \
+	(data << ZBX_RTC_DATA_SHIFT))
 
 char	*string_replace(const char *str, const char *sub_str1, const char *sub_str2);
 
@@ -806,7 +829,6 @@ int	replace_key_params_dyn(char **data, int key_type, replace_key_param_f cb, vo
 		size_t maxerrlen);
 
 void	remove_param(char *param, int num);
-const char	*get_string(const char *p, char *buf, size_t bufsize);
 int	get_key_param(char *param, int num, char *buf, size_t max_len);
 int	num_key_param(char *param);
 size_t	zbx_get_escape_string_len(const char *src, const char *charlist);
@@ -879,7 +901,7 @@ void	zbx_chrcpy_alloc(char **str, size_t *alloc_len, size_t *offset, char c);
 #define strscpy(x, y)	zbx_strlcpy(x, y, sizeof(x))
 #define strscat(x, y)	zbx_strlcat(x, y, sizeof(x))
 size_t	zbx_strlcpy(char *dst, const char *src, size_t siz);
-size_t	zbx_strlcat(char *dst, const char *src, size_t siz);
+void	zbx_strlcat(char *dst, const char *src, size_t siz);
 
 char	*zbx_dvsprintf(char *dest, const char *f, va_list args);
 
@@ -914,15 +936,16 @@ int	is_ip6(const char *ip);
 int	is_ip4(const char *ip);
 int	is_ip(const char *ip);
 
-void	zbx_on_exit(); /* calls exit() at the end! */
+void	zbx_on_exit(void); /* calls exit() at the end! */
 
 int	int_in_list(char *list, int value);
 int	uint64_in_list(char *list, zbx_uint64_t value);
-int	ip_in_list(char *list, char *ip);
+int	ip_in_list(char *list, const char *ip);
 
-int	expand_ipv6(const char *ip, char *str, size_t str_len);
+int	ip4_str2dig(const char *ip, unsigned int *ip_dig);
+int	ip6_str2dig(const char *ip, unsigned short *groups);
 #ifdef HAVE_IPV6
-char	*collapse_ipv6(char *str, size_t str_len);
+void	ip6_dig2str(unsigned short *groups, char *ip, size_t ip_len);
 #endif
 
 /* time related functions */
@@ -939,11 +962,11 @@ int	zbx_mismatch(const char *s1, const char *s2);
 int	cmp_key_id(const char *key_1, const char *key_2);
 int	zbx_strncasecmp(const char *s1, const char *s2, size_t n);
 
-int	get_nearestindex(void *p, size_t sz, int num, zbx_uint64_t id);
+int	get_nearestindex(const void *p, size_t sz, int num, zbx_uint64_t id);
 int	uint64_array_add(zbx_uint64_t **values, int *alloc, int *num, zbx_uint64_t value, int alloc_step);
 void	uint64_array_merge(zbx_uint64_t **values, int *alloc, int *num, zbx_uint64_t *value, int value_num, int alloc_step);
-int	uint64_array_exists(zbx_uint64_t *values, int num, zbx_uint64_t value);
-void	uint64_array_remove(zbx_uint64_t *values, int *num, zbx_uint64_t *rm_values, int rm_num);
+int	uint64_array_exists(const zbx_uint64_t *values, int num, zbx_uint64_t value);
+void	uint64_array_remove(zbx_uint64_t *values, int *num, const zbx_uint64_t *rm_values, int rm_num);
 void	uint64_array_remove_both(zbx_uint64_t *values, int *num, zbx_uint64_t *rm_values, int *rm_num);
 
 const char	*zbx_event_value_string(unsigned char source, unsigned char object, unsigned char value);
@@ -1000,7 +1023,7 @@ int	MAIN_ZABBIX_ENTRY();
 zbx_uint64_t	zbx_letoh_uint64(zbx_uint64_t data);
 zbx_uint64_t	zbx_htole_uint64(zbx_uint64_t data);
 
-int	zbx_check_hostname(const char *hostname);
+int	zbx_check_hostname(const char *hostname, char **error);
 
 int	is_hostname_char(char c);
 int	is_key_char(char c);
