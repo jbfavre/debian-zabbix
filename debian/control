@@ -8,7 +8,7 @@ Build-Depends: debhelper (>= 9), automake, dh-autoreconf
  ,libgcrypt-dev
  ,libiksemel-dev
  ,libldap2-dev
- ,libmysqlclient-dev
+ ,libmysqlclient-dev | libmariadbclient-dev
 # libopenipmi-dev is not available on some architectures
  ,libopenipmi-dev [!hurd-any !arm]
  ,libpq-dev
@@ -18,6 +18,7 @@ Build-Depends: debhelper (>= 9), automake, dh-autoreconf
  ,unixodbc-dev
  ,openjdk-7-jdk
  ,libxml2-dev
+ ,pkg-config
 Standards-Version: 3.9.4
 Homepage: http://zabbix.com
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=collab-maint/zabbix.git
