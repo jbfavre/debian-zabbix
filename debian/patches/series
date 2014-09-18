@@ -1,4 +1,4 @@
-ZBXNEXT-756.patch
+no-swf-clock.patch
 ZBX-6163.patch
 fix_java_gateway_missing_dir.patch
 config-debian-customizations.patch
@@ -6,5 +6,4 @@ manpages-fix.patch
 manpages-path.patch
 sql-upgrades-path.patch
 openssl2gcrypt.patch
-no-swf-clock.patch
 conffile-in-etc.patch

@@ -1,5 +1,7 @@
---- a/conf/zabbix_agentd.conf
-+++ b/conf/zabbix_agentd.conf
+Index: zabbix/conf/zabbix_agentd.conf
+===================================================================
+--- zabbix.orig/conf/zabbix_agentd.conf	2014-09-13 15:11:43.764774902 +0300
++++ zabbix/conf/zabbix_agentd.conf	2014-09-13 15:11:43.760774883 +0300
 @@ -10,6 +10,8 @@
  # Default:
  # PidFile=/tmp/zabbix_agentd.pid
@@ -18,7 +20,7 @@
  
  ### Option: LogFileSize
  #	Maximum size of log file in MB.
-@@ -29,6 +31,8 @@ LogFile=/tmp/zabbix_agentd.log
+@@ -29,6 +31,8 @@
  # Default:
  # LogFileSize=1
  
@@ -27,7 +29,7 @@
  ### Option: DebugLevel
  #	Specifies debug level
  #	0 - basic information about starting and stopping of Zabbix processes
-@@ -242,15 +246,15 @@ Hostname=Zabbix server
+@@ -242,15 +246,15 @@
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.
@@ -47,9 +49,11 @@
  
  ####### USER-DEFINED MONITORED PARAMETERS #######
  
---- a/conf/zabbix_proxy.conf
-+++ b/conf/zabbix_proxy.conf
-@@ -74,7 +74,7 @@ Hostname=Zabbix proxy
+Index: zabbix/conf/zabbix_proxy.conf
+===================================================================
+--- zabbix.orig/conf/zabbix_proxy.conf	2014-09-13 15:11:43.764774902 +0300
++++ zabbix/conf/zabbix_proxy.conf	2014-09-13 15:11:43.760774883 +0300
+@@ -74,7 +74,7 @@
  # Default:
  # LogFile=
  
@@ -58,8 +62,10 @@
  
  ### Option: LogFileSize
  #	Maximum size of log file in MB.
---- a/conf/zabbix_server.conf
-+++ b/conf/zabbix_server.conf
+Index: zabbix/conf/zabbix_server.conf
+===================================================================
+--- zabbix.orig/conf/zabbix_server.conf	2014-09-13 15:11:43.764774902 +0300
++++ zabbix/conf/zabbix_server.conf	2014-09-13 15:11:43.760774883 +0300
 @@ -27,7 +27,7 @@
  # Default:
  # LogFile=
@@ -69,7 +75,7 @@
  
  ### Option: LogFileSize
  #	Maximum size of log file in MB.
-@@ -57,6 +57,7 @@ LogFile=/tmp/zabbix_server.log
+@@ -57,6 +57,7 @@
  # Mandatory: no
  # Default:
  # PidFile=/tmp/zabbix_server.pid
@@ -77,7 +83,7 @@
  
  ### Option: DBHost
  #	Database host name.
-@@ -91,7 +92,7 @@ DBName=zabbix
+@@ -91,7 +92,7 @@
  # Default:
  # DBUser=
  
@@ -86,7 +92,7 @@
  
  ### Option: DBPassword
  #	Database password. Ignored for SQLite.
-@@ -406,6 +407,8 @@ DBUser=root
+@@ -409,6 +410,8 @@
  # Default:
  # AlertScriptsPath=${datadir}/zabbix/alertscripts
  
@@ -95,7 +101,7 @@
  ### Option: ExternalScripts
  #	Full path to location of external scripts.
  #	Default depends on compilation options.
-@@ -422,6 +425,8 @@ DBUser=root
+@@ -425,6 +428,8 @@
  # Default:
  # FpingLocation=/usr/sbin/fping
  
@@ -104,7 +110,7 @@
  ### Option: Fping6Location
  #	Location of fping6.
  #	Make sure that fping6 binary has root ownership and SUID flag set.
-@@ -431,6 +436,8 @@ DBUser=root
+@@ -434,6 +439,8 @@
  # Default:
  # Fping6Location=/usr/sbin/fping6
  
@@ -113,7 +119,7 @@
  ### Option: SSHKeyLocation
  #	Location of public and private keys for SSH checks and actions.
  #
-@@ -502,15 +509,15 @@ DBUser=root
+@@ -505,15 +512,15 @@
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.
@@ -133,8 +139,10 @@
  
  ### Option: SSLCertLocation
  #	Location of SSL client certificates.
---- a/frontends/php/conf/zabbix.conf.php.example
-+++ b/frontends/php/conf/zabbix.conf.php.example
+Index: zabbix/frontends/php/conf/zabbix.conf.php.example
+===================================================================
+--- zabbix.orig/frontends/php/conf/zabbix.conf.php.example	2014-09-13 15:11:43.764774902 +0300
++++ zabbix/frontends/php/conf/zabbix.conf.php.example	2014-09-13 15:11:43.760774883 +0300
 @@ -2,16 +2,17 @@
  // Zabbix GUI configuration file
  global $DB;
@@ -157,8 +165,10 @@
  $ZBX_SERVER_PORT		= '10051';
  $ZBX_SERVER_NAME		= '';
  
---- a/src/zabbix_java/lib/logback.xml
-+++ b/src/zabbix_java/lib/logback.xml
+Index: zabbix/src/zabbix_java/lib/logback.xml
+===================================================================
+--- zabbix.orig/src/zabbix_java/lib/logback.xml	2014-09-13 15:11:43.764774902 +0300
++++ zabbix/src/zabbix_java/lib/logback.xml	2014-09-13 15:11:43.760774883 +0300
 @@ -5,7 +5,7 @@
  		<file>/tmp/zabbix_java.log</file>
  
@@ -168,8 +178,10 @@
  			<minIndex>1</minIndex>
  			<maxIndex>3</maxIndex>
  		</rollingPolicy>
---- a/src/zabbix_java/settings.sh
-+++ b/src/zabbix_java/settings.sh
+Index: zabbix/src/zabbix_java/settings.sh
+===================================================================
+--- zabbix.orig/src/zabbix_java/settings.sh	2014-09-13 15:11:43.764774902 +0300
++++ zabbix/src/zabbix_java/settings.sh	2014-09-13 15:11:43.760774883 +0300
 @@ -24,7 +24,7 @@
  # Default:
  # PID_FILE=
