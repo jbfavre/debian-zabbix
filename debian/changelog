@@ -1,3 +1,11 @@
+zabbix (1:2.4.1-1~bbc76+1) stable; urgency=medium
+
+  * Update gbp.conf
+  * Imported Upstream version 2.4.1
+  * Patches refresh for 2.4.1
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Wed, 22 Oct 2014 13:06:07 +0200
+
 zabbix (1:2.4.0-1~bbc76+1) stable; urgency=medium
 
   * Update build dependencies. Add pkg-config & libmariadbclient-dev
