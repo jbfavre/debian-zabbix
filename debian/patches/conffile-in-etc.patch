@@ -1,8 +1,6 @@
-Index: zabbix/frontends/php/include/classes/core/CConfigFile.php
-===================================================================
---- zabbix.orig/frontends/php/include/classes/core/CConfigFile.php	2014-09-13 15:11:44.408777846 +0300
-+++ zabbix/frontends/php/include/classes/core/CConfigFile.php	2014-09-13 15:11:44.404777827 +0300
-@@ -24,7 +24,7 @@
+--- a/frontends/php/include/classes/core/CConfigFile.php
++++ b/frontends/php/include/classes/core/CConfigFile.php
+@@ -24,7 +24,7 @@ class CConfigFile {
  	const CONFIG_NOT_FOUND = 1;
  	const CONFIG_ERROR = 2;
  
@@ -11,11 +9,9 @@ Index: zabbix/frontends/php/include/classes/core/CConfigFile.php
  
  	public $configFile = null;
  	public $config = array();
-Index: zabbix/frontends/php/include/classes/core/ZBase.php
-===================================================================
---- zabbix.orig/frontends/php/include/classes/core/ZBase.php	2014-09-13 15:11:44.408777846 +0300
-+++ zabbix/frontends/php/include/classes/core/ZBase.php	2014-09-13 15:11:44.408777846 +0300
-@@ -305,7 +305,8 @@
+--- a/frontends/php/include/classes/core/ZBase.php
++++ b/frontends/php/include/classes/core/ZBase.php
+@@ -305,7 +305,8 @@ class ZBase {
  	 * Load zabbix config file.
  	 */
  	protected function loadConfigFile() {
@@ -25,11 +21,9 @@ Index: zabbix/frontends/php/include/classes/core/ZBase.php
  		$config = new CConfigFile($configFile);
  		$this->config = $config->load();
  	}
-Index: zabbix/frontends/php/include/classes/setup/CSetupWizard.php
-===================================================================
---- zabbix.orig/frontends/php/include/classes/setup/CSetupWizard.php	2014-09-13 15:11:44.408777846 +0300
-+++ zabbix/frontends/php/include/classes/setup/CSetupWizard.php	2014-09-13 15:11:44.408777846 +0300
-@@ -443,7 +443,8 @@
+--- a/frontends/php/include/classes/setup/CSetupWizard.php
++++ b/frontends/php/include/classes/setup/CSetupWizard.php
+@@ -443,7 +443,8 @@ class CSetupWizard extends CForm {
  	function stage6() {
  		$this->setConfig('ZBX_CONFIG_FILE_CORRECT', true);
  
@@ -39,7 +33,7 @@ Index: zabbix/frontends/php/include/classes/setup/CSetupWizard.php
  		$config->config = array(
  			'DB' => array(
  				'TYPE' => $this->getConfig('DB_TYPE'),
-@@ -511,7 +512,8 @@
+@@ -511,7 +512,8 @@ class CSetupWizard extends CForm {
  		$this->HIDE_CANCEL_BUTTON = !$this->DISABLE_NEXT_BUTTON;
  
  
@@ -49,7 +43,7 @@ Index: zabbix/frontends/php/include/classes/setup/CSetupWizard.php
  			BR(), 'created: ', $this->getConfig('ZBX_CONFIG_FILE_CORRECT', false)
  			? new CSpan(_('OK'), 'ok')
  			: new CSpan(_('Fail'), 'fail')
-@@ -524,7 +526,7 @@
+@@ -524,7 +526,7 @@ class CSetupWizard extends CForm {
  				? array($error_text, BR(), 'Please install it manually, or fix permissions on the conf directory.', BR(), BR(),
  					'Press the "Download configuration file" button, download the configuration file ',
  					'and save it as ', BR(),
@@ -58,7 +52,7 @@ Index: zabbix/frontends/php/include/classes/setup/CSetupWizard.php
  					new CSubmit('save_config', 'Download configuration file'),
  					BR(), BR()
  				)
-@@ -635,7 +637,8 @@
+@@ -635,7 +637,8 @@ class CSetupWizard extends CForm {
  				// make zabbix.conf.php downloadable
  				header('Content-Type: application/x-httpd-php');
  				header('Content-Disposition: attachment; filename="'.basename(CConfigFile::CONFIG_FILE_PATH).'"');

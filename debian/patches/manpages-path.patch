@@ -3,11 +3,9 @@ Author: Dmitry Smirnov <onlyjob@member.fsf.org>
 Forwarded: not-needed
 Description: correct location of config files in man pages
 
-Index: zabbix/man/zabbix_agentd.man
-===================================================================
---- zabbix.orig/man/zabbix_agentd.man	2014-09-13 15:11:44.040776164 +0300
-+++ zabbix/man/zabbix_agentd.man	2014-09-13 15:11:44.036776145 +0300
-@@ -90,7 +90,7 @@
+--- a/man/zabbix_agentd.man
++++ b/man/zabbix_agentd.man
+@@ -90,7 +90,7 @@ Display this help and exit.
  Output version information and exit.
  .SH FILES
  .TP
@@ -16,11 +14,9 @@ Index: zabbix/man/zabbix_agentd.man
  Default location of Zabbix agent configuration file (if not modified during compile time).
  .SH "SEE ALSO"
  .BR zabbix_get (8),
-Index: zabbix/man/zabbix_proxy.man
-===================================================================
---- zabbix.orig/man/zabbix_proxy.man	2014-09-13 15:11:44.040776164 +0300
-+++ zabbix/man/zabbix_proxy.man	2014-09-13 15:11:44.036776145 +0300
-@@ -57,7 +57,7 @@
+--- a/man/zabbix_proxy.man
++++ b/man/zabbix_proxy.man
+@@ -57,7 +57,7 @@ Display this help and exit.
  Output version information and exit.
  .SH FILES
  .TP
@@ -29,11 +25,9 @@ Index: zabbix/man/zabbix_proxy.man
  Default location of Zabbix proxy configuration file (if not modified during compile time).
  .SH "SEE ALSO"
  .BR zabbix_agentd (8),
-Index: zabbix/man/zabbix_server.man
-===================================================================
---- zabbix.orig/man/zabbix_server.man	2014-09-13 15:11:44.040776164 +0300
-+++ zabbix/man/zabbix_server.man	2014-09-13 15:11:44.036776145 +0300
-@@ -57,7 +57,7 @@
+--- a/man/zabbix_server.man
++++ b/man/zabbix_server.man
+@@ -57,7 +57,7 @@ Display this help and exit.
  Output version information and exit.
  .SH FILES
  .TP
@@ -42,11 +36,9 @@ Index: zabbix/man/zabbix_server.man
  Default location of Zabbix server configuration file (if not modified during compile time).
  .SH "SEE ALSO"
  .BR zabbix_agentd (8),
-Index: zabbix/man/zabbix_sender.man
-===================================================================
---- zabbix.orig/man/zabbix_sender.man	2014-09-13 15:11:44.040776164 +0300
-+++ zabbix/man/zabbix_sender.man	2014-09-13 15:11:44.036776145 +0300
-@@ -45,7 +45,7 @@
+--- a/man/zabbix_sender.man
++++ b/man/zabbix_sender.man
+@@ -45,7 +45,7 @@ If data was sent, but processing of at l
  If data sending failed, the exit status is 1.
  
  .SH "EXAMPLES"
@@ -55,7 +47,7 @@ Index: zabbix/man/zabbix_sender.man
  
  Send \fB342.45\fR as the value for \fBmysql.queries\fR key in \fBMonitored Host\fR host using Zabbix server defined in agent daemon configuration file.
  
-@@ -53,7 +53,7 @@
+@@ -53,7 +53,7 @@ Send \fB342.45\fR as the value for \fBmy
  
  Send values from file \fBdata_values.txt\fR to server with IP \fB192.168.1.113\fR. Host names and keys are defined in the file.
  

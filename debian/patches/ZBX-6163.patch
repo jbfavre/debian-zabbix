@@ -6,11 +6,9 @@ Reviewed-by: Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>
 Last-Update: 2013-11-21
 ---
 This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
-Index: zabbix/src/libs/zbxdb/db.c
-===================================================================
---- zabbix.orig/src/libs/zbxdb/db.c	2014-09-13 15:11:43.516773769 +0300
-+++ zabbix/src/libs/zbxdb/db.c	2014-09-13 15:11:43.512773751 +0300
-@@ -293,6 +293,8 @@
+--- a/src/libs/zbxdb/db.c
++++ b/src/libs/zbxdb/db.c
+@@ -293,6 +293,8 @@ int	zbx_db_connect(char *host, char *use
  	}
  #elif defined(HAVE_MYSQL)
  	conn = mysql_init(NULL);
