@@ -273,7 +273,7 @@
  	'timeout' =>		array(T_ZBX_INT, O_OPT, null,	BETWEEN(0,65535),	'isset({save})', _('Timeout')),
 --- a/include/db.h
 +++ b/include/db.h
-@@ -380,6 +380,12 @@ typedef struct
+@@ -373,6 +373,12 @@ typedef struct
  	char		*http_proxy;
  	int		authentication;
  	int		retries;
@@ -286,7 +286,7 @@
  }
  DB_HTTPTEST;
  
-@@ -395,6 +401,7 @@ typedef struct
+@@ -388,6 +394,7 @@ typedef struct
  	int		no;
  	int		timeout;
  	char		*variables;

@@ -1200,7 +1200,7 @@
 +
 --- a/frontends/php/include/defines.inc.php
 +++ b/frontends/php/include/defines.inc.php
-@@ -478,6 +478,11 @@ define('ACTION_DEFAULT_MSG_DISCOVERY', "
+@@ -479,6 +479,11 @@ define('ACTION_DEFAULT_MSG_DISCOVERY', "
  		"Device service uptime: {DISCOVERY.SERVICE.UPTIME}"
  );
  
