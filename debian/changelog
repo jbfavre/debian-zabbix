@@ -1,3 +1,11 @@
+zabbix (1:2.2.7-1~bbc76+1) stable; urgency=medium
+
+  * Update gbp.conf
+  * Imported Upstream version 2.2.7
+  * Patches refresh for 2.2.7
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Fri, 24 Oct 2014 16:46:46 +0200
+
 zabbix (1:2.2.6-1~bbc76+1) stable; urgency=medium
 
   * Add action simulator
