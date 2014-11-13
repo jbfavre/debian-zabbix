@@ -1,3 +1,11 @@
+zabbix (1:2.4.2-1~bbc76+1) stable; urgency=medium
+
+  * Imported Upstream version 2.4.2
+  * Remove openssl2gcrypt patch. Update patches for 2.4.2
+  * Update d\rule
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Thu, 13 Nov 2014 14:29:24 +0100
+
 zabbix (1:2.4.1-1~bbc76+1) stable; urgency=medium
 
   * Update gbp.conf
