@@ -5,5 +5,4 @@ config-debian-customizations.patch
 manpages-fix.patch
 manpages-path.patch
 sql-upgrades-path.patch
-openssl2gcrypt.patch
 conffile-in-etc.patch
