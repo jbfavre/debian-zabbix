@@ -90,7 +90,7 @@ override_dh_autoreconf:
 
 override_dh_auto_configure:
 	$(foreach i,$(VARIANTS), \
-        dh_auto_configure --sourcedirectory=$(BUILD_PREFIX)-$i --max-parallel=4 -- \
+        SNMP_LIBS="-lgcrypt" dh_auto_configure --sourcedirectory=$(BUILD_PREFIX)-$i --max-parallel=4 -- \
             $(CONFFLAGS_COMMON) $(CONFFLAG_IPMI) $(CONFFLAG_SERVER_$i) \
     ;)
 
