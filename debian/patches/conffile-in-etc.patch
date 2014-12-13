@@ -11,7 +11,7 @@
  	public $config = array();
 --- a/frontends/php/include/classes/core/ZBase.php
 +++ b/frontends/php/include/classes/core/ZBase.php
-@@ -305,7 +305,8 @@ class ZBase {
+@@ -306,7 +306,8 @@ class ZBase {
  	 * Load zabbix config file.
  	 */
  	protected function loadConfigFile() {

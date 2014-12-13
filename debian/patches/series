@@ -1,3 +1,4 @@
+action-simulator.patch
 no-swf-clock.patch
 ZBX-6163.patch
 fix_java_gateway_missing_dir.patch
