@@ -1,3 +1,11 @@
+zabbix (1:2.4.3-1~bbc77+1) stable; urgency=medium
+
+  * Add action simulator patch
+  * Imported Upstream version 2.4.3
+  * Patches refresh for 2.4.3
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Tue, 16 Dec 2014 12:36:25 +0100
+
 zabbix (1:2.4.2-1~bbc76+1) stable; urgency=medium
 
   * Imported Upstream version 2.4.2
