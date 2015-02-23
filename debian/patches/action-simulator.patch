@@ -1,5 +1,7 @@
---- a/frontends/php/include/actions.inc.php
-+++ b/frontends/php/include/actions.inc.php
+Index: zabbix/frontends/php/include/actions.inc.php
+===================================================================
+--- zabbix.orig/frontends/php/include/actions.inc.php	2015-02-23 21:14:34.001788606 +0100
++++ zabbix/frontends/php/include/actions.inc.php	2015-02-23 21:14:33.993788606 +0100
 @@ -18,6 +18,49 @@
  ** Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  **/
@@ -50,9 +52,11 @@
  
  function condition_operator2str($operator) {
  	switch ($operator) {
---- a/frontends/php/include/classes/api/services/CAction.php
-+++ b/frontends/php/include/classes/api/services/CAction.php
-@@ -735,6 +735,150 @@ class CAction extends CApiService {
+Index: zabbix/frontends/php/include/classes/api/services/CAction.php
+===================================================================
+--- zabbix.orig/frontends/php/include/classes/api/services/CAction.php	2015-02-23 21:14:34.001788606 +0100
++++ zabbix/frontends/php/include/classes/api/services/CAction.php	2015-02-23 21:14:33.997788606 +0100
+@@ -735,6 +735,150 @@
  		return array('actionids' => $actionIds);
  	}
  
@@ -203,9 +207,11 @@
  	/**
  	 * @param array $conditions
  	 *
---- a/frontends/php/include/classes/core/ZBase.php
-+++ b/frontends/php/include/classes/core/ZBase.php
-@@ -229,6 +229,7 @@ class ZBase {
+Index: zabbix/frontends/php/include/classes/core/ZBase.php
+===================================================================
+--- zabbix.orig/frontends/php/include/classes/core/ZBase.php	2015-02-23 21:14:34.001788606 +0100
++++ zabbix/frontends/php/include/classes/core/ZBase.php	2015-02-23 21:14:33.997788606 +0100
+@@ -229,6 +229,7 @@
  			$this->rootDir.'/include/classes/html/widget',
  			$this->rootDir.'/include/classes/parsers',
  			$this->rootDir.'/include/classes/parsers/results',
@@ -213,9 +219,11 @@
  			$this->rootDir.'/include/classes/routing',
  			$this->rootDir.'/include/classes/json',
  			$this->rootDir.'/include/classes/user',
---- a/frontends/php/include/defines.inc.php
-+++ b/frontends/php/include/defines.inc.php
-@@ -481,6 +481,11 @@ define('ACTION_DEFAULT_MSG_DISCOVERY', "
+Index: zabbix/frontends/php/include/defines.inc.php
+===================================================================
+--- zabbix.orig/frontends/php/include/defines.inc.php	2015-02-23 21:14:34.001788606 +0100
++++ zabbix/frontends/php/include/defines.inc.php	2015-02-23 21:14:33.997788606 +0100
+@@ -478,6 +478,11 @@
  		"Device service uptime: {DISCOVERY.SERVICE.UPTIME}"
  );
  
@@ -227,9 +235,11 @@
  define('ACTION_STATUS_ENABLED',		0);
  define('ACTION_STATUS_DISABLED',	1);
  
---- a/frontends/php/include/menu.inc.php
-+++ b/frontends/php/include/menu.inc.php
-@@ -168,6 +168,7 @@ $ZBX_MENU = array(
+Index: zabbix/frontends/php/include/menu.inc.php
+===================================================================
+--- zabbix.orig/frontends/php/include/menu.inc.php	2015-02-23 21:14:34.001788606 +0100
++++ zabbix/frontends/php/include/menu.inc.php	2015-02-23 21:14:33.997788606 +0100
+@@ -168,6 +168,7 @@
  					'tr_logform.php',
  					'tr_testexpr.php',
  					'popup_trexpr.php',
@@ -237,9 +247,11 @@
  					'host_discovery.php',
  					'disc_prototypes.php',
  					'trigger_prototypes.php',
---- a/frontends/php/include/views/configuration.triggers.list.php
-+++ b/frontends/php/include/views/configuration.triggers.list.php
-@@ -93,6 +93,25 @@ $triggersForm->setName('triggersForm');
+Index: zabbix/frontends/php/include/views/configuration.triggers.list.php
+===================================================================
+--- zabbix.orig/frontends/php/include/views/configuration.triggers.list.php	2015-02-23 21:14:34.001788606 +0100
++++ zabbix/frontends/php/include/views/configuration.triggers.list.php	2015-02-23 21:14:33.997788606 +0100
+@@ -93,6 +93,25 @@
  $triggersForm->addVar('parent_discoveryid', $this->data['parent_discoveryid']);
  $triggersForm->addVar('hostid', $this->data['hostid']);
  
@@ -265,7 +277,7 @@
  // create table
  $triggersTable = new CTableInfo(_('No triggers found.'));
  $triggersTable->setHeader(array(
-@@ -102,8 +121,10 @@ $triggersTable->setHeader(array(
+@@ -102,8 +121,10 @@
  	make_sorting_header(_('Name'), 'description', $this->data['sort'], $this->data['sortorder']),
  	_('Expression'),
  	make_sorting_header(_('Status'), 'status', $this->data['sort'], $this->data['sortorder']),
@@ -277,7 +289,7 @@
  
  foreach ($this->data['triggers'] as $tnum => $trigger) {
  	$triggerid = $trigger['triggerid'];
-@@ -250,6 +271,16 @@ foreach ($this->data['triggers'] as $tnu
+@@ -250,6 +271,16 @@
  		);
  	}
  
@@ -294,7 +306,7 @@
  	// hosts
  	$hosts = null;
  	if (empty($this->data['hostid'])) {
-@@ -272,7 +303,8 @@ foreach ($this->data['triggers'] as $tnu
+@@ -272,7 +303,8 @@
  		$description,
  		new CCol(triggerExpression($trigger, true), 'trigger-expression'),
  		$status,
@@ -304,8 +316,10 @@
  	));
  }
  
---- /dev/null
-+++ b/frontends/php/include/classes/actions/ActionSimulation.php
+Index: zabbix/frontends/php/include/classes/actions/ActionSimulation.php
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ zabbix/frontends/php/include/classes/actions/ActionSimulation.php	2015-02-23 21:14:33.997788606 +0100
 @@ -0,0 +1,919 @@
 +<?php
 +/*
@@ -1226,8 +1240,10 @@
 +		return $ret;
 +	}
 +}
---- /dev/null
-+++ b/frontends/php/include/classes/tree/CActionTree.php
+Index: zabbix/frontends/php/include/classes/tree/CActionTree.php
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ zabbix/frontends/php/include/classes/tree/CActionTree.php	2015-02-23 21:14:33.997788606 +0100
 @@ -0,0 +1,60 @@
 +<?php
 +/*
@@ -1289,8 +1305,10 @@
 +
 +}
 +
---- /dev/null
-+++ b/frontends/php/include/views/configuration.triggers.actions.php
+Index: zabbix/frontends/php/include/views/configuration.triggers.actions.php
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ zabbix/frontends/php/include/views/configuration.triggers.actions.php	2015-02-23 21:14:33.997788606 +0100
 @@ -0,0 +1,439 @@
 +<?php
 +/*
@@ -1731,8 +1749,10 @@
 +			));
 +
 +return $frmAction;
---- /dev/null
-+++ b/frontends/php/popup_action.php
+Index: zabbix/frontends/php/popup_action.php
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ zabbix/frontends/php/popup_action.php	2015-02-23 21:14:33.997788606 +0100
 @@ -0,0 +1,166 @@
 +<?php
 +/*
