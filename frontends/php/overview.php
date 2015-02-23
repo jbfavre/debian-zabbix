@@ -1,7 +1,7 @@
 <?php
 /*
 ** Zabbix
-** Copyright (C) 2001-2014 Zabbix SIA
+** Copyright (C) 2001-2015 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -215,6 +215,7 @@ if ($type == SHOW_TRIGGERS) {
 			'description', 'expression', 'priority', 'url', 'value', 'triggerid', 'lastchange', 'flags'
 		),
 		'selectHosts' => array('hostid', 'name', 'status'),
+		'selectItems' => array('itemid', 'hostid', 'name', 'key_', 'value_type'),
 		'hostids' => $hostIds,
 		'search' => ($filter['txtSelect'] !== '') ? array('description' => $filter['txtSelect']) : null,
 		'only_true' => ($filter['showTriggers'] == TRIGGERS_OPTION_RECENT_PROBLEM) ? true : null,
