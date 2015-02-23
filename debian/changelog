@@ -1,3 +1,10 @@
+zabbix (1:2.4.4-1~bbc78+1) stable; urgency=medium
+
+  * Imported Upstream version 2.4.4
+  * Patches refresh for 2.4.4
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Mon, 23 Feb 2015 21:15:38 +0100
+
 zabbix (1:2.4.3-1~bbc77+1) stable; urgency=medium
 
   * Add action simulator patch
