@@ -1,3 +1,10 @@
+zabbix (1:2.2.8-1~bbc78+1) stable; urgency=medium
+
+  * Imported Upstream version 2.2.8
+  * Patches refresh for 2.2.8
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Wed, 25 Feb 2015 16:20:40 +0100
+
 zabbix (1:2.2.7-1~bbc76+1) stable; urgency=medium
 
   * Update gbp.conf
