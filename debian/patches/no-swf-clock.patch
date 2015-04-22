@@ -3,11 +3,9 @@ Author: Christoph Haas <haas@debian.org>
 Bug-Zabbix: https://support.zabbix.com/browse/ZBX-4794
 Forwarded: 2012-03-22
 
-Index: zabbix/frontends/php/include/classes/api/services/CScreenItem.php
-===================================================================
---- zabbix.orig/frontends/php/include/classes/api/services/CScreenItem.php	2015-02-23 21:14:34.165788607 +0100
-+++ zabbix/frontends/php/include/classes/api/services/CScreenItem.php	2015-02-23 21:14:34.161788607 +0100
-@@ -42,7 +42,8 @@
+--- a/frontends/php/include/classes/api/services/CScreenItem.php
++++ b/frontends/php/include/classes/api/services/CScreenItem.php
+@@ -42,7 +42,8 @@ class CScreenItem extends CApiService {
  		SCREEN_RESOURCE_HOSTS_INFO,
  		SCREEN_RESOURCE_TRIGGERS_INFO,
  		SCREEN_RESOURCE_SERVER_INFO,
@@ -17,11 +15,9 @@ Index: zabbix/frontends/php/include/classes/api/services/CScreenItem.php
  		SCREEN_RESOURCE_SCREEN,
  		SCREEN_RESOURCE_TRIGGERS_OVERVIEW,
  		SCREEN_RESOURCE_DATA_OVERVIEW,
-Index: zabbix/frontends/php/include/screens.inc.php
-===================================================================
---- zabbix.orig/frontends/php/include/screens.inc.php	2015-02-23 21:14:34.165788607 +0100
-+++ zabbix/frontends/php/include/screens.inc.php	2015-02-23 21:14:34.161788607 +0100
-@@ -25,7 +25,8 @@
+--- a/frontends/php/include/screens.inc.php
++++ b/frontends/php/include/screens.inc.php
+@@ -25,7 +25,8 @@ require_once dirname(__FILE__).'/js.inc.
  
  function screen_resources($resource = null) {
  	$resources = array(
