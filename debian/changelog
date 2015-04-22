@@ -1,3 +1,11 @@
+zabbix (1:2.4.5-1~bbc78+1) stable; urgency=medium
+
+  * Remove action simulator patch
+  * Imported Upstream version 2.4.5
+  * Patche refresh for 2.4.5
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Wed, 22 Apr 2015 15:37:18 +0200
+
 zabbix (1:2.4.4-1~bbc78+1) stable; urgency=medium
 
   * Imported Upstream version 2.4.4
