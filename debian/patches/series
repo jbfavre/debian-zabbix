@@ -6,3 +6,4 @@ manpages-fix.patch
 manpages-path.patch
 sql-upgrades-path.patch
 conffile-in-etc.patch
+zabbix_agentd_foreground.patch
