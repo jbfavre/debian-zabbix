@@ -1,3 +1,9 @@
+zabbix (1:2.4.5-3~bbc78+1) stable; urgency=medium
+
+  * Add trend support to API (ZBXNEXT-1193)
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Sat, 27 Jun 2015 19:41:17 +0200
+
 zabbix (1:2.4.5-2~bbc78+1) stable; urgency=medium
 
   * Add foreground patch
