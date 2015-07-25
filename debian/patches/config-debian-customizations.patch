@@ -85,7 +85,7 @@
  
  ### Option: DBPassword
  #	Database password. Ignored for SQLite.
-@@ -441,6 +442,8 @@ DBUser=root
+@@ -457,6 +458,8 @@ DBUser=root
  # Default:
  # AlertScriptsPath=${datadir}/zabbix/alertscripts
  
@@ -94,7 +94,7 @@
  ### Option: ExternalScripts
  #	Full path to location of external scripts.
  #	Default depends on compilation options.
-@@ -457,6 +460,8 @@ DBUser=root
+@@ -473,6 +476,8 @@ DBUser=root
  # Default:
  # FpingLocation=/usr/sbin/fping
  
@@ -103,7 +103,7 @@
  ### Option: Fping6Location
  #	Location of fping6.
  #	Make sure that fping6 binary has root ownership and SUID flag set.
-@@ -466,6 +471,8 @@ DBUser=root
+@@ -482,6 +487,8 @@ DBUser=root
  # Default:
  # Fping6Location=/usr/sbin/fping6
  
@@ -112,7 +112,7 @@
  ### Option: SSHKeyLocation
  #	Location of public and private keys for SSH checks and actions.
  #
-@@ -528,14 +535,14 @@ DBUser=root
+@@ -544,14 +551,14 @@ DBUser=root
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.
