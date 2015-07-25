@@ -1,3 +1,120 @@
+Changes for 2.0.14
+
+2.0.14rc1 was released as 2.0.14 without any changes
+
+--------------------------------------------------------------------------------
+Changes for 2.0.14rc1
+
+New features:
+...G...... [ZBX-8503] increased limitation of command length for remote commands with agent (Sasha)
+A.F....... [ZBX-1357] updated Italian, Polish and Spanish translations; thanks to Zabbix translators (Richlv)
+
+Bug fixes:
+..F....... [ZBX-8582] fixed SQL injection vulnerability in bar graphs (Ivo, Pavels)
+..F....... [ZBX-5077] fixed percentile calculation formula and corrected accessed index, by which value is selected (arvids)
+........S. [ZBX-8952] fixed bug where an action condition of matching parent templates of a trigger worked with only the first template (Juris)
+.D........ [ZBX-6542] updated description of HousekeepingFrequency parameter in the default server and proxy configuration files (Sasha)
+.......PS. [ZBX-8833] fixed dynamic SNMP item cache working incorrectly for hosts with multiple SNMP interfaces (asaveljevs)
+........S. [ZBX-8948] fixed memory leak when checking Template condition during action processing (wiper)
+A......... [ZBX-6174] fixed "skipDependent" option in trigger.get API call to correctly handle cases when triggers on which they depend are disabled (Krists)
+........S. [ZBX-8754] fixed crash in escalator when processing an alert without an user, but with a media type set (wiper)
+..F....... [ZBX-8693] fixed "Add" button in Configuration->Triggers->Create Trigger->Add for IE11 (arvids)
+........S. [ZBX-8815] fixed adding of host groups to the host by discovery action (Sasha)
+........S. [ZBX-8798] fixed evaluation of trigger expressions where a suffixed number is followed by a subtraction (asaveljevs)
+.......... [ZBX-8679] removed outdated and unused images (Richlv)
+..F....... [ZBX-8700] fixed possible SQL error in details of web scenario (Oleg)
+...G...... [ZBX-8595] fixed incorrect event message when handling eventlog (dimir)
+
+--------------------------------------------------------------------------------
+Changes for 2.0.13
+
+2.0.13rc1 was released as 2.0.13 without any changes
+
+--------------------------------------------------------------------------------
+Changes for 2.0.13rc1
+
+New features:
+A.F....... [ZBX-1357] updated Slovak and Ukrainian translations; thanks to Zabbix translators (Richlv)
+
+Bug fixes:
+..F....... [ZBX-3407] fixed NVPS query to not fail on DB2 (Krists)
+...G...... [ZBX-8646] added a warning on UNIX/GNU/Linux platforms if logrt[] directory has no 'execute' permission (Andris)
+...G...PS. [ZBX-8629] fixed crash in get_string() function when checking "Database monitor" items (asaveljevs)
+....IJ.... [ZBX-4800] replaced JSON.org library with Android JSON library; thanks to Volker Fröhlich for legal research (asaveljevs)
+.....J.... [ZBX-6229] removed pretty formatting from Java gateway JSON responses (asaveljevs)
+.........T [ZBX-4800] fixed typo in item name in "Template JMX Generic": "mpTenured" -> "mp Tenured" (asaveljevs)
+..F....PS. [ZBX-8608] added support of IP masks for action conditions (Sasha)
+A.F....... [ZBX-8151] fixed XXE vulnerability on XML import using obsolete libxml versions; thanks to pnig0s@Freebuf for the report (Andrejs)
+..F....... [ZBX-8358] fixed overview screen elements being displayed incorrectly after refreshing (Pavels)
+........S. [ZBX-8348] fixed processing of LLD triggers; functions in a trigger expression could have incorrect ordering (Sasha)
+...G...PS. [ZBX-8343] fixed a bug in binary heap that could cause a slightly inconsistent ordering of elements in the queue (asaveljevs)
+...G...... [ZBX-8327] fixed possible crash when processing Windows eventlog (wiper)
+.......PS. [ZBX-8188] fixed IPMI items staying supported when sensor data becomes unavailable (asaveljevs, dimir)
+.......PS. [ZBX-7576] fixed network discovery processing broadcast responses as valid hosts (wiper)
+...G...... [ZBX-6531] fixed memory leak in filesystem discovery on AIX systems (Juris)
+..F....... [ZBX-8241] fixed duplicate display of actions in media type list (Andrejs)
+...G...... [ZBX-8269] fixed processing of active checks in agent (Andris)
+...G...... [ZBX-8238] fixed updating agent 'mtime' for logrt[] items; thanks to Yoshinori Komuro for patch (Andris)
+...G...PS. [ZBX-7098] improved handling of log file rotation/truncation for logrt[] and log[] items (Andris)
+...G...... [ZBX-8198] decreased verbosity of Windows agent with DebugLevel=4 (Nikolaj)
+...G...... [ZBX-7875] fixed wrongly reported system version for Windows 8.1 and Server 2012 R2 (Nikolaj, wiper)
+
+--------------------------------------------------------------------------------
+Changes for 2.0.12
+
+2.0.12rc3 was released as 2.0.12 without any changes
+
+--------------------------------------------------------------------------------
+Changes for 2.0.12rc3
+
+Bug fixes:
+........S. [ZBX-8181] fixed possible entering of "history syncer" process in an eternal loop when processing IT services (dimir)
+
+--------------------------------------------------------------------------------
+Changes for 2.0.12rc2
+
+Bug fixes:
+...G...... [ZBX-7856] fixed zbx_stat() not working with directories in Windows (wiper)
+
+--------------------------------------------------------------------------------
+Changes for 2.0.12rc1
+
+New features:
+.......... [ZBX-7811] added example robots.txt file (Richlv)
+....IJ.... [ZBXNEXT-1889] made startup.sh and shutdown.sh scripts for Java gateway work in /bin/sh (asaveljevs)
+.D........ [ZBX-7597] added description of the returned value types to the agentd manpage (Richlv)
+A.F....... [ZBX-1357] updated Brazilian Portuguese, Italian, Japanese, Persian, Russian, Slovak and Ukrainian translations; thanks to Zabbix translators (Richlv)
+
+Bug fixes:
+...G...... [ZBX-7301] do not put logrt[] item into unsupported state if log files do not exist (fixed as part of ZBX-6731 solution) (Andris)
+..F....... [ZBX-8111] fixed possible XSS in tables with vertical header row cells (Krists)
+...G...... [ZBX-8108] fixed reading /proc virtual files without rewinding the file position (Juris)
+.......P.. [ZBX-7825] fixed saving of the history data in sequential time order on proxy side (Sasha)
+.......PS. [ZBX-4675] added error checks to avoid partial configuration loading (dimir)
+.D........ [ZBX-6542] added additional information in the default server configuration file about HousekeepingFrequency parameter (Sasha)
+...G...... [ZBX-7856] added workaround for Windows _wstat64() not working with symlinks (wiper)
+..F....... [ZBX-8030] fixed {HOSTNAME} macro resolving (Eduard)
+...G...PS. [ZBX-7046] fixed get_ip_by_socket returning an empty string for IPv4 addresses when Zabbix is compiled with IPv6 support (Juris)
+..F....... [ZBX-7966] fixed possibility to copy a templated graph (Ivo)
+..F....... [ZBX-7930] improved execution time in Maintenance page (Ivo)
+..F.....S. [ZBX-7872] removed discovery item prototype from calculation of required performace (NVPS) (igors)
+..F.....S. [ZBX-5778] removed counting items in queue if host is in maintenance with no data collection (igors)
+A......... [ZBX-6151] fixed graph prototype and trigger prototype validation so item prototypes are no longer allowed from multiple discovery rules and fixed filter by flags not overriding in item.get method (Ivo)
+........S. [ZBX-5804] added overflow/wrapping detection to calculated items (Juris)
+........S. [ZBX-7659] fixed handling of hosts without any interfaces (Juris)
+....IJ.... [ZBX-5379] added stale PID file detection for Java gateway (asaveljevs)
+....IJ.... [ZBX-5558] fixed Java gateway error messages not being shown in the console on startup (asaveljevs)
+...G...PS. [ZBX-6731] faster processing of log files by agent on Unix (Andris)
+...G...PS. [ZBX-6729] faster processing of log files by agent on Microsoft Windows (Andris)
+...G...... [ZBX-6933] added substitution of eventlog parameter insertion strings (wiper)
+...G...... [ZBX-7853] changed log level from warning to information when listener, active checks and collector processes start (igors)
+A.F.....S. [ZBX-7674] implemented batch processing of IT services to resolve deadlocks and improve performance (Eduard, wiper)
+........S. [ZBX-5789] improved performance of processing discovered graphs by the low-level discovery rule (Sasha)
+........S. [ZBX-5789] fixed updating of low-level discovered graphs: the graph identifier never will change (Sasha)
+A.F....... [ZBX-7708] fixed trigger prototype error message and trigger form default description value (Oleg)
+..F....... [ZBX-7739] removed unused label in screen configuration page when no elements exist (Eduard)
+
+--------------------------------------------------------------------------------
 Changes for 2.0.11
 
 2.0.11rc2 was released as 2.0.11 without any changes
@@ -24,14 +141,14 @@ A......... [ZBX-7703] fixed being able to switch users without proper credential
 ........S. [ZBX-7109] improved performance of processing discovered triggers by the low-level discovery rule (Sasha)
 A.F....... [ZBX-4218] rewrote the item key parser's source code for independence on the mbstring.func_overload option (Sasha)
 .......PS. [ZBX-7686] fixed UTF-8 strings not being fetched fully from Oracle (asaveljevs)
-..F....... [ZBX-6721] fixed LDAP authentication (Eduard)
+..F....... [ZBX-6721] fixed LDAP bind password being included in page source (Eduard)
 ..F....... [ZBX-7609] fixed sound playing after frontend messages closing (Eduard)
 ..F....... [ZBX-7554] fixed script execution confirmation label encoding (Eduard)
 ...G...... [ZBX-6790] changed net.tcp.listen and net.udp.listen keys to read the whole /proc/net/(tcp|udp)(6) file in a single operation to avoid losing data if the file is changed between reading operations (wiper)
 .......PS. [ZBX-7587] set the correct server status (down) after ORA-01012, ORA-02396 errors (wiper)
 ...G...... [ZBX-7481] added checking for OpenBSD version to avoid compilation error on OpenBSD v5.4 and newer due to removed swapins/swapouts uvmexp fields (igors)
 ..F....... [ZBX-7634] removed sid from trigger URL in Monitoring->Triggers (Oleg)
-...GI..PS. [ZBX-5526] removed checking for PostgreSQL server version and disabled nonstandard use of escape strings in order to support versions newer than 8.1 (igors)
+.......PS. [ZBX-5526] removed checking for PostgreSQL server version and disabled nonstandard use of escape strings in order to support versions newer than 8.1 (igors)
 ...G...... [ZBX-7414] added description to HostnameItem that UserParameters and aliases are not supported (igors)
 ..F....... [ZBX-7508] fixed import map with LLD triggers (Eduard)
 ..F....... [ZBX-7586] fixed trigger log expression saving in IE10 (Eduard)
@@ -347,6 +464,7 @@ Changes for 2.0.4rc1
 
 New features:
 A.F....... [ZBX-1357] added initial Portuguese (Portugal) translation (Richlv)
+..F....... [ZBXNEXT-1398] changed vertical labels in Monitoring -> Overview from PNG images to text (Eduard)
 ..F....... [ZBXNEXT-1398] implemented flickerfree screen shadowing for old screen data (Eduard)
 A.F....... [ZBX-1357] added initial Indonesian translation (Richlv)
 ..F....... [ZBXNEXT-1393] fixed global scripts font (Eduard)
@@ -951,7 +1069,7 @@ A......... [ZBX-4784] fixed inherited triggers being updated on any host update 
 A.F....... [ZBX-4790] fixed *ERROR*s in trigger expressions in items.php; fixed undefined variables when filtering without host (Toms)
 ..F....... [ZBX-3725] added check for xml file size exceeds upload_max_filesize php setting (Vedmak)
 A.F....... [ZBX-3991] forbid passive proxy interfaces with ip 0.0.0.0 (Vedmak)
-..F....... [ZBX-3152] fixed messages are shown even if all severities are unchecked (Vedmak)
+..F....... [ZBX-3152] fixed global messages being shown even if all severities are unchecked (Vedmak)
 ....I..... [ZBXNEXT-397] removed records from "ids" table to prevent SQL errors while adding a new item (Sasha)
 ..F....... [ZBX-4811] added 'filter' and 'lifetime' fields to discovery rules export (Vedmak)
 ...G...... [ZBX-4801] fixed processing of proc.num[] and proc.mem[] checks with name of processes more than 15 characters (Sasha)
@@ -1487,6 +1605,30 @@ New features:
  - [DEV-444] added optional suppressing of processing of older data in log[], logrt[] and eventlog[] (Sasha)
 
 --------------------------------------------------------------------------------
+Changes for 1.8.22
+
+1.8.22rc1 was released as 1.8.22 without any changes
+
+Changes for 1.8.22rc1
+
+..F....... [ZBX-8582] fixed SQL injection vulnerability in bar graphs (Ivo, Pavels)
+........S. [ZBX-8815] fixed adding of host groups to the host by discovery action (Sasha)
+........S. [ZBX-8798] fixed evaluation of trigger expressions where a suffixed number is followed by a subtraction (asaveljevs)
+...G...... [ZBX-8595] fixed incorrect event message when handling eventlog (dimir)
+
+Changes for 1.8.21
+
+1.8.21rc1 was released as 1.8.21 without any changes
+
+Changes for 1.8.21rc1
+
+..F....... [ZBX-3407] fixed NVPS query to not fail on DB2 (Krists)
+..F....PS. [ZBX-8608] added support of IP masks for action conditions (Sasha)
+A.F....... [ZBX-8151] fixed XXE vulnerability on XML import using obsolete libxml versions; thanks to pnig0s@Freebuf for the report (Andrejs)
+...G...PS. [ZBX-8343] fixed a bug in binary heap that could cause a slightly inconsistent ordering of elements in the queue (asaveljevs)
+...G...... [ZBX-8198] decreased verbosity of Windows agent with DebugLevel=4 (Nikolaj)
+A.F....... [ZBX-7930] improved SQL performance and execution time in Maintenance page (Ivo)
+
 Changes for 1.8.20
 
 1.8.20rc2 was released as 1.8.20 without any changes
@@ -1494,7 +1636,7 @@ Changes for 1.8.20
 Changes for 1.8.20rc2
 
 A......... [ZBX-7693] fixed admin user being able to update media for other users (Pavels)
-..F....... [ZBX-6721] fixed LDAP authentication (Eduard)
+..F....... [ZBX-6721] fixed LDAP bind password being included in page source (Eduard)
 
 Changes for 1.8.20rc1
 
@@ -1927,7 +2069,7 @@ Changes for 1.8.6rc1
  - [ZBX-3973] added logging of proxy mode (active/passive) at startup (rudolfs)
  - [ZBX-3902] fixed possible zombie states in UNIX, moved watchdog (server) and heartbeats (proxy) to separate processes (main process just waits), added more logging to exiting Windows agent (rudolfs)
  - [ZBX-3166] fixed application updating in Template linking event. Changed linked Template color in application page. Added param NOEMPTY for popup page witch allows hide Empty button in application and item pages (Eduard)
- - [ZBX-3565] reformating media types in notifications page, adding links to media types (Eduard)
+ - [ZBX-3565] reformatting media types in notifications page, adding links to media types (Eduard)
  - [ZBX-3784] added validation on duplicate discovery rule name (Eduard)
  - [ZBX-3733] make possible to save Device uniqueness criteria status (discovery rule) in cloning event (Eduard)
  - [ZBX-3845] check, if this user group is used in the config, if so it cannot be deleted (Eduard)
