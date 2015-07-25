@@ -667,12 +667,13 @@ function get_status() {
 
 	// comments: !!! Don't forget sync code with C !!!
 	$row = DBfetch(DBselect(
-		'SELECT SUM(1.0/i.delay) AS qps'.
+		'SELECT SUM(CAST(1.0/i.delay AS DECIMAL(20,10))) AS qps'.
 		' FROM items i,hosts h'.
 		' WHERE i.status='.ITEM_STATUS_ACTIVE.
 			' AND i.hostid=h.hostid'.
 			' AND h.status='.HOST_STATUS_MONITORED.
-			' AND i.delay<>0'
+			' AND i.delay<>0'.
+			' AND i.flags<>'.ZBX_FLAG_DISCOVERY_CHILD
 	));
 	$status['qps_total'] = round($row['qps'], 2);
 

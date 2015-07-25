@@ -51,7 +51,7 @@ static int			regexps_alloc = 0;
 static int			regexps_num = 0;
 #endif
 
-static void	init_active_metrics()
+static void	init_active_metrics(void)
 {
 	size_t	sz;
 
@@ -74,7 +74,7 @@ static void	init_active_metrics()
 	}
 }
 
-static void	disable_all_metrics()
+static void	disable_all_metrics(void)
 {
 	int	i;
 
@@ -85,14 +85,22 @@ static void	disable_all_metrics()
 }
 
 #ifdef _WINDOWS
-static void	free_active_metrics()
+static void	free_active_metrics(void)
 {
-	int	i;
+	int	i, j;
 
 	zabbix_log(LOG_LEVEL_DEBUG, "In free_active_metrics()");
 
 	for (i = 0; NULL != active_metrics[i].key; i++)
+	{
 		zbx_free(active_metrics[i].key);
+		zbx_free(active_metrics[i].key_orig);
+
+		for (j = 0; j < active_metrics[i].logfiles_num; j++)
+			zbx_free(active_metrics[i].logfiles[j].filename);
+
+		zbx_free(active_metrics[i].logfiles);
+	}
 
 	zbx_free(active_metrics);
 
@@ -102,7 +110,7 @@ static void	free_active_metrics()
 }
 #endif
 
-static int	get_min_nextcheck()
+static int	get_min_nextcheck(void)
 {
 	int	i, min = -1;
 
@@ -138,10 +146,21 @@ static void	add_check(const char *key, const char *key_orig, int refresh, zbx_ui
 
 		if (0 != strcmp(active_metrics[i].key, key))
 		{
+			int	j;
+
 			zbx_free(active_metrics[i].key);
-			active_metrics[i].key = strdup(key);
+			active_metrics[i].key = zbx_strdup(NULL, key);
 			active_metrics[i].lastlogsize = lastlogsize;
 			active_metrics[i].mtime = mtime;
+			active_metrics[i].big_rec = 0;
+			active_metrics[i].use_ino = 0;
+			active_metrics[i].error_count = 0;
+
+			for (j = 0; j < active_metrics[i].logfiles_num; j++)
+				zbx_free(active_metrics[i].logfiles[j].filename);
+
+			zbx_free(active_metrics[i].logfiles);
+			active_metrics[i].logfiles_num = 0;
 		}
 
 		/* replace metric */
@@ -165,6 +184,11 @@ static void	add_check(const char *key, const char *key_orig, int refresh, zbx_ui
 	active_metrics[i].mtime = mtime;
 	/* can skip existing log[] and eventlog[] data */
 	active_metrics[i].skip_old_data = active_metrics[i].lastlogsize ? 0 : 1;
+	active_metrics[i].big_rec = 0;
+	active_metrics[i].use_ino = 0;
+	active_metrics[i].error_count = 0;
+	active_metrics[i].logfiles_num = 0;
+	active_metrics[i].logfiles = NULL;
 
 	/* move to the last metric */
 	i++;
@@ -637,7 +661,13 @@ ret:
  *                                                                            *
  * Author: Alexei Vladishev                                                   *
  *                                                                            *
- * Comments:                                                                  *
+ * Comments: ATTENTION! This function's address and pointers to arguments     *
+ *           are described in Zabbix defined type "zbx_process_value_func_t"  *
+ *           and used when calling process_log(), process_logrt() and         *
+ *           zbx_read2(). If you ever change this process_value() arguments   *
+ *           or return value do not forget to synchronize changes with the    *
+ *           defined type "zbx_process_value_func_t" and implementations of   *
+ *           process_log(), process_logrt(), zbx_read2() and their callers.   *
  *                                                                            *
  ******************************************************************************/
 static int	process_value(
@@ -747,12 +777,9 @@ ret:
 static void	process_active_checks(char *server, unsigned short port)
 {
 	const char	*__function_name = "process_active_checks";
-	register int	i, s_count, p_count;
+	int		i, s_count, p_count, is_logrt;
 	char		**pvalue;
 	int		now, send_err = SUCCEED, ret;
-	char		*value = NULL;
-	zbx_uint64_t	lastlogsize;
-	int		mtime;
 	char		params[MAX_STRING_LEN];
 	char		filename[MAX_STRING_LEN];
 	char		pattern[MAX_STRING_LEN];
@@ -760,6 +787,8 @@ static void	process_active_checks(char *server, unsigned short port)
 	char		maxlines_persec_str[16];
 	int		maxlines_persec;
 #ifdef _WINDOWS
+	char		*value = NULL;
+	zbx_uint64_t	lastlogsize;
 	unsigned long	timestamp, logeventid;
 	unsigned short	severity;
 	char		key_severity[MAX_STRING_LEN], str_severity[32] /* for `regex_match_ex' */;
@@ -771,7 +800,7 @@ static void	process_active_checks(char *server, unsigned short port)
 
 	AGENT_RESULT	result;
 
-	zabbix_log(LOG_LEVEL_DEBUG, "In %s('%s',%hu)", __function_name, server, port);
+	zabbix_log(LOG_LEVEL_DEBUG, "In %s() server:'%s' port:%hu)", __function_name, server, port);
 
 	init_result(&result);
 
@@ -785,12 +814,20 @@ static void	process_active_checks(char *server, unsigned short port)
 		if (ITEM_STATUS_ACTIVE != active_metrics[i].status)
 			continue;
 
-		/* special processing for log files without rotation */
-		if (0 == strncmp(active_metrics[i].key, "log[", 4))
+		if (0 == strncmp(active_metrics[i].key, "log[", 4))		/* log files without rotation */
+			is_logrt = 0;
+		else if (0 == strncmp(active_metrics[i].key, "logrt[", 6))	/* log files with rotation */
+			is_logrt = 1;
+		else
+			is_logrt = -1;
+
+		if (-1 != is_logrt)
 		{
+			int	err;
+
 			ret = FAIL;
 
-			do { /* simple try realization */
+			do {
 				if (2 != parse_command(active_metrics[i].key, NULL, 0, params, sizeof(params)))
 					break;
 
@@ -810,10 +847,14 @@ static void	process_active_checks(char *server, unsigned short port)
 
 				if (0 != get_param(params, 4, maxlines_persec_str, sizeof(maxlines_persec_str)) ||
 						'\0' == *maxlines_persec_str)
+				{
 					maxlines_persec = CONFIG_MAX_LINES_PER_SECOND;
+				}
 				else if (MIN_VALUE_LINES > (maxlines_persec = atoi(maxlines_persec_str)) ||
 						MAX_VALUE_LINES < maxlines_persec)
+				{
 					break;
+				}
 
 				if (0 != get_param(params, 5, tmp, sizeof(tmp)))
 					*tmp = '\0';
@@ -823,170 +864,46 @@ static void	process_active_checks(char *server, unsigned short port)
 				else if (0 != strcmp(tmp, "skip"))
 					break;
 
-				s_count = 0;
-				p_count = 0;
-				lastlogsize = active_metrics[i].lastlogsize;
+				/* do not flood Zabbix server if file grows too fast */
+				s_count = maxlines_persec * active_metrics[i].refresh;
 
-				while (SUCCEED == (ret = process_log(filename, &lastlogsize, &value, encoding,
-						active_metrics[i].skip_old_data)))
+				/* do not flood local system if file grows too fast */
+				p_count = 4 * maxlines_persec * active_metrics[i].refresh;
+
+				err = active_metrics[i].error_count;
+
+				ret = process_logrt(is_logrt, filename, &active_metrics[i].lastlogsize,
+						&active_metrics[i].mtime, &active_metrics[i].skip_old_data,
+						&active_metrics[i].big_rec, &active_metrics[i].use_ino,
+						&active_metrics[i].error_count, &active_metrics[i].logfiles,
+						&active_metrics[i].logfiles_num, encoding, regexps, regexps_num,
+						pattern, &p_count, &s_count, process_value, server, port,
+						CONFIG_HOSTNAME, active_metrics[i].key_orig);
+
+				/* reset errors if things have improved */
+				if (0 < active_metrics[i].error_count && SUCCEED == ret
+						&& active_metrics[i].error_count == err)
 				{
-					active_metrics[i].skip_old_data = 0;
+					active_metrics[i].error_count = 0;
+				}
 
-					/* End of file. The file could become empty, must save `lastlogsize'. */
-					if (NULL == value)
-					{
-						active_metrics[i].lastlogsize = lastlogsize;
-						break;
-					}
-
-					if (SUCCEED == regexp_match_ex(regexps, regexps_num, value, pattern, ZBX_CASE_SENSITIVE))
-					{
-						send_err = process_value(server, port, CONFIG_HOSTNAME,
-								active_metrics[i].key_orig, value, &lastlogsize,
-								NULL, NULL, NULL, NULL,	NULL, 1);
-						s_count++;
-					}
-					p_count++;
-
-					zbx_free(value);
-
-					if (SUCCEED == send_err)
-						active_metrics[i].lastlogsize = lastlogsize;
-					else
-					{
-						/* buffer is full, stop processing active checks */
-						/* till the buffer is cleared */
-						lastlogsize = active_metrics[i].lastlogsize;
-						goto ret;
-					}
-
-					/* do not flood Zabbix server if file grows too fast */
-					if (s_count >= (maxlines_persec * active_metrics[i].refresh))
-						break;
-
-					/* do not flood local system if file grows too fast */
-					if (p_count >= (4 * maxlines_persec * active_metrics[i].refresh))
-						break;
-				} /* while processing a log */
-
+				/* too many errors, time to go NOTSUPPORTED */
+				if (2 < active_metrics[i].error_count)
+					ret = FAIL;
 			}
-			while (0); /* simple try realization */
+			while (0);
 
 			if (FAIL == ret)
 			{
+				active_metrics[i].error_count = 0;
 				active_metrics[i].status = ITEM_STATUS_NOTSUPPORTED;
 				zabbix_log(LOG_LEVEL_WARNING, "active check \"%s\" is not supported",
 						active_metrics[i].key);
 
-				process_value(server, port, CONFIG_HOSTNAME,
-						active_metrics[i].key_orig, ZBX_NOTSUPPORTED,
-						&active_metrics[i].lastlogsize, NULL, NULL, NULL, NULL, NULL, 0);
-			}
-		}
-		/* special processing for log files with rotation */
-		else if (0 == strncmp(active_metrics[i].key, "logrt[", 6))
-		{
-			ret = FAIL;
-
-			do { /* simple try realization */
-				if (2 != parse_command(active_metrics[i].key, NULL, 0, params, sizeof(params)))
-					break;
-
-				if (5 < num_param(params))
-					break;
-
-				if (0 != get_param(params, 1, filename, sizeof(filename)))
-					break;
-
-				if (0 != get_param(params, 2, pattern, sizeof(pattern)))
-					*pattern = '\0';
-
-				if (0 != get_param(params, 3, encoding, sizeof(encoding)))
-					*encoding = '\0';
-
-				zbx_strupper(encoding);
-
-				if (0 != get_param(params, 4, maxlines_persec_str, sizeof(maxlines_persec_str)) ||
-						'\0' == *maxlines_persec_str)
-					maxlines_persec = CONFIG_MAX_LINES_PER_SECOND;
-				else if (MIN_VALUE_LINES > (maxlines_persec = atoi(maxlines_persec_str)) ||
-						MAX_VALUE_LINES < maxlines_persec)
-					break;
-
-				if (0 != get_param(params, 5, tmp, sizeof(tmp)))
-					*tmp = '\0';
-
-				if ('\0' == *tmp || 0 == strcmp(tmp, "all"))
-					active_metrics[i].skip_old_data = 0;
-				else if (0 != strcmp(tmp, "skip"))
-					break;
-
-				s_count = 0;
-				p_count = 0;
-				lastlogsize = active_metrics[i].lastlogsize;
-				mtime = active_metrics[i].mtime;
-
-				while (SUCCEED == (ret = process_logrt(filename, &lastlogsize, &mtime, &value, encoding,
-						active_metrics[i].skip_old_data)))
-				{
-					active_metrics[i].skip_old_data = 0;
-
-					/* End of file. The file could become empty,*/
-					/* must save `lastlogsize' and `mtime'. */
-					if (NULL == value)
-					{
-						active_metrics[i].lastlogsize = lastlogsize;
-						active_metrics[i].mtime	= mtime;
-						break;
-					}
-
-					if (SUCCEED == regexp_match_ex(regexps, regexps_num, value, pattern, ZBX_CASE_SENSITIVE))
-					{
-						send_err = process_value(server, port, CONFIG_HOSTNAME,
-								active_metrics[i].key_orig, value, &lastlogsize,
-								&mtime, NULL, NULL, NULL, NULL, 1);
-						s_count++;
-					}
-					p_count++;
-
-					zbx_free(value);
-
-					if (SUCCEED == send_err)
-					{
-						active_metrics[i].lastlogsize = lastlogsize;
-						active_metrics[i].mtime = mtime;
-					}
-					else
-					{
-						/* buffer is full, stop processing active checks*/
-						/* till the buffer is cleared */
-						lastlogsize = active_metrics[i].lastlogsize;
-						mtime = active_metrics[i].mtime;
-						goto ret;
-					}
-
-					/* do not flood Zabbix server if file grows too fast */
-					if (s_count >= (maxlines_persec * active_metrics[i].refresh))
-						break;
-
-					/* do not flood local system if file grows too fast */
-					if (p_count >= (4 * maxlines_persec * active_metrics[i].refresh))
-						break;
-				} /* while processing a log */
-
-			}
-			while (0); /* simple try realization */
-
-			if (FAIL == ret)
-			{
-				active_metrics[i].status = ITEM_STATUS_NOTSUPPORTED;
-				zabbix_log(LOG_LEVEL_WARNING, "active check \"%s\" is not supported",
-						active_metrics[i].key);
-
-				process_value(server, port, CONFIG_HOSTNAME,
-						active_metrics[i].key_orig, ZBX_NOTSUPPORTED,
-						&active_metrics[i].lastlogsize, &active_metrics[i].mtime,
-						NULL, NULL, NULL, NULL, 0);
+				process_value(server, port, CONFIG_HOSTNAME, active_metrics[i].key_orig,
+						ZBX_NOTSUPPORTED, &active_metrics[i].lastlogsize,
+						(1 == is_logrt) ? &active_metrics[i].mtime : NULL, NULL, NULL, NULL,
+						NULL, 0);
 			}
 		}
 		/* special processing for eventlog */
@@ -1155,7 +1072,9 @@ static void	process_active_checks(char *server, unsigned short port)
 		}
 		active_metrics[i].nextcheck = (int)time(NULL) + active_metrics[i].refresh;
 	}
+#ifdef _WINDOWS
 ret:
+#endif
 	zabbix_log(LOG_LEVEL_DEBUG, "End of %s()", __function_name);
 }
 
@@ -1168,7 +1087,7 @@ ZBX_THREAD_ENTRY(active_checks_thread, args)
 	assert(args);
 	assert(((zbx_thread_args_t *)args)->args);
 
-	zabbix_log(LOG_LEVEL_WARNING, "agent #%d started [active checks]", ((zbx_thread_args_t *)args)->thread_num);
+	zabbix_log(LOG_LEVEL_INFORMATION, "agent #%d started [active checks]", ((zbx_thread_args_t *)args)->thread_num);
 
 	activechk_args.host = zbx_strdup(NULL, ((ZBX_THREAD_ACTIVECHK_ARGS *)((zbx_thread_args_t *)args)->args)->host);
 	activechk_args.port = ((ZBX_THREAD_ACTIVECHK_ARGS *)((zbx_thread_args_t *)args)->args)->port;

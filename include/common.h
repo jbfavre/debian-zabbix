@@ -813,7 +813,6 @@ int	get_param(const char *param, int num, char *buf, size_t max_len);
 int	num_param(const char *param);
 char	*get_param_dyn(const char *param, int num);
 void	remove_param(char *param, int num);
-const char	*get_string(const char *p, char *buf, size_t bufsize);
 int	get_key_param(char *param, int num, char *buf, size_t max_len);
 int	num_key_param(char *param);
 size_t	zbx_get_escape_string_len(const char *src, const char *charlist);
@@ -942,11 +941,12 @@ int	get_nodeid_by_id(zbx_uint64_t id);
 
 int	int_in_list(char *list, int value);
 int	uint64_in_list(char *list, zbx_uint64_t value);
-int	ip_in_list(char *list, char *ip);
+int	ip_in_list(char *list, const char *ip);
 
-int	expand_ipv6(const char *ip, char *str, size_t str_len);
+int	ip4_str2dig(const char *ip, unsigned int *ip_dig);
+int	ip6_str2dig(const char *ip, unsigned short *groups);
 #ifdef HAVE_IPV6
-char	*collapse_ipv6(char *str, size_t str_len);
+void	ip6_dig2str(unsigned short *groups, char *ip, size_t ip_len);
 #endif
 
 /* time related functions */
@@ -968,6 +968,7 @@ void	uint64_array_remove(zbx_uint64_t *values, int *num, zbx_uint64_t *rm_values
 void	uint64_array_remove_both(zbx_uint64_t *values, int *num, zbx_uint64_t *rm_values, int *rm_num);
 
 #ifdef _WINDOWS
+const OSVERSIONINFOEX	*zbx_win_getversion();
 LPTSTR	zbx_acp_to_unicode(LPCSTR acp_string);
 LPTSTR	zbx_oemcp_to_unicode(LPCSTR oemcp_string);
 int	zbx_acp_to_unicode_static(LPCSTR acp_string, LPTSTR wide_string, int wide_size);
@@ -994,11 +995,23 @@ void	dos2unix(char *str);
 int	str2uint64(const char *str, const char *suffixes, zbx_uint64_t *value);
 double	str2double(const char *str);
 
-#if defined(_WINDOWS) && defined(_UNICODE)
-int	__zbx_stat(const char *path, struct stat *buf);
+#if defined(_WINDOWS)
+typedef struct __stat64	zbx_stat_t;
+int	__zbx_stat(const char *path, zbx_stat_t *buf);
 int	__zbx_open(const char *pathname, int flags);
-#endif	/* _WINDOWS && _UNICODE */
+#else
+typedef struct stat	zbx_stat_t;
+#endif	/* _WINDOWS */
+
+typedef int (*zbx_process_value_func_t)(const char *, unsigned short, const char *, const char *, const char *,
+		zbx_uint64_t *, int *, unsigned long *, const char *, unsigned short *, unsigned long *, unsigned char);
+
 int	zbx_read(int fd, char *buf, size_t count, const char *encoding);
+int	zbx_read2(int fd, zbx_uint64_t *lastlogsize, int *mtime, int *big_rec, int *incomplete, const char *encoding,
+		ZBX_REGEXP *regexps, int regexps_num, const char *pattern, int *p_count, int *s_count,
+		zbx_process_value_func_t process_value, const char *server, unsigned short port,
+		const char *hostname, const char *key);
+
 int	zbx_is_regular_file(const char *path);
 
 int	MAIN_ZABBIX_ENTRY();

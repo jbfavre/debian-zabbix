@@ -251,7 +251,13 @@ size_t	zbx_vsnprintf(char *str, size_t count, const char *fmt, va_list args)
  ******************************************************************************/
 void	zbx_strncpy_alloc(char **str, size_t *alloc_len, size_t *offset, const char *src, size_t n)
 {
-	if (*offset + n >= *alloc_len)
+	if (NULL == *str)
+	{
+		*alloc_len = n + 1;
+		*offset = 0;
+		*str = zbx_malloc(*str, *alloc_len);
+	}
+	else if (*offset + n >= *alloc_len)
 	{
 		while (*offset + n >= *alloc_len)
 			*alloc_len *= 2;
@@ -519,7 +525,7 @@ void	compress_signs(char *str)
 		}
 	}
 
-	/* Remove '-', '+' where needed, Convert -123 to +D123 */
+	/* Remove '-', '+' where needed, Convert -123 to +N123 */
 	for(i=0;str[i]!='\0';i++)
 	{
 		cur=str[i];
@@ -534,7 +540,7 @@ void	compress_signs(char *str)
 			else
 			{
 				prev=str[i-1];
-				if(!isdigit(prev) && prev!='.')
+				if(!isdigit(prev) && prev!='.' && strchr("KMGTsmhdw",prev)==NULL)
 				{
 					for(j=i;str[j]!='\0';j++)	str[j]=str[j+1];
 				}
@@ -550,7 +556,7 @@ void	compress_signs(char *str)
 			else
 			{
 				prev=str[i-1];
-				if(!isdigit(prev) && prev!='.')
+				if(!isdigit(prev) && prev!='.' && strchr("KMGTsmhdw",prev)==NULL)
 				{
 					str[i]='N';
 				}
@@ -1665,101 +1671,6 @@ void	remove_param(char *p, int num)
 	}
 
 	*buf = '\0';
-}
-
-/******************************************************************************
- *                                                                            *
- * Function: get_string                                                       *
- *                                                                            *
- * Purpose: get current string from the quoted or unquoted string list,       *
- *          delimited by blanks                                               *
- *                                                                            *
- * Parameters:                                                                *
- *      p       - [IN] parameter list, delimited by blanks (' ' or '\t')      *
- *      buf     - [OUT] output buffer                                         *
- *      bufsize - [IN] output buffer size                                     *
- *                                                                            *
- * Return value: pointer to the next string                                   *
- *                                                                            *
- * Author: Alexander Vladishev                                                *
- *                                                                            *
- * Comments: delimeter for parameters is ','                                  *
- *                                                                            *
- ******************************************************************************/
-const char	*get_string(const char *p, char *buf, size_t bufsize)
-{
-/* 0 - init, 1 - inside quoted param, 2 - inside unquoted param */
-	int	state;
-	size_t	buf_i = 0;
-
-	bufsize--;	/* '\0' */
-
-	for (state = 0; '\0' != *p; p++)
-	{
-		switch (state) {
-		/* Init state */
-		case 0:
-			if (' ' == *p || '\t' == *p)
-				/* Skip of leading spaces */;
-			else if ('"' == *p)
-				state = 1;
-			else
-			{
-				state = 2;
-				p--;
-			}
-			break;
-		/* Quoted */
-		case 1:
-			if ('"' == *p)
-			{
-				if (' ' != p[1] && '\t' != p[1] && '\0' != p[1])
-					return NULL;	/* incorrect syntax */
-
-				while (' ' == p[1] || '\t' == p[1])
-					p++;
-
-				buf[buf_i] = '\0';
-				return ++p;
-			}
-			else if ('\\' == *p && ('"' == p[1] || '\\' == p[1]))
-			{
-				p++;
-				if (buf_i < bufsize)
-					buf[buf_i++] = *p;
-			}
-			else if ('\\' == *p && 'n' == p[1])
-			{
-				p++;
-				if (buf_i < bufsize)
-					buf[buf_i++] = '\n';
-			}
-			else if (buf_i < bufsize)
-				buf[buf_i++] = *p;
-			break;
-		/* Unquoted */
-		case 2:
-			if (' ' == *p || '\t' == *p)
-			{
-				while (' ' == *p || '\t' == *p)
-					p++;
-
-				buf[buf_i] = '\0';
-				return p;
-			}
-			else if (buf_i < bufsize)
-				buf[buf_i++] = *p;
-			break;
-		}
-	}
-
-	/* missing terminating '"' character */
-	if (state == 1)
-		return NULL;
-
-	buf[buf_i] = '\0';
-
-	return p;
 }
 
 /******************************************************************************
