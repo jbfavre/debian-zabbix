@@ -1,3 +1,12 @@
+zabbix (1:2.0.14-1~bbc78+1) stable; urgency=medium
+
+  * Update d/gbp.conf for 2.0
+  * Update d/watch for 2.0
+  * Imported Upstream version 2.0.14
+  * Patches refresh for 2.0.14
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Sat, 25 Jul 2015 16:01:03 +0200
+
 zabbix (1:2.0.11-1~bbc72+1) stable; urgency=medium
 
   * Imported Upstream version 2.0.11
