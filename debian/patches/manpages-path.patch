@@ -5,7 +5,7 @@ Description: correct location of config files in man pages
 
 --- a/man/zabbix_agentd.man
 +++ b/man/zabbix_agentd.man
-@@ -21,7 +21,7 @@ Display this help and exit.
+@@ -56,7 +56,7 @@ Display this help and exit.
  Output version information and exit.
  .SH FILES
  .TP
