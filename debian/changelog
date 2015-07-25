@@ -1,3 +1,10 @@
+zabbix (1:2.4.5-4~bbc78+1) stable; urgency=medium
+
+  * Update d/gbp.conf after branch rename
+  * Re-enable zabbix-server-sqlite. Usefull for tests
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Sat, 25 Jul 2015 14:59:03 +0200
+
 zabbix (1:2.4.5-3~bbc78+1) stable; urgency=medium
 
   * Add trend support to API (ZBXNEXT-1193)
