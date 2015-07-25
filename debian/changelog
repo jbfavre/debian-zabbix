@@ -1,3 +1,9 @@
+zabbix (1:2.2.9-2~bbc78+1) stable; urgency=medium
+
+  * Re-enable zabbix-server-sqlite. Usefull for tests
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Sat, 25 Jul 2015 14:41:53 +0200
+
 zabbix (1:2.2.9-1~bbc78+1) stable; urgency=medium
 
   * Update d/gbp.conf after branch rename
