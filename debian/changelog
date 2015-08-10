@@ -1,3 +1,10 @@
+zabbix (1:2.4.6-1~bbc78+1) stable; urgency=medium
+
+  * Imported Upstream version 2.4.6
+  * Patches refresh for 2.4.6
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Mon, 10 Aug 2015 12:38:31 +0200
+
 zabbix (1:2.4.5-4~bbc78+1) stable; urgency=medium
 
   * Update d/gbp.conf after branch rename
