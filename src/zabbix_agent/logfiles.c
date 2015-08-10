@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2014 Zabbix SIA
+** Copyright (C) 2001-2015 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -32,6 +32,7 @@
 #define ZBX_SAME_FILE_ERROR	-1
 #define ZBX_SAME_FILE_NO	0
 #define ZBX_SAME_FILE_YES	1
+#define ZBX_SAME_FILE_RETRY	2
 
 /******************************************************************************
  *                                                                            *
@@ -453,6 +454,7 @@ static void	print_logfile_list(struct st_logfile *logfiles, int logfiles_num)
  * Return value: ZBX_SAME_FILE_NO - it is not the same file,                  *
  *               ZBX_SAME_FILE_YES - it could be the same file,               *
  *               ZBX_SAME_FILE_ERROR - error.                                 *
+ *               ZBX_SAME_FILE_RETRY - retry on the next check                *
  *                                                                            *
  * Comments: In some cases we can say that it IS NOT the same file.           *
  *           We can never say that it IS the same file and it has not been    *
@@ -493,7 +495,26 @@ static int	is_same_file(const struct st_logfile *old, const struct st_logfile *n
 
 	if (old->size == new->size && old->mtime < new->mtime)
 	{
-		/* File's mtime cannot increase without changing size unless manipulated. */
+		/* Depending on file system it's possible that stat() was called */
+		/* between mtime and file size update. In this situation we will */
+		/* get a file with the old size and a new mtime.                 */
+		/* On the first try we assume it's the same file, just its size  */
+		/* has not been changed yet.                                     */
+		/* If the size has not changed on the next check, then we assume */
+		/* that some tampering was done and to be safe we will treat it  */
+		/* as a different file.                                          */
+		if (0 == old->retry)
+		{
+			zabbix_log(LOG_LEVEL_WARNING, "the modification time of log file \"%s\" has been updated"
+					" without changing its size, try checking again later", old->filename);
+			ret = ZBX_SAME_FILE_RETRY;
+		}
+		else
+		{
+			zabbix_log(LOG_LEVEL_WARNING, "after changing modification time the size of log file \"%s\""
+					" still has not been updated, consider it to be a new file", old->filename);
+		}
+
 		goto out;
 	}
 
@@ -528,7 +549,7 @@ static int	is_same_file(const struct st_logfile *old, const struct st_logfile *n
 
 			if (-1 == (f = zbx_open(new->filename, O_RDONLY)))
 			{
-				zabbix_log(LOG_LEVEL_WARNING, "cannot open \"%s\"': %s", new->filename,
+				zabbix_log(LOG_LEVEL_WARNING, "cannot open \"%s\": %s", new->filename,
 						zbx_strerror(errno));
 				ret = ZBX_SAME_FILE_ERROR;
 				goto out;
@@ -544,7 +565,7 @@ static int	is_same_file(const struct st_logfile *old, const struct st_logfile *n
 
 			if (0 != close(f))
 			{
-				zabbix_log(LOG_LEVEL_WARNING, "cannot close file '%s': %s", new->filename,
+				zabbix_log(LOG_LEVEL_WARNING, "cannot close file \"%s\": %s", new->filename,
 						zbx_strerror(errno));
 				ret = ZBX_SAME_FILE_ERROR;
 			}
@@ -581,7 +602,7 @@ out:
  *       old2new[i][j] = '1' - the i-th old file COULD BE the j-th new file   *
  *                                                                            *
  ******************************************************************************/
-static int	setup_old2new(char *old2new, const struct st_logfile *old, int num_old,
+static int	setup_old2new(char *old2new, struct st_logfile *old, int num_old,
 		const struct st_logfile *new, int num_new, int use_ino)
 {
 	int	i, j, rc;
@@ -593,12 +614,27 @@ static int	setup_old2new(char *old2new, const struct st_logfile *old, int num_ol
 		{
 			rc = is_same_file(old + i, new + j, use_ino);
 
-			if (ZBX_SAME_FILE_NO == rc)
-				p[j] = '0';
-			else if (ZBX_SAME_FILE_YES == rc)
-				p[j] = '1';
-			else if (ZBX_SAME_FILE_ERROR == rc)
-				return FAIL;
+			switch (rc)
+			{
+				case ZBX_SAME_FILE_NO:
+					p[j] = '0';
+					break;
+				case ZBX_SAME_FILE_YES:
+					if (1 == old[i].retry)
+					{
+						zabbix_log(LOG_LEVEL_DEBUG, "the size of log file \"%s\" has been"
+								" updated since modification time change, consider"
+								" it to be the same file", old->filename);
+						old[i].retry = 0;
+					}
+					p[j] = '1';
+					break;
+				case ZBX_SAME_FILE_RETRY:
+					old[i].retry = 1;
+					/* break; is not missing here */
+				case ZBX_SAME_FILE_ERROR:
+					return FAIL;
+			}
 
 			zabbix_log(LOG_LEVEL_DEBUG, "setup_old2new: is_same_file(%s, %s) = %c",
 					old[i].filename, new[j].filename, p[j]);
@@ -1052,6 +1088,7 @@ static void add_logfile(struct st_logfile **logfiles, int *logfiles_alloc, int *
 #endif
 	(*logfiles)[i].size = (zbx_uint64_t)st->st_size;
 	(*logfiles)[i].processed_size = 0;
+	(*logfiles)[i].retry = 0;
 
 	++(*logfiles_num);
 out:
@@ -1380,6 +1417,132 @@ clean:
 
 /******************************************************************************
  *                                                                            *
+ * Function: process_log                                                      *
+ *                                                                            *
+ * Purpose: Match new records in logfile with regexp, transmit matching       *
+ *          records to Zabbix server                                          *
+ *                                                                            *
+ * Parameters:                                                                *
+ *     filename       - [IN] logfile name                                     *
+ *     lastlogsize    - [IN/OUT] offset from the beginning of the file        *
+ *     mtime          - [IN] file modification time for reporting to server   *
+ *     skip_old_data  - [IN/OUT] start from the beginning of the file or      *
+ *                      jump to the end                                       *
+ *     big_rec        - [IN/OUT] state variable to remember whether a long    *
+ *                      record is being processed                             *
+ *     incomplete     - [OUT] 0 - the last record ended with a newline,       *
+ *                      1 - there was no newline at the end of the last       *
+ *                      record.                                               *
+ *     encoding       - [IN] text string describing encoding.                 *
+ *                        The following encodings are recognized:             *
+ *                          "UNICODE"                                         *
+ *                          "UNICODEBIG"                                      *
+ *                          "UNICODEFFFE"                                     *
+ *                          "UNICODELITTLE"                                   *
+ *                          "UTF-16"   "UTF16"                                *
+ *                          "UTF-16BE" "UTF16BE"                              *
+ *                          "UTF-16LE" "UTF16LE"                              *
+ *                          "UTF-32"   "UTF32"                                *
+ *                          "UTF-32BE" "UTF32BE"                              *
+ *                          "UTF-32LE" "UTF32LE".                             *
+ *                        "" (empty string) means a single-byte character set.*
+ *     regexps        - [IN] array of regexps                                 *
+ *     regexps_num    - [IN] number of regexp                                 *
+ *     pattern        - [IN] pattern to match                                 *
+ *     p_count        - [IN/OUT] limit of records to be processed             *
+ *     s_count        - [IN/OUT] limit of records to be sent to server        *
+ *     process_value  - [IN] pointer to function process_value()              *
+ *     server         - [IN] server to send data to                           *
+ *     port           - [IN] port to send data to                             *
+ *     hostname       - [IN] hostname the data comes from                     *
+ *     key            - [IN] item key the data belongs to                     *
+ *                                                                            *
+ * Return value: returns SUCCEED on successful reading,                       *
+ *               FAIL on other cases                                          *
+ *                                                                            *
+ * Author: Eugene Grigorjev                                                   *
+ *                                                                            *
+ * Comments:                                                                  *
+ *           This function does not deal with log file rotation.              *
+ *                                                                            *
+ ******************************************************************************/
+static int	process_log(char *filename, zbx_uint64_t *lastlogsize, int *mtime, unsigned char *skip_old_data,
+		int *big_rec, int *incomplete, const char *encoding, ZBX_REGEXP *regexps, int regexps_num,
+		const char *pattern, int *p_count, int *s_count, zbx_process_value_func_t process_value,
+		const char *server, unsigned short port, const char *hostname, const char *key)
+{
+	const char	*__function_name = "process_log";
+
+	int		f, ret = FAIL;
+	zbx_stat_t	buf;
+	zbx_uint64_t	l_size;
+
+	zabbix_log(LOG_LEVEL_DEBUG, "In %s() filename:'%s' lastlogsize:" ZBX_FS_UI64 " mtime:%d",
+			__function_name, filename, *lastlogsize, NULL != mtime ? *mtime : 0);
+
+	if (0 != zbx_stat(filename, &buf))
+	{
+		zabbix_log(LOG_LEVEL_WARNING, "cannot stat '%s': %s", filename, zbx_strerror(errno));
+		goto out;
+	}
+
+	if (NULL != mtime)
+		*mtime = (int)buf.st_mtime;
+
+	if ((zbx_uint64_t)buf.st_size == *lastlogsize)
+	{
+		/* The file size has not changed. Nothing to do. Here we do not deal with a case of changing */
+		/* a logfile's content while keeping the same length. */
+		ret = SUCCEED;
+		goto out;
+	}
+
+	if (-1 == (f = zbx_open(filename, O_RDONLY)))
+	{
+		zabbix_log(LOG_LEVEL_WARNING, "cannot open '%s': %s", filename, zbx_strerror(errno));
+		goto out;
+	}
+
+	l_size = *lastlogsize;
+
+	if (1 == *skip_old_data)
+	{
+		l_size = (zbx_uint64_t)buf.st_size;
+		zabbix_log(LOG_LEVEL_DEBUG, "skipping old data in filename:'%s' to lastlogsize:" ZBX_FS_UI64,
+				filename, l_size);
+	}
+
+	if ((zbx_uint64_t)buf.st_size < l_size)		/* handle file truncation */
+		l_size = 0;
+
+	if ((zbx_offset_t)-1 != zbx_lseek(f, l_size, SEEK_SET))
+	{
+		*lastlogsize = l_size;
+		*skip_old_data = 0;
+
+		ret = zbx_read2(f, lastlogsize, mtime, big_rec, incomplete, encoding, regexps, regexps_num, pattern,
+				p_count, s_count, process_value, server, port, hostname, key);
+	}
+	else
+	{
+		zabbix_log(LOG_LEVEL_WARNING, "cannot set position to " ZBX_FS_UI64 " for '%s': %s",
+				l_size, filename, zbx_strerror(errno));
+	}
+
+	if (0 != close(f))
+	{
+		zabbix_log(LOG_LEVEL_WARNING, "cannot close file '%s': %s", filename, zbx_strerror(errno));
+		ret = FAIL;
+	}
+out:
+	zabbix_log(LOG_LEVEL_DEBUG, "End of %s() filename:'%s' lastlogsize:" ZBX_FS_UI64 " mtime:%d ret:%s",
+			__function_name, filename, *lastlogsize, NULL != mtime ? *mtime : 0, zbx_result_string(ret));
+
+	return ret;
+}
+
+/******************************************************************************
+ *                                                                            *
  * Function: process_logrt                                                    *
  *                                                                            *
  * Purpose: Find new records in logfiles                                      *
@@ -1639,132 +1802,6 @@ int	process_logrt(int is_logrt, char *filename, zbx_uint64_t *lastlogsize, int *
 out:
 	zabbix_log(LOG_LEVEL_DEBUG, "End of %s():%s error_count:%d", __function_name, zbx_result_string(ret),
 			*error_count);
-
-	return ret;
-}
-
-/******************************************************************************
- *                                                                            *
- * Function: process_log                                                      *
- *                                                                            *
- * Purpose: Match new records in logfile with regexp, transmit matching       *
- *          records to Zabbix server                                          *
- *                                                                            *
- * Parameters:                                                                *
- *     filename       - [IN] logfile name                                     *
- *     lastlogsize    - [IN/OUT] offset from the beginning of the file        *
- *     mtime          - [IN] file modification time for reporting to server   *
- *     skip_old_data  - [IN/OUT] start from the beginning of the file or      *
- *                      jump to the end                                       *
- *     big_rec        - [IN/OUT] state variable to remember whether a long    *
- *                      record is being processed                             *
- *     incomplete     - [OUT] 0 - the last record ended with a newline,       *
- *                      1 - there was no newline at the end of the last       *
- *                      record.                                               *
- *     encoding       - [IN] text string describing encoding.                 *
- *                        The following encodings are recognized:             *
- *                          "UNICODE"                                         *
- *                          "UNICODEBIG"                                      *
- *                          "UNICODEFFFE"                                     *
- *                          "UNICODELITTLE"                                   *
- *                          "UTF-16"   "UTF16"                                *
- *                          "UTF-16BE" "UTF16BE"                              *
- *                          "UTF-16LE" "UTF16LE"                              *
- *                          "UTF-32"   "UTF32"                                *
- *                          "UTF-32BE" "UTF32BE"                              *
- *                          "UTF-32LE" "UTF32LE".                             *
- *                        "" (empty string) means a single-byte character set.*
- *     regexps        - [IN] array of regexps                                 *
- *     regexps_num    - [IN] number of regexp                                 *
- *     pattern        - [IN] pattern to match                                 *
- *     p_count        - [IN/OUT] limit of records to be processed             *
- *     s_count        - [IN/OUT] limit of records to be sent to server        *
- *     process_value  - [IN] pointer to function process_value()              *
- *     server         - [IN] server to send data to                           *
- *     port           - [IN] port to send data to                             *
- *     hostname       - [IN] hostname the data comes from                     *
- *     key            - [IN] item key the data belongs to                     *
- *                                                                            *
- * Return value: returns SUCCEED on successful reading,                       *
- *               FAIL on other cases                                          *
- *                                                                            *
- * Author: Eugene Grigorjev                                                   *
- *                                                                            *
- * Comments:                                                                  *
- *           This function does not deal with log file rotation.              *
- *                                                                            *
- ******************************************************************************/
-int	process_log(char *filename, zbx_uint64_t *lastlogsize, int *mtime, unsigned char *skip_old_data, int *big_rec,
-		int *incomplete, const char *encoding, ZBX_REGEXP *regexps, int regexps_num, const char *pattern,
-		int *p_count, int *s_count, zbx_process_value_func_t process_value, const char *server,
-		unsigned short port, const char *hostname, const char *key)
-{
-	const char	*__function_name = "process_log";
-
-	int		f, ret = FAIL;
-	zbx_stat_t	buf;
-	zbx_uint64_t	l_size;
-
-	zabbix_log(LOG_LEVEL_DEBUG, "In %s() filename:'%s' lastlogsize:" ZBX_FS_UI64 " mtime: %d",
-			__function_name, filename, *lastlogsize, NULL != mtime ? *mtime : 0);
-
-	if (0 != zbx_stat(filename, &buf))
-	{
-		zabbix_log(LOG_LEVEL_WARNING, "cannot stat '%s': %s", filename, zbx_strerror(errno));
-		goto out;
-	}
-
-	if (NULL != mtime)
-		*mtime = (int)buf.st_mtime;
-
-	if ((zbx_uint64_t)buf.st_size == *lastlogsize)
-	{
-		/* The file size has not changed. Nothing to do. Here we do not deal with a case of changing */
-		/* a logfile's content while keeping the same length. */
-		ret = SUCCEED;
-		goto out;
-	}
-
-	if (-1 == (f = zbx_open(filename, O_RDONLY)))
-	{
-		zabbix_log(LOG_LEVEL_WARNING, "cannot open '%s': %s", filename, zbx_strerror(errno));
-		goto out;
-	}
-
-	l_size = *lastlogsize;
-
-	if (1 == *skip_old_data)
-	{
-		l_size = (zbx_uint64_t)buf.st_size;
-		zabbix_log(LOG_LEVEL_DEBUG, "skipping old data in filename:'%s' to lastlogsize:" ZBX_FS_UI64,
-				filename, l_size);
-	}
-
-	if ((zbx_uint64_t)buf.st_size < l_size)		/* handle file truncation */
-		l_size = 0;
-
-	if ((zbx_offset_t)-1 != zbx_lseek(f, l_size, SEEK_SET))
-	{
-		*lastlogsize = l_size;
-		*skip_old_data = 0;
-
-		ret = zbx_read2(f, lastlogsize, mtime, big_rec, incomplete, encoding, regexps, regexps_num, pattern,
-				p_count, s_count, process_value, server, port, hostname, key);
-	}
-	else
-	{
-		zabbix_log(LOG_LEVEL_WARNING, "cannot set position to " ZBX_FS_UI64 " for '%s': %s",
-				l_size, filename, zbx_strerror(errno));
-	}
-
-	if (0 != close(f))
-	{
-		zabbix_log(LOG_LEVEL_WARNING, "cannot close file '%s': %s", filename, zbx_strerror(errno));
-		ret = FAIL;
-	}
-out:
-	zabbix_log(LOG_LEVEL_DEBUG, "End of %s() filename:'%s' lastlogsize:" ZBX_FS_UI64 " mtime: %d ret:%s",
-			__function_name, filename, *lastlogsize, NULL != mtime ? *mtime : 0, zbx_result_string(ret));
 
 	return ret;
 }

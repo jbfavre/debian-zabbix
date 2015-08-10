@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2014 Zabbix SIA
+** Copyright (C) 2001-2015 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -1043,5 +1043,7 @@ int	calculate_sleeptime(int nextcheck, int max_sleeptime);
 void	zbx_replace_string(char **data, size_t l, size_t *r, const char *value);
 
 int	parse_serveractive_element(char *str, char **host, unsigned short *port, unsigned short port_default);
+
+char	*zbx_dyn_escape_shell_single_quote(const char *text);
 
 #endif

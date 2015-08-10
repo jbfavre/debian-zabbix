@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2014 Zabbix SIA
+** Copyright (C) 2001-2015 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -314,6 +314,7 @@ void	zbx_script_clean(zbx_script_t *script)
  *                                                                            *
  * Return value:  SUCCEED - processed successfully                            *
  *                FAIL - an error occurred                                    *
+ *                TIMEOUT_ERROR - a timeout occurred                          *
  *                                                                            *
  * Author: Alexander Vladishev                                                *
  *                                                                            *
@@ -401,7 +402,7 @@ int	zbx_execute_script(DC_HOST *host, zbx_script_t *script, char **result, char 
 			zbx_snprintf(error, max_error_len, "Invalid command type [%d]", (int)script->type);
 	}
 
-	if (FAIL == ret && NULL != result)
+	if (SUCCEED != ret && NULL != result)
 		*result = zbx_strdup(*result, "");
 
 	zabbix_log(LOG_LEVEL_DEBUG, "End of %s():%s", __function_name, zbx_result_string(ret));

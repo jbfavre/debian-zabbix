@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2014 Zabbix SIA
+** Copyright (C) 2001-2015 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -596,6 +596,11 @@ int	DBtxn_status();
 int	DBtxn_ongoing();
 
 void	DBexecute_multiple_query(const char *query, const char *field_name, zbx_vector_uint64_t *ids);
+int	DBlock_record(const char *table, zbx_uint64_t id, const char *add_field, zbx_uint64_t add_id);
+
+#define DBlock_hostid(id)			DBlock_record("hosts", id, NULL, 0)
+#define DBlock_druleid(id)			DBlock_record("drules", id, NULL, 0)
+#define DBlock_dcheckid(dcheckid, druleid)	DBlock_record("dchecks", dcheckid, "druleid", druleid)
 
 void	zbx_create_itservices_lock();
 void	zbx_destroy_itservices_lock();

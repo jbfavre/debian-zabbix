@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2014 Zabbix SIA
+** Copyright (C) 2001-2015 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -3155,7 +3155,7 @@ int	DBcopy_template_elements(zbx_uint64_t hostid, zbx_vector_uint64_t *lnk_templ
 
 	for (i = 0; i < lnk_templateids->values_num; i++)
 	{
-		if (FAIL != zbx_vector_uint64_bsearch(&templateids, lnk_templateids->values[i],
+		if (FAIL != zbx_vector_uint64_search(&templateids, lnk_templateids->values[i],
 				ZBX_DEFAULT_UINT64_COMPARE_FUNC))
 		{
 			/* template already linked */
@@ -3227,6 +3227,9 @@ void	DBdelete_host(zbx_uint64_t hostid)
 
 	zabbix_log(LOG_LEVEL_DEBUG, "In %s()", __function_name);
 
+	if (SUCCEED != DBlock_hostid(hostid))
+		goto out;
+
 	zbx_vector_uint64_create(&htids);
 	zbx_vector_uint64_create(&itemids);
 
@@ -3276,7 +3279,7 @@ void	DBdelete_host(zbx_uint64_t hostid)
 
 	/* delete host */
 	DBexecute("delete from hosts where hostid=" ZBX_FS_UI64, hostid);
-
+out:
 	zabbix_log(LOG_LEVEL_DEBUG, "End of %s()", __function_name);
 }
 

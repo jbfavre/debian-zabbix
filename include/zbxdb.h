@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2014 Zabbix SIA
+** Copyright (C) 2001-2015 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -148,6 +148,12 @@
 #	define ZBX_SQL_MOD(x, y) #x "%%" #y
 #else
 #	define ZBX_SQL_MOD(x, y) "mod(" #x "," #y ")"
+#endif
+
+#ifdef HAVE_SQLITE3
+#	define ZBX_FOR_UPDATE	""	/* SQLite3 does not support "select ... for update" */
+#else
+#	define ZBX_FOR_UPDATE	" for update"
 #endif
 
 #ifdef HAVE_MULTIROW_INSERT

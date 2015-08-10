@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2014 Zabbix SIA
+** Copyright (C) 2001-2015 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -2330,6 +2330,10 @@ const char	*zbx_dservice_type_string(zbx_dservice_type_t service)
 			return "SNMPv3 agent";
 		case SVC_ICMPPING:
 			return "ICMP ping";
+		case SVC_HTTPS:
+			return "HTTPS";
+		case SVC_TELNET:
+			return "Telnet";
 		default:
 			return "unknown";
 	}
@@ -3189,4 +3193,48 @@ void	zbx_replace_string(char **data, size_t l, size_t *r, const char *value)
 	}
 
 	memcpy(&(*data)[l], value, sz_value);
+}
+
+/******************************************************************************
+ *                                                                            *
+ * Function: zbx_dyn_escape_shell_single_quote                                *
+ *                                                                            *
+ * Purpose: escape single quote in shell command arguments                    *
+ *                                                                            *
+ * Parameters: arg - [IN] the argument to escape                              *
+ *                                                                            *
+ * Return value: The escaped argument.                                        *
+ *                                                                            *
+ ******************************************************************************/
+char	*zbx_dyn_escape_shell_single_quote(const char *arg)
+{
+	int		len = 1; /* include terminating zero character */
+	const char	*pin;
+	char		*arg_esc, *pout;
+
+	for (pin = arg; '\0' != *pin; pin++)
+	{
+		if ('\'' == *pin)
+			len += 3;
+		len++;
+	}
+
+	pout = arg_esc = zbx_malloc(NULL, len);
+
+	for (pin = arg; '\0' != *pin; pin++)
+	{
+		if ('\'' == *pin)
+		{
+			*pout++ = '\'';
+			*pout++ = '\\';
+			*pout++ = '\'';
+			*pout++ = '\'';
+		}
+		else
+			*pout++ = *pin;
+	}
+
+	*pout = '\0';
+
+	return arg_esc;
 }
