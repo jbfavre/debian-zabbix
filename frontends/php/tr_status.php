@@ -304,7 +304,6 @@ $options = array(
 	'monitored' => true,
 	'skipDependent' => true,
 	'sortfield' => $sortField,
-	'sortorder' => $sortOrder,
 	'limit' => $config['search_limit'] + 1
 );
 
@@ -372,7 +371,7 @@ if (!$showMaintenance) {
 $triggers = API::Trigger()->get($options);
 
 order_result($triggers, $sortField, $sortOrder);
-$paging = getPagingLine($triggers);
+$paging = getPagingLine($triggers, $sortOrder);
 
 
 $triggers = API::Trigger()->get(array(
@@ -522,6 +521,13 @@ while ($row = DBfetch($dbTriggerDependencies)) {
 }
 
 foreach ($triggers as $trigger) {
+	/*
+	 * At this point "all" or one group is selected. And same goes for hosts. It is safe to pass 'groupid' and 'hostid'
+	 * to trigger menu pop-up, so it properly redirects to Events page. Mind that 'DDRemember' option will be ignored.
+	 */
+	$trigger['groupid'] = $pageFilter->groupid;
+	$trigger['hostid'] = $pageFilter->hostid;
+
 	$description = new CSpan($trigger['description'], 'link_menu');
 	$description->setMenuPopup(CMenuPopupHelper::getTrigger($trigger));
 

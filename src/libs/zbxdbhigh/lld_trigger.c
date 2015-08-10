@@ -489,7 +489,7 @@ static char	*lld_expression_expand(const char *expression, zbx_vector_ptr_t *fun
 static void	lld_function_make(zbx_lld_function_t *function_proto, zbx_vector_ptr_t *functions, zbx_uint64_t itemid)
 {
 	int			i;
-	zbx_lld_function_t	*function;
+	zbx_lld_function_t	*function = NULL;
 
 	for (i = 0; i < functions->values_num; i++)
 	{
@@ -1093,8 +1093,8 @@ static void	lld_expression_create(char **expression, zbx_vector_ptr_t *functions
  * Purpose: add or update triggers in database based on discovery rule        *
  *                                                                            *
  ******************************************************************************/
-static void	lld_triggers_save(zbx_uint64_t parent_triggerid, zbx_vector_ptr_t *triggers, unsigned char status,
-		unsigned char type, unsigned char priority, const char *url)
+static void	lld_triggers_save(zbx_uint64_t hostid, zbx_uint64_t parent_triggerid, zbx_vector_ptr_t *triggers,
+		unsigned char status, unsigned char type, unsigned char priority, const char *url)
 {
 	const char		*__function_name = "lld_triggers_save";
 
@@ -1158,6 +1158,13 @@ static void	lld_triggers_save(zbx_uint64_t parent_triggerid, zbx_vector_ptr_t *t
 	}
 
 	DBbegin();
+
+	if (SUCCEED != DBlock_hostid(hostid))
+	{
+		/* the host was removed while processing lld rule */
+		DBrollback();
+		goto out;
+	}
 
 	if (0 != new_triggers)
 	{
@@ -1436,7 +1443,8 @@ void	lld_update_triggers(zbx_uint64_t hostid, zbx_uint64_t lld_ruleid, zbx_vecto
 		lld_triggers_make(&functions_proto, &triggers, &items, description_proto, expression_proto,
 				comments_proto, lld_rows, error);
 		lld_triggers_validate(hostid, &triggers, error);
-		lld_triggers_save(parent_triggerid, &triggers, status, type, priority, url);
+
+		lld_triggers_save(hostid, parent_triggerid, &triggers, status, type, priority, url);
 
 		/* cleaning */
 
