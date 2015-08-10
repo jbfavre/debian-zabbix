@@ -7,11 +7,9 @@ Reviewed-by: Jean Baptiste Favre <debian@jbfavre.org>
 Last-Update: 2015-06-27
 ---
 This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
-Index: zabbix/frontends/php/include/classes/api/API.php
-===================================================================
---- zabbix.orig/frontends/php/include/classes/api/API.php	2015-06-27 18:16:07.545304383 +0200
-+++ zabbix/frontends/php/include/classes/api/API.php	2015-06-27 18:17:07.009485029 +0200
-@@ -332,6 +332,13 @@
+--- a/frontends/php/include/classes/api/API.php
++++ b/frontends/php/include/classes/api/API.php
+@@ -332,6 +332,13 @@ class API {
  		return self::getApi('templatescreenitem');
  	}
  
@@ -25,11 +23,9 @@ Index: zabbix/frontends/php/include/classes/api/API.php
  	/**
  	 * @return CTrigger
  	 */
-Index: zabbix/frontends/php/include/classes/api/CApiServiceFactory.php
-===================================================================
---- zabbix.orig/frontends/php/include/classes/api/CApiServiceFactory.php	2015-06-27 18:16:07.545304383 +0200
-+++ zabbix/frontends/php/include/classes/api/CApiServiceFactory.php	2015-06-27 18:17:07.009485029 +0200
-@@ -61,6 +61,7 @@
+--- a/frontends/php/include/classes/api/CApiServiceFactory.php
++++ b/frontends/php/include/classes/api/CApiServiceFactory.php
+@@ -61,6 +61,7 @@ class CApiServiceFactory extends CRegist
  			'template' => 'CTemplate',
  			'templatescreen' => 'CTemplateScreen',
  			'templatescreenitem' => 'CTemplateScreenItem',
@@ -37,10 +33,8 @@ Index: zabbix/frontends/php/include/classes/api/CApiServiceFactory.php
  			'trigger' => 'CTrigger',
  			'triggerprototype' => 'CTriggerPrototype',
  			'user' => 'CUser',
-Index: zabbix/frontends/php/include/classes/api/services/CTrend.php
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ zabbix/frontends/php/include/classes/api/services/CTrend.php	2015-06-27 18:17:07.009485029 +0200
+--- /dev/null
++++ b/frontends/php/include/classes/api/services/CTrend.php
 @@ -0,0 +1,219 @@
 +<?php
 +/*
