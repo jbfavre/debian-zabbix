@@ -1,3 +1,10 @@
+zabbix (1:2.2.10-1~bbc78+1) stable; urgency=medium
+
+  * Imported Upstream version 2.2.10
+  * Patches refresh for 2.2.10
+
+ -- Jean Baptiste Favre <jean-baptiste.favre@blablacar.com>  Mon, 10 Aug 2015 13:34:05 +0200
+
 zabbix (1:2.2.9-2~bbc78+1) stable; urgency=medium
 
   * Re-enable zabbix-server-sqlite. Usefull for tests
