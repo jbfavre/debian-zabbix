@@ -1,7 +1,7 @@
 <?php
 /*
 ** Zabbix
-** Copyright (C) 2001-2014 Zabbix SIA
+** Copyright (C) 2001-2015 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -196,8 +196,7 @@ else{
 				'output' => array('hostid', 'name'),
 				'selectInventory' => $requiredInventoryFields,
 				'withInventory' => true,
-				'selectGroups' => API_OUTPUT_EXTEND,
-				'limit' => ($config['search_limit'] + 1)
+				'selectGroups' => API_OUTPUT_EXTEND
 			);
 			if($pageFilter->groupid > 0)
 				$options['groupids'] = $pageFilter->groupid;
@@ -229,6 +228,9 @@ else{
 			}
 
 			order_result($hosts, getPageSortField('name'), getPageSortOrder());
+
+			$hosts = array_slice($hosts, 0, $config['search_limit'] + 1);
+
 			$paging = getPagingLine($hosts);
 
 			foreach($hosts as $host){

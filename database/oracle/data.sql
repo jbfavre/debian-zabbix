@@ -1559,10 +1559,10 @@ INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,hi
 INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,filter,interfaceid,port,description,inventory_link,lifetime) values ('23121','0','','','10076','System calls','system.stat[faults,sy]','60','7','365','0','0','','','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0','',NULL,'','','0','30')
 /
 
-INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,filter,interfaceid,port,description,inventory_link,lifetime) values ('23122','0','','','10076','Length of the swap queue','system.stat[kthr,b]','60','7','365','0','3','','','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0','',NULL,'','','0','30')
+INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,filter,interfaceid,port,description,inventory_link,lifetime) values ('23122','0','','','10076','Length of the swap queue','system.stat[kthr,b]','60','7','365','0','0','','','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0','',NULL,'','','0','30')
 /
 
-INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,filter,interfaceid,port,description,inventory_link,lifetime) values ('23123','0','','','10076','Length of the run queue','system.stat[kthr,r]','60','7','365','0','3','','','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0','',NULL,'','','0','30')
+INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,filter,interfaceid,port,description,inventory_link,lifetime) values ('23123','0','','','10076','Length of the run queue','system.stat[kthr,r]','60','7','365','0','0','','','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0','',NULL,'','','0','30')
 /
 
 INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,filter,interfaceid,port,description,inventory_link,lifetime) values ('23124','0','','','10076','Active virtual pages','system.stat[memory,avm]','60','7','365','0','3','','','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0','',NULL,'','','0','30')
@@ -5228,6 +5228,9 @@ INSERT INTO graph_theme (graphthemeid,description,theme,backgroundcolor,graphcol
 INSERT INTO graph_theme (graphthemeid,description,theme,backgroundcolor,graphcolor,graphbordercolor,gridcolor,maingridcolor,gridbordercolor,textcolor,highlightcolor,leftpercentilecolor,rightpercentilecolor,nonworktimecolor,gridview,legendview) values ('4','Classic','classic','F0F0F0','FFFFFF','333333','CCCCCC','AAAAAA','000000','222222','AA4444','11CC11','CC1111','E0E0E0','1','1')
 /
 
+INSERT INTO help_items (itemtype,key_,description) values ('0','agent.hostname','Agent host name.')
+/
+
 INSERT INTO help_items (itemtype,key_,description) values ('0','agent.ping','Check the agent usability. Always return 1. Can be used as a TCP ping.')
 /
 
@@ -5273,6 +5276,9 @@ INSERT INTO help_items (itemtype,key_,description) values ('0','net.tcp.service.
 INSERT INTO help_items (itemtype,key_,description) values ('0','net.tcp.service[service,&lt;ip&gt;,&lt;port&gt;]','Check if service is available. 0 - service is down, 1 - service is running. If ip is missing 127.0.0.1 is used. If port number is missing, default service port is used. Example: net.tcp.service[ftp,,45].')
 /
 
+INSERT INTO help_items (itemtype,key_,description) values ('0','net.udp.listen[port]','Checks if this UDP port is in LISTEN state.')
+/
+
 INSERT INTO help_items (itemtype,key_,description) values ('0','perf_counter[counter,&lt;interval&gt;]','Value of any performance counter, where "counter" parameter is the counter path and "interval" parameter is a number of last seconds, for which the agent returns an average value.')
 /
 
@@ -5283,6 +5289,12 @@ INSERT INTO help_items (itemtype,key_,description) values ('0','proc.num[&lt;nam
 /
 
 INSERT INTO help_items (itemtype,key_,description) values ('0','proc_info[&lt;process&gt;,&lt;attribute&gt;,&lt;type&gt;]','Different information about specific process(es)')
+/
+
+INSERT INTO help_items (itemtype,key_,description) values ('0','sensor[device,sensor,&lt;mode&gt;]','Hardware sensor reading.')
+/
+
+INSERT INTO help_items (itemtype,key_,description) values ('0','services[&lt;type&gt;,&lt;state&gt;,&lt;exclude&gt;]','List of services, separated by a newline or 0, if list would be empty.')
 /
 
 INSERT INTO help_items (itemtype,key_,description) values ('0','service_state[service]','State of service. 0 - running, 1 - paused, 2 - start pending, 3 - pause pending, 4 - continue pending, 5 - stop pending, 6 - stopped, 7 - unknown, 255 - no such service')
@@ -5297,7 +5309,7 @@ INSERT INTO help_items (itemtype,key_,description) values ('0','system.cpu.intr'
 INSERT INTO help_items (itemtype,key_,description) values ('0','system.cpu.load[&lt;cpu&gt;,&lt;mode&gt;]','CPU(s) load. Processor load. The cpu and mode are optional. If cpu is missing all is used. If mode is missing avg1 is used. Note that this is not percentage.')
 /
 
-INSERT INTO help_items (itemtype,key_,description) values ('0','system.cpu.num','Number of available proccessors.')
+INSERT INTO help_items (itemtype,key_,description) values ('0','system.cpu.num[&lt;type&gt;]','Number of available proccessors.')
 /
 
 INSERT INTO help_items (itemtype,key_,description) values ('0','system.cpu.switches','Context switches.')
@@ -5321,7 +5333,7 @@ INSERT INTO help_items (itemtype,key_,description) values ('0','system.hw.device
 INSERT INTO help_items (itemtype,key_,description) values ('0','system.hw.macaddr[&lt;interface&gt;,&lt;format&gt;]','MAC address - lists all MAC addresses with interface names by default')
 /
 
-INSERT INTO help_items (itemtype,key_,description) values ('0','system.localtime','System local time. Time in seconds.')
+INSERT INTO help_items (itemtype,key_,description) values ('0','system.localtime[&lt;type&gt;]','System local time. Time in seconds.')
 /
 
 INSERT INTO help_items (itemtype,key_,description) values ('0','system.run[command,&lt;mode&gt;]','Run specified command on the host.')
@@ -5357,10 +5369,10 @@ INSERT INTO help_items (itemtype,key_,description) values ('0','system.uptime','
 INSERT INTO help_items (itemtype,key_,description) values ('0','system.users.num','Number of users connected. Command who is used on agent side.')
 /
 
-INSERT INTO help_items (itemtype,key_,description) values ('0','vfs.dev.read[device,&lt;type&gt;,&lt;mode&gt;]','Device read statistics.')
+INSERT INTO help_items (itemtype,key_,description) values ('0','vfs.dev.read[&lt;device&gt;,&lt;type&gt;,&lt;mode&gt;]','Device read statistics.')
 /
 
-INSERT INTO help_items (itemtype,key_,description) values ('0','vfs.dev.write[device,&lt;type&gt;,&lt;mode&gt;]','Device write statistics.')
+INSERT INTO help_items (itemtype,key_,description) values ('0','vfs.dev.write[&lt;device&gt;,&lt;type&gt;,&lt;mode&gt;]','Device write statistics.')
 /
 
 INSERT INTO help_items (itemtype,key_,description) values ('0','vfs.file.cksum[file]','Calculate check sum of a given file. Check sum of the file calculate by standard algorithm used by UNIX utility cksum. Example: vfs.file.cksum[/etc/passwd]')
@@ -5480,6 +5492,9 @@ INSERT INTO help_items (itemtype,key_,description) values ('5','zabbix[uptime]',
 INSERT INTO help_items (itemtype,key_,description) values ('5','zabbix[wcache,&lt;cache&gt;,&lt;mode&gt;]','Data cache statistics. Cache - one of values (modes: all, float, uint, str, log, text), history (modes: pfree, total, used, free), trend (modes: pfree, total, used, free), text (modes: pfree, total, used, free).')
 /
 
+INSERT INTO help_items (itemtype,key_,description) values ('7','agent.hostname','Agent host name.')
+/
+
 INSERT INTO help_items (itemtype,key_,description) values ('7','agent.ping','Check the agent usability. Always return 1. Can be used as a TCP ping.')
 /
 
@@ -5534,6 +5549,9 @@ INSERT INTO help_items (itemtype,key_,description) values ('7','net.tcp.service.
 INSERT INTO help_items (itemtype,key_,description) values ('7','net.tcp.service[service,&lt;ip&gt;,&lt;port&gt;]','Check if service is available. 0 - service is down, 1 - service is running. If ip is missing 127.0.0.1 is used. If port number is missing, default service port is used. Example: net.tcp.service[ftp,,45].')
 /
 
+INSERT INTO help_items (itemtype,key_,description) values ('7','net.udp.listen[port]','Checks if this UDP port is in LISTEN state.')
+/
+
 INSERT INTO help_items (itemtype,key_,description) values ('7','perf_counter[counter,&lt;interval&gt;]','Value of any performance counter, where "counter" parameter is the counter path and "interval" parameter is a number of last seconds, for which the agent returns an average value.')
 /
 
@@ -5544,6 +5562,12 @@ INSERT INTO help_items (itemtype,key_,description) values ('7','proc.num[&lt;nam
 /
 
 INSERT INTO help_items (itemtype,key_,description) values ('7','proc_info[&lt;process&gt;,&lt;attribute&gt;,&lt;type&gt;]','Different information about specific process(es)')
+/
+
+INSERT INTO help_items (itemtype,key_,description) values ('7','sensor[device,sensor,&lt;mode&gt;]','Hardware sensor reading.')
+/
+
+INSERT INTO help_items (itemtype,key_,description) values ('7','services[&lt;type&gt;,&lt;state&gt;,&lt;exclude&gt;]','List of services, separated by a newline or 0, if list would be empty.')
 /
 
 INSERT INTO help_items (itemtype,key_,description) values ('7','service_state[service]','State of service. 0 - running, 1 - paused, 2 - start pending, 3 - pause pending, 4 - continue pending, 5 - stop pending, 6 - stopped, 7 - unknown, 255 - no such service')
@@ -5558,7 +5582,7 @@ INSERT INTO help_items (itemtype,key_,description) values ('7','system.cpu.intr'
 INSERT INTO help_items (itemtype,key_,description) values ('7','system.cpu.load[&lt;cpu&gt;,&lt;mode&gt;]','CPU(s) load. Processor load. The cpu and mode are optional. If cpu is missing all is used. If mode is missing avg1 is used. Note that this is not percentage.')
 /
 
-INSERT INTO help_items (itemtype,key_,description) values ('7','system.cpu.num','Number of available proccessors.')
+INSERT INTO help_items (itemtype,key_,description) values ('7','system.cpu.num[&lt;type&gt;]','Number of available proccessors.')
 /
 
 INSERT INTO help_items (itemtype,key_,description) values ('7','system.cpu.switches','Context switches.')
@@ -5582,7 +5606,7 @@ INSERT INTO help_items (itemtype,key_,description) values ('7','system.hw.device
 INSERT INTO help_items (itemtype,key_,description) values ('7','system.hw.macaddr[&lt;interface&gt;,&lt;format&gt;]','MAC address - lists all MAC addresses with interface names by default')
 /
 
-INSERT INTO help_items (itemtype,key_,description) values ('7','system.localtime','System local time. Time in seconds.')
+INSERT INTO help_items (itemtype,key_,description) values ('7','system.localtime[&lt;type&gt;]','System local time. Time in seconds.')
 /
 
 INSERT INTO help_items (itemtype,key_,description) values ('7','system.run[command,&lt;mode&gt;]','Run specified command on the host.')
@@ -5618,10 +5642,10 @@ INSERT INTO help_items (itemtype,key_,description) values ('7','system.uptime','
 INSERT INTO help_items (itemtype,key_,description) values ('7','system.users.num','Number of users connected. Command who is used on agent side.')
 /
 
-INSERT INTO help_items (itemtype,key_,description) values ('7','vfs.dev.read[device,&lt;type&gt;,&lt;mode&gt;]','Device read statistics.')
+INSERT INTO help_items (itemtype,key_,description) values ('7','vfs.dev.read[&lt;device&gt;,&lt;type&gt;,&lt;mode&gt;]','Device read statistics.')
 /
 
-INSERT INTO help_items (itemtype,key_,description) values ('7','vfs.dev.write[device,&lt;type&gt;,&lt;mode&gt;]','Device write statistics.')
+INSERT INTO help_items (itemtype,key_,description) values ('7','vfs.dev.write[&lt;device&gt;,&lt;type&gt;,&lt;mode&gt;]','Device write statistics.')
 /
 
 INSERT INTO help_items (itemtype,key_,description) values ('7','vfs.file.cksum[file]','Calculate check sum of a given file. Check sum of the file calculate by standard algorithm used by UNIX utility cksum. Example: vfs.file.cksum[/etc/passwd]')
@@ -6809,7 +6833,10 @@ INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5334','
 INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5336','273','23121')
 /
 
-INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5328','273','23123')
+INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5524','273','23123')
+/
+
+INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5525','279','23123')
 /
 
 INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5248','274','22948')
@@ -6851,7 +6878,10 @@ INSERT INTO items_applications (itemappid,applicationid,itemid) values ('4998','
 INSERT INTO items_applications (itemappid,applicationid,itemid) values ('4999','276','22943')
 /
 
-INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5340','276','23122')
+INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5526','276','23122')
+/
+
+INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5527','279','23122')
 /
 
 INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5193','276','23124')
