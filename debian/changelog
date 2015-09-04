@@ -1,3 +1,10 @@
+zabbix (1:2.5.0-1~bbc78+1) unstable; urgency=medium
+
+  * Imported Upstream version 2.5.0
+  * Patches refresh for Zabbix 2.5.0 (3.0 alpha)
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Fri, 04 Sep 2015 16:23:49 +0200
+
 zabbix (1:2.4.6-1~bbc78+1) stable; urgency=medium
 
   * Imported Upstream version 2.4.6
