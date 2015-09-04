@@ -25,9 +25,9 @@
 +LogFileSize=0
 +
  ### Option: DebugLevel
- #	Specifies debug level
+ #	Specifies debug level:
  #	0 - basic information about starting and stopping of Zabbix processes
-@@ -242,15 +246,15 @@ Hostname=Zabbix server
+@@ -243,15 +247,15 @@ Hostname=Zabbix server
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.
@@ -69,7 +69,7 @@
  
  ### Option: LogFileSize
  #	Maximum size of log file in MB.
-@@ -57,6 +57,7 @@ LogFile=/tmp/zabbix_server.log
+@@ -58,6 +58,7 @@ LogFile=/tmp/zabbix_server.log
  # Mandatory: no
  # Default:
  # PidFile=/tmp/zabbix_server.pid
@@ -77,16 +77,7 @@
  
  ### Option: DBHost
  #	Database host name.
-@@ -91,7 +92,7 @@ DBName=zabbix
- # Default:
- # DBUser=
- 
--DBUser=root
-+DBUser=zabbix
- 
- ### Option: DBPassword
- #	Database password. Ignored for SQLite.
-@@ -424,6 +425,8 @@ DBUser=root
+@@ -430,6 +431,8 @@ Timeout=4
  # Default:
  # AlertScriptsPath=${datadir}/zabbix/alertscripts
  
@@ -95,7 +86,7 @@
  ### Option: ExternalScripts
  #	Full path to location of external scripts.
  #	Default depends on compilation options.
-@@ -440,6 +443,8 @@ DBUser=root
+@@ -446,6 +449,8 @@ Timeout=4
  # Default:
  # FpingLocation=/usr/sbin/fping
  
@@ -104,7 +95,7 @@
  ### Option: Fping6Location
  #	Location of fping6.
  #	Make sure that fping6 binary has root ownership and SUID flag set.
-@@ -449,6 +454,8 @@ DBUser=root
+@@ -455,6 +460,8 @@ Timeout=4
  # Default:
  # Fping6Location=/usr/sbin/fping6
  
@@ -113,7 +104,7 @@
  ### Option: SSHKeyLocation
  #	Location of public and private keys for SSH checks and actions.
  #
-@@ -520,15 +527,15 @@ DBUser=root
+@@ -528,15 +535,15 @@ LogSlowQueries=3000
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.
@@ -161,18 +152,18 @@
  // Zabbix GUI configuration file.
  global $DB;
  
--$DB["TYPE"]				= 'MYSQL';
+-$DB['TYPE']				= 'MYSQL';
 +// Valid types are MYSQL, SQLITE3 or POSTGRESQL
-+$DB["TYPE"]			= 'MYSQL';
- $DB["SERVER"]			= 'localhost';
--$DB["PORT"]				= '0';
-+$DB["PORT"]			= '0';
- $DB["DATABASE"]			= 'zabbix';
--$DB["USER"]				= 'zabbix';
-+$DB["USER"]			= 'zabbix';
- $DB["PASSWORD"]			= 'zabbix_password';
++$DB['TYPE']			= 'MYSQL';
+ $DB['SERVER']			= 'localhost';
+-$DB['PORT']				= '0';
++$DB['PORT']			= '0';
+ $DB['DATABASE']			= 'zabbix';
+-$DB['USER']				= 'zabbix';
++$DB['USER']			= 'zabbix';
+ $DB['PASSWORD']			= '';
  // Schema name. Used for IBM DB2 and PostgreSQL.
- $DB["SCHEMA"]			= '';
+ $DB['SCHEMA']			= '';
  
 -$ZBX_SERVER				= 'localhost';
 +$ZBX_SERVER			= 'localhost';

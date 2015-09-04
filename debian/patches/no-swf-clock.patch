@@ -20,7 +20,7 @@ Forwarded: 2012-03-22
 @@ -25,7 +25,8 @@ require_once dirname(__FILE__).'/js.inc.
  
  function screen_resources($resource = null) {
- 	$resources = array(
+ 	$resources = [
 -		SCREEN_RESOURCE_CLOCK => _('Clock'),
 +		# Debian does not ship the Flash clock as the source code is not available
 +		#SCREEN_RESOURCE_CLOCK => _('Clock'),
