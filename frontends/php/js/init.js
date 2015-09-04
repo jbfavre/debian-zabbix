@@ -131,9 +131,13 @@ jQuery(function($) {
 				if (typeof data.values[i].id !== 'undefined') {
 					var item = {
 						'id': data.values[i].id,
-						'name': data.values[i].name,
-						'prefix': data.values[i].prefix
+						'name': data.values[i].name
 					};
+
+					if (typeof(data.values[i].prefix) !== 'undefined') {
+						item.prefix = data.values[i].prefix;
+					}
+
 					jQuery('#' + data.parentId).multiSelect('addData', item);
 				}
 			}
@@ -147,9 +151,13 @@ jQuery(function($) {
 		}
 	});
 
-	// create jquery buttons
-	$('input.jqueryinput').button();
-	$('.jqueryinputset').buttonset();
+	// redirect buttons
+	$('button[data-url]').click(function() {
+		var button = $(this);
+		var confirmation = button.data('confirmation');
 
-	createPlaceholders();
+		if (typeof confirmation === 'undefined' || (typeof confirmation !== 'undefined' && confirm(confirmation))) {
+			window.location = button.data('url');
+		}
+	})
 });

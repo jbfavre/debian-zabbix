@@ -1,7 +1,7 @@
 <script type="text/x-jquery-tmpl" id="screenRowTPL">
 <tr class="sortable" id="slides_#{rowId}">
-	<td>
-		<span class="ui-icon ui-icon-arrowthick-2-n-s move"></span>
+	<td class="<?= ZBX_STYLE_TD_DRAG_ICON ?>">
+		<div class="<?= ZBX_STYLE_DRAG_ICON ?>"></div>
 		<input id="slides_#{rowId}_screenid" name="slides[#{rowId}][screenid]" type="hidden" value="#{screenid}" />
 		<input id="slides_#{rowId}_slideid" name="slides[#{rowId}][slideid]" type="hidden" value="" />
 	</td>
@@ -10,13 +10,10 @@
 	</td>
 	<td>#{name}</td>
 	<td>
-		<input class="input text" type="text" id="slides_#{rowId}_delay" name="slides[#{rowId}][delay]"
-			placeholder="<?php echo CHtml::encode(_('default')); ?>" value="" size="5" maxlength="5"
-			onchange="validateNumericBox(this, true, false);" style="text-align: right;">
+		<input type="text" id="slides_#{rowId}_delay" name="slides[#{rowId}][delay]" placeholder="<?= CHtml::encode(_('default')); ?>" value="" maxlength="5" onchange="validateNumericBox(this, true, false);" style="text-align: right; width: <?= ZBX_TEXTAREA_NUMERIC_STANDARD_WIDTH ?>px">
 	</td>
 	<td>
-		<input type="button" class="input link_menu" id="remove_#{rowId}" remove_slide="#{rowId}"
-			value="<?php echo CHtml::encode(_('Remove')); ?>" onclick="removeSlide(this);" />
+		<button type="button" class="<?= ZBX_STYLE_BTN_LINK ?>" id="remove_#{rowId}" remove_slide="#{rowId}" onclick="removeSlide(this);"><?= _('Remove') ?></button>
 	</td>
 </tr>
 </script>
@@ -34,10 +31,6 @@
 		}
 
 		recalculateSortOrder();
-
-		if (IE8) {
-			jQuery('#slideTable').addClass('ie8fix-inline').removeClass('ie8fix-inline');
-		}
 	}
 
 	function recalculateSortOrder() {
@@ -110,12 +103,6 @@
 		if (initSize < 2) {
 			initSortable();
 		}
-
-		createPlaceholders();
-
-		if (IE8) {
-			jQuery('#slideTable').addClass('ie8fix-inline').removeClass('ie8fix-inline');
-		}
 	}
 
 	function initSortable() {
@@ -133,7 +120,7 @@
 			items: 'tbody tr.sortable',
 			axis: 'y',
 			cursor: 'move',
-			handle: 'span.ui-icon-arrowthick-2-n-s',
+			handle: 'div.<?= ZBX_STYLE_DRAG_ICON ?>',
 			tolerance: 'pointer',
 			opacity: 0.6,
 			update: recalculateSortOrder,
@@ -149,7 +136,7 @@
 				});
 
 				// when dragging element on safari, it jumps out of the table on IE it moves about 4 pixels to right
-				if (SF || IE8) {
+				if (SF) {
 					// move back draggable element to proper position
 					ui.css('left', (ui.offset().left - 4) + 'px');
 				}

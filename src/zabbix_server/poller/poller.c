@@ -321,7 +321,7 @@ static int	host_get_availability(const DC_HOST *dc_host, unsigned char type, zbx
 	return SUCCEED;
 }
 
-static void	activate_host(DC_ITEM *item, zbx_timespec_t *ts)
+static void	activate_host(DC_ITEM *item, zbx_timespec_t *ts, int *available)
 {
 	const char		*__function_name = "activate_host";
 
@@ -349,11 +349,13 @@ static void	activate_host(DC_ITEM *item, zbx_timespec_t *ts)
 		zabbix_log(LOG_LEVEL_WARNING, "enabling %s checks on host \"%s\": host became available",
 				zbx_agent_type_string(item->type), item->host.host);
 	}
+
+	*available = HOST_AVAILABLE_TRUE;
 out:
 	zabbix_log(LOG_LEVEL_DEBUG, "End of %s()", __function_name);
 }
 
-static void	deactivate_host(DC_ITEM *item, zbx_timespec_t *ts, const char *error)
+static void	deactivate_host(DC_ITEM *item, zbx_timespec_t *ts, int *available, const char *error)
 {
 	const char		*__function_name = "deactivate_host";
 
@@ -363,6 +365,11 @@ static void	deactivate_host(DC_ITEM *item, zbx_timespec_t *ts, const char *error
 			__function_name, item->host.hostid, item->itemid, (int)item->type);
 
 	if (FAIL == host_get_availability(&item->host, item->type, &in))
+		goto out;
+
+	/* if the item is still flagged as unreachable while the host is reachable, */
+	/* it means that this is item rather than network failure                   */
+	if (0 == in.errors_from && 0 != item->unreachable)
 		goto out;
 
 	if (FAIL == DChost_deactivate(ts, &in, &out))
@@ -403,6 +410,8 @@ static void	deactivate_host(DC_ITEM *item, zbx_timespec_t *ts, const char *error
 
 	zabbix_log(LOG_LEVEL_DEBUG, "%s() errors_from:%d available:%d", __function_name, out.errors_from,
 			out.available);
+
+	*available = HOST_AVAILABLE_FALSE;
 out:
 	zabbix_log(LOG_LEVEL_DEBUG, "End of %s()", __function_name);
 }
@@ -480,7 +489,7 @@ static int	get_value(DC_ITEM *item, AGENT_RESULT *result)
 	if (SUCCEED != res)
 	{
 		if (!ISSET_MSG(result))
-			SET_MSG_RESULT(result, zbx_strdup(NULL, ZBX_NOTSUPPORTED));
+			SET_MSG_RESULT(result, zbx_strdup(NULL, ZBX_NOTSUPPORTED_MSG));
 
 		zabbix_log(LOG_LEVEL_DEBUG, "Item [%s:%s] error: %s", item->host.host, item->key_orig, result->msg);
 	}
@@ -550,7 +559,7 @@ static int	get_values(unsigned char poller_type)
 			case ITEM_TYPE_JMX:
 				ZBX_STRDUP(port, items[i].interface.port_orig);
 				substitute_simple_macros(NULL, NULL, NULL, NULL, &items[i].host.hostid, NULL, NULL,
-						&port, MACRO_TYPE_COMMON, NULL, 0);
+						NULL, &port, MACRO_TYPE_COMMON, NULL, 0);
 				if (FAIL == is_ushort(port, &items[i].interface.port))
 				{
 					SET_MSG_RESULT(&results[i], zbx_dsprintf(NULL, "Invalid port number [%s]",
@@ -570,13 +579,13 @@ static int	get_values(unsigned char poller_type)
 				ZBX_STRDUP(items[i].snmpv3_contextname, items[i].snmpv3_contextname_orig);
 
 				substitute_simple_macros(NULL, NULL, NULL, NULL, &items[i].host.hostid, NULL, NULL,
-						&items[i].snmpv3_securityname, MACRO_TYPE_COMMON, NULL, 0);
+						NULL, &items[i].snmpv3_securityname, MACRO_TYPE_COMMON, NULL, 0);
 				substitute_simple_macros(NULL, NULL, NULL, NULL, &items[i].host.hostid, NULL, NULL,
-						&items[i].snmpv3_authpassphrase, MACRO_TYPE_COMMON, NULL, 0);
+						NULL, &items[i].snmpv3_authpassphrase, MACRO_TYPE_COMMON, NULL, 0);
 				substitute_simple_macros(NULL, NULL, NULL, NULL, &items[i].host.hostid, NULL, NULL,
-						&items[i].snmpv3_privpassphrase, MACRO_TYPE_COMMON, NULL, 0);
+						NULL, &items[i].snmpv3_privpassphrase, MACRO_TYPE_COMMON, NULL, 0);
 				substitute_simple_macros(NULL, NULL, NULL, NULL, &items[i].host.hostid, NULL, NULL,
-						&items[i].snmpv3_contextname, MACRO_TYPE_COMMON, NULL, 0);
+						NULL, &items[i].snmpv3_contextname, MACRO_TYPE_COMMON, NULL, 0);
 				/* break; is not missing here */
 			case ITEM_TYPE_SNMPv1:
 			case ITEM_TYPE_SNMPv2c:
@@ -584,7 +593,7 @@ static int	get_values(unsigned char poller_type)
 				ZBX_STRDUP(items[i].snmp_oid, items[i].snmp_oid_orig);
 
 				substitute_simple_macros(NULL, NULL, NULL, NULL, &items[i].host.hostid, NULL, NULL,
-						&items[i].snmp_community, MACRO_TYPE_COMMON, NULL, 0);
+						NULL, &items[i].snmp_community, MACRO_TYPE_COMMON, NULL, 0);
 				if (SUCCEED != substitute_key_macros(&items[i].snmp_oid, &items[i].host.hostid, NULL,
 						NULL, MACRO_TYPE_SNMP_OID, error, sizeof(error)))
 				{
@@ -598,14 +607,14 @@ static int	get_values(unsigned char poller_type)
 				ZBX_STRDUP(items[i].privatekey, items[i].privatekey_orig);
 
 				substitute_simple_macros(NULL, NULL, NULL, NULL, &items[i].host.hostid, NULL, NULL,
-						&items[i].publickey, MACRO_TYPE_COMMON, NULL, 0);
+						NULL, &items[i].publickey, MACRO_TYPE_COMMON, NULL, 0);
 				substitute_simple_macros(NULL, NULL, NULL, NULL, &items[i].host.hostid, NULL, NULL,
-						&items[i].privatekey, MACRO_TYPE_COMMON, NULL, 0);
+						NULL, &items[i].privatekey, MACRO_TYPE_COMMON, NULL, 0);
 				/* break; is not missing here */
 			case ITEM_TYPE_TELNET:
 			case ITEM_TYPE_DB_MONITOR:
 				substitute_simple_macros(NULL, NULL, NULL, NULL, NULL, NULL, &items[i],
-						&items[i].params, MACRO_TYPE_PARAMS_FIELD, NULL, 0);
+						NULL, &items[i].params, MACRO_TYPE_PARAMS_FIELD, NULL, 0);
 				/* break; is not missing here */
 			case ITEM_TYPE_SIMPLE:
 			case ITEM_TYPE_JMX:
@@ -613,9 +622,9 @@ static int	get_values(unsigned char poller_type)
 				items[i].password = zbx_strdup(items[i].password, items[i].password_orig);
 
 				substitute_simple_macros(NULL, NULL, NULL, NULL, &items[i].host.hostid, NULL, NULL,
-						&items[i].username, MACRO_TYPE_COMMON, NULL, 0);
+						NULL, &items[i].username, MACRO_TYPE_COMMON, NULL, 0);
 				substitute_simple_macros(NULL, NULL, NULL, NULL, &items[i].host.hostid, NULL, NULL,
-						&items[i].password, MACRO_TYPE_COMMON, NULL, 0);
+						NULL, &items[i].password, MACRO_TYPE_COMMON, NULL, 0);
 				break;
 		}
 	}
@@ -663,19 +672,14 @@ static int	get_values(unsigned char poller_type)
 			case SUCCEED:
 			case NOTSUPPORTED:
 			case AGENT_ERROR:
+			case TIMEOUT_ERROR:
 				if (HOST_AVAILABLE_TRUE != last_available)
-				{
-					activate_host(&items[i], &timespec);
-					last_available = HOST_AVAILABLE_TRUE;
-				}
+					activate_host(&items[i], &timespec, &last_available);
 				break;
 			case NETWORK_ERROR:
 			case GATEWAY_ERROR:
 				if (HOST_AVAILABLE_FALSE != last_available)
-				{
-					deactivate_host(&items[i], &timespec, results[i].msg);
-					last_available = HOST_AVAILABLE_FALSE;
-				}
+					deactivate_host(&items[i], &timespec, &last_available, results[i].msg);
 				break;
 			case CONFIG_ERROR:
 				/* nothing to do */
@@ -715,7 +719,7 @@ static int	get_values(unsigned char poller_type)
 			}
 
 		}
-		else if (NOTSUPPORTED == errcodes[i] || AGENT_ERROR == errcodes[i] || CONFIG_ERROR == errcodes[i])
+		else if (HOST_AVAILABLE_FALSE != last_available)
 		{
 			items[i].state = ITEM_STATE_NOTSUPPORTED;
 			dc_add_history(items[i].itemid, items[i].value_type, items[i].flags, NULL, &timespec,

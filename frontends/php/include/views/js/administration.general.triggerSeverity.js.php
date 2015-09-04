@@ -48,8 +48,6 @@ $schema = DB::getSchema('config');
 				title: <?php echo CJs::encodeJson(_('Reset confirmation')); ?>,
 				close: function(){ jQuery(this).dialog('destroy'); }
 			});
-
-			jQuery('#dialog').dialog('widget').find('button:first').addClass('main');
 		});
 	});
 

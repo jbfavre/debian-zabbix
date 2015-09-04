@@ -50,7 +50,7 @@ class CPageFilter {
 	 *
 	 * @var array
 	 */
-	protected $config = array(
+	protected $config = [
 		// select the latest object viewed by the user on any page
 		'select_latest' => null,
 
@@ -84,33 +84,33 @@ class CPageFilter {
 		'graphs' => null,
 		'triggers' => null,
 		'drules' => null
-	);
+	];
 
 	/**
 	 * Objects present in the filter.
 	 *
 	 * @var array
 	 */
-	protected $data = array(
+	protected $data = [
 		'groups' => null,
 		'hosts' => null,
 		'graphs' => null,
 		'triggers' => null,
 		'drules' => null
-	);
+	];
 
 	/**
 	 * Selected objects IDs.
 	 *
 	 * @var array
 	 */
-	protected $ids = array(
+	protected $ids = [
 		'groupid' => null,
 		'hostid' => null,
 		'graphid' => null,
 		'druleid' => null,
 		'severityMin' => null
-	);
+	];
 
 	/**
 	 * Contains information about the selected values.
@@ -120,7 +120,7 @@ class CPageFilter {
 	 *
 	 * @var array
 	 */
-	protected $isSelected = array(
+	protected $isSelected = [
 		'groupsSelected' => null,
 		'groupsAll' => null,
 		'hostsSelected' => null,
@@ -129,7 +129,7 @@ class CPageFilter {
 		'triggersSelected' => null,
 		'drulesSelected' => null,
 		'drulesAll' => null
-	);
+	];
 
 	/**
 	 * User profile keys to be used when remembering the selected values.
@@ -138,33 +138,33 @@ class CPageFilter {
 	 *
 	 * @var array
 	 */
-	private $_profileIdx = array(
+	private $_profileIdx = [
 		'groupid' => null,
 		'hostid' => null,
 		'graphid' => null,
 		'druleid' => null,
 		'severityMin' => null
-	);
+	];
 
 	/**
 	 * IDs of specific objects to be selected.
 	 *
 	 * @var array
 	 */
-	private $_profileIds = array(
+	private $_profileIds = [
 		'groupid' => null,
 		'hostid' => null,
 		'graphid' => null,
 		'druleid' => null,
 		'severityMin' => null
-	);
+	];
 
 	/**
 	 * Request ids.
 	 *
 	 * @var array
 	 */
-	private $_requestIds = array();
+	private $_requestIds = [];
 
 	/**
 	 * Get value from $data, $ids or $isSelected arrays.
@@ -217,7 +217,7 @@ class CPageFilter {
 	 * @param string $options['severitiesMin']['mapId']
 	 * @param string $options['severityMin']
 	 */
-	public function __construct(array $options = array()) {
+	public function __construct(array $options = []) {
 		$this->config['select_latest'] = isset($options['config']['select_latest']);
 		$this->config['DDReset'] = getRequest('ddreset');
 		$this->config['popupDD'] = isset($options['config']['popupDD']);
@@ -273,7 +273,7 @@ class CPageFilter {
 
 		// severities min
 		if (isset($options['severitiesMin'])) {
-			$this->_initSeveritiesMin($options['severityMin'], $options['severitiesMin']);
+			$this->_initSeveritiesMin($options['severityMin'], $options['severitiesMin'], $config);
 		}
 	}
 
@@ -330,13 +330,13 @@ class CPageFilter {
 	}
 
 	private function _updateByGraph(array &$options) {
-		$graphs = API::Graph()->get(array(
+		$graphs = API::Graph()->get([
 			'graphids' => $options['graphid'],
 			'output' => API_OUTPUT_EXTEND,
-			'selectHosts' => array('hostid'),
-			'selectTemplates' => array('templateid'),
-			'selectGroups' => array('groupid')
-		));
+			'selectHosts' => ['hostid'],
+			'selectTemplates' => ['templateid'],
+			'selectGroups' => ['groupid']
+		]);
 
 		if ($graph = reset($graphs)) {
 			$groups = zbx_toHash($graph['groups'], 'groupid');
@@ -381,11 +381,11 @@ class CPageFilter {
 	 * @param string $hostId
 	 */
 	private function _initGroups($groupId, array $options, $hostId) {
-		$defaultOptions = array(
-			'output' => array('groupid', 'name'),
+		$defaultOptions = [
+			'output' => ['groupid', 'name'],
 			'preservekeys' => true,
-			'sortfield' => array('name')
-		);
+			'sortfield' => ['name']
+		];
 		$options = zbx_array_merge($defaultOptions, $options);
 		$this->data['groups'] = API::HostGroup()->get($options);
 
@@ -397,18 +397,18 @@ class CPageFilter {
 
 			if ($hostId) {
 				// Profile ID can contain zero, hence no host will be selected.
-				$host = API::Host()->get(array(
-					'output' => array('hostid'),
+				$host = API::Host()->get([
+					'output' => ['hostid'],
 					'hostids' => $hostId,
 					'groupids' => $this->_profileIds['groupid']
-				));
+				]);
 
 				if (!$host) {
-					$template = API::Template()->get(array(
-						'output' => array('hostid'),
+					$template = API::Template()->get([
+						'output' => ['hostid'],
 						'templateids' => $hostId,
 						'groupids' => $this->_profileIds['groupid']
-					));
+					]);
 				}
 			}
 
@@ -431,24 +431,24 @@ class CPageFilter {
 
 				// For 'Dropdown first entry' option NONE, select the first possible group when the host is given.
 				if ($this->config['DDFirst'] == ZBX_DROPDOWN_FIRST_NONE && $hostId) {
-					$groupids = array();
+					$groupids = [];
 
-					$hosts = API::Host()->get(array(
-						'output' => array('hostid'),
-						'selectGroups' => array('groupid'),
-						'hostids' => array($hostId)
-					));
+					$hosts = API::Host()->get([
+						'output' => ['hostid'],
+						'selectGroups' => ['groupid'],
+						'hostids' => [$hostId]
+					]);
 
 					if ($hosts) {
 						$host = reset($hosts);
 						$groupids = zbx_objectValues($host['groups'], 'groupid');
 					}
 					else {
-						$templates = API::Template()->get(array(
-							'output' => array('hostid'),
-							'selectGroups' => array('groupid'),
-							'templateids' => array($hostId)
-						));
+						$templates = API::Template()->get([
+							'output' => ['hostid'],
+							'selectGroups' => ['groupid'],
+							'templateids' => [$hostId]
+						]);
 
 						$template = reset($templates);
 						$groupids = zbx_objectValues($template['groups'], 'groupid');
@@ -485,7 +485,7 @@ class CPageFilter {
 	 * @param string $options['DDFirstLabel']
 	 */
 	private function _initHosts($hostId, array $options) {
-		$this->data['hosts'] = array();
+		$this->data['hosts'] = [];
 
 		if (isset($options['DDFirstLabel'])) {
 			$this->config['DDFirstLabels']['hosts'] = $options['DDFirstLabel'];
@@ -497,10 +497,10 @@ class CPageFilter {
 			$hostId = 0;
 		}
 		else {
-			$defaultOptions = array(
-				'output' => array('hostid', 'name', 'status'),
+			$defaultOptions = [
+				'output' => ['hostid', 'name', 'status'],
 				'groupids' => ($this->groupid > 0) ? $this->groupid : null
-			);
+			];
 			$hosts = API::Host()->get(zbx_array_merge($defaultOptions, $options));
 
 			if ($hosts) {
@@ -548,18 +548,18 @@ class CPageFilter {
 	 * @param array $options
 	 */
 	private function _initGraphs($graphid, array $options) {
-		$this->data['graphs'] = array();
+		$this->data['graphs'] = [];
 
 		if (!$this->hostsSelected) {
 			$graphid = 0;
 		}
 		else {
-			$def_ptions = array(
-				'output' => array('graphid', 'name'),
+			$def_ptions = [
+				'output' => ['graphid', 'name'],
 				'groupids' => ($this->groupid > 0 && $this->hostid == 0) ? $this->groupid : null,
 				'hostids' => ($this->hostid > 0) ? $this->hostid : null,
 				'expandName' => true
-			);
+			];
 			$options = zbx_array_merge($def_ptions, $options);
 			$graphs = API::Graph()->get($options);
 			order_result($graphs, 'name');
@@ -577,10 +577,10 @@ class CPageFilter {
 			// if there is no graph with given id in selected host
 			if ($graphid > 0 && !isset($this->data['graphs'][$graphid])) {
 				// then let's take a look how the desired graph is named
-				$options = array(
-					'output' => array('name'),
-					'graphids' => array($graphid)
-				);
+				$options = [
+					'output' => ['name'],
+					'graphids' => [$graphid]
+				];
 				$selectedGraphInfo = API::Graph()->get($options);
 				$selectedGraphInfo = reset($selectedGraphInfo);
 				$graphid = 0;
@@ -610,14 +610,14 @@ class CPageFilter {
 	 * @param array $options
 	 */
 	private function _initDiscoveries($druleid, array $options) {
-		$def_options = array(
+		$def_options = [
 			'output' => API_OUTPUT_EXTEND
-		);
+		];
 		$options = zbx_array_merge($def_options, $options);
 		$drules = API::DRule()->get($options);
 		order_result($drules, 'name');
 
-		$this->data['drules'] = array();
+		$this->data['drules'] = [];
 		foreach ($drules as $drule) {
 			$this->data['drules'][$drule['druleid']] = $drule;
 		}
@@ -647,12 +647,15 @@ class CPageFilter {
 	/**
 	 * Initialize minimum trigger severities.
 	 *
-	 * @param string $severityMin
-	 * @param array  $options
-	 * @param int    $options['default']
-	 * @param string $options['mapId']
+	 * @param string $severityMin			minimum trigger severity
+	 * @param array  $options				array of options
+	 * @param int    $options['default']	default severity
+	 * @param string $options['mapId']		ID of a map
+	 * @param array	 $config				array of configuration parameters for getting severity names
+	 *
+	 * @return void
 	 */
-	private function _initSeveritiesMin($severityMin, array $options = array()) {
+	private function _initSeveritiesMin($severityMin, array $options, array $config) {
 		$default = isset($options['default']) ? $options['default'] : TRIGGER_SEVERITY_NOT_CLASSIFIED;
 		$mapId = isset($options['mapId']) ? $options['mapId'] : 0;
 		$severityMinProfile = isset($this->_profileIds['severityMin']) ? $this->_profileIds['severityMin'] : null;
@@ -670,8 +673,18 @@ class CPageFilter {
 			}
 		}
 
-		$this->data['severitiesMin'] = getSeverityCaption();
-		$this->data['severitiesMin'][$default] = $this->data['severitiesMin'][$default].SPACE.'('._('default').')';
+		$this->data['severitiesMin'] = [];
+		for ($severity = TRIGGER_SEVERITY_NOT_CLASSIFIED; $severity < TRIGGER_SEVERITY_COUNT; $severity++) {
+			$severityName = getSeverityName($severity, $config);
+
+			if ($severity == $default) {
+				$this->data['severitiesMin'][] = $severityName.SPACE.'('._('default').')';
+			}
+			else {
+				$this->data['severitiesMin'][] = $severityName;
+			}
+		}
+
 		$this->ids['severityMin'] = ($severityMin === null) ? $default : $severityMin;
 	}
 
@@ -681,12 +694,12 @@ class CPageFilter {
 	 * @return CComboBox
 	 */
 	public function getHostsCB() {
-		$items = $classes = array();
+		$items = $classes = [];
 		foreach ($this->hosts as $id => $host) {
 			$items[$id] = $host['name'];
 			$classes[$id] = ($host['status'] == HOST_STATUS_NOT_MONITORED) ? 'not-monitored' : null;
 		}
-		$options = array('objectName' => 'hosts', 'classes' => $classes);
+		$options = ['objectName' => 'hosts', 'classes' => $classes];
 
 		return $this->_getCB('hostid', $this->hostid, $items, $options);
 	}
@@ -697,11 +710,11 @@ class CPageFilter {
 	 * @return CComboBox
 	 */
 	public function getGroupsCB() {
-		$items = array();
+		$items = [];
 		foreach ($this->groups as $id => $group) {
 			$items[$id] = $group['name'];
 		}
-		return $this->_getCB('groupid', $this->groupid, $items, array('objectName' => 'groups'));
+		return $this->_getCB('groupid', $this->groupid, $items, ['objectName' => 'groups']);
 	}
 
 	/**
@@ -732,11 +745,11 @@ class CPageFilter {
 	 * @return CComboBox
 	 */
 	public function getDiscoveryCB() {
-		$items = array();
+		$items = [];
 		foreach ($this->drules as $id => $drule) {
 			$items[$id] = $drule['name'];
 		}
-		return $this->_getCB('druleid', $this->druleid, $items, array('objectName' => 'discovery'));
+		return $this->_getCB('druleid', $this->druleid, $items, ['objectName' => 'discovery']);
 	}
 
 	/**
@@ -762,7 +775,7 @@ class CPageFilter {
 	 *
 	 * @return CComboBox
 	 */
-	private function _getCB($name, $selectedId, $items, array $options = array()) {
+	private function _getCB($name, $selectedId, $items, array $options = []) {
 		$comboBox = new CComboBox($name, $selectedId, 'javascript: submit();');
 
 		natcasesort($items);
@@ -776,11 +789,11 @@ class CPageFilter {
 				$firstLabel = ($this->config['DDFirst'] == ZBX_DROPDOWN_FIRST_NONE) ? _('not selected') : _('all');
 			}
 
-			$items = array($firstLabel) + $items;
+			$items = [$firstLabel] + $items;
 		}
 
 		foreach ($items as $id => $name) {
-			$comboBox->addItem($id, $name, null, 'yes', isset($options['classes'][$id]) ? $options['classes'][$id] : null);
+			$comboBox->addItem($id, $name, null, true, isset($options['classes'][$id]) ? $options['classes'][$id] : null);
 		}
 
 		return $comboBox;

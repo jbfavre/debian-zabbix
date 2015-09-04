@@ -19,8 +19,6 @@
 **/
 
 
-define('ZBX_PAGE_NO_AUTHORIZATION', true);
-
 require_once dirname(__FILE__).'/include/config.inc.php';
 require_once dirname(__FILE__).'/include/forms.inc.php';
 
@@ -28,15 +26,15 @@ $page['title'] = _('ZABBIX');
 $page['file'] = 'index.php';
 
 // VAR	TYPE	OPTIONAL	FLAGS	VALIDATION	EXCEPTION
-$fields = array(
-	'name' =>		array(T_ZBX_STR, O_NO,	null,	NOT_EMPTY,		'isset({enter})', _('Username')),
-	'password' =>	array(T_ZBX_STR, O_OPT, null,	null,			'isset({enter})'),
-	'sessionid' =>	array(T_ZBX_STR, O_OPT, null,	null,			null),
-	'reconnect' =>	array(T_ZBX_INT, O_OPT, P_SYS|P_ACT,	BETWEEN(0, 65535), null),
-	'enter' =>		array(T_ZBX_STR, O_OPT, P_SYS,	null,			null),
-	'autologin' =>	array(T_ZBX_INT, O_OPT, null,	null,			null),
-	'request' =>	array(T_ZBX_STR, O_OPT, null,	null,			null)
-);
+$fields = [
+	'name' =>		[T_ZBX_STR, O_NO,	null,	null,		'isset({enter})', _('Username')],
+	'password' =>	[T_ZBX_STR, O_OPT, null,	null,			'isset({enter})'],
+	'sessionid' =>	[T_ZBX_STR, O_OPT, null,	null,			null],
+	'reconnect' =>	[T_ZBX_INT, O_OPT, P_SYS|P_ACT,	BETWEEN(0, 65535), null],
+	'enter' =>		[T_ZBX_STR, O_OPT, P_SYS,	null,			null],
+	'autologin' =>	[T_ZBX_INT, O_OPT, null,	null,			null],
+	'request' =>	[T_ZBX_STR, O_OPT, null,	null,			null]
+];
 check_fields($fields);
 
 // logout
@@ -73,16 +71,21 @@ if (isset($_REQUEST['enter']) && $_REQUEST['enter'] == _('Sign in')) {
 
 	if ($loginSuccess) {
 		// save remember login preference
-		$user = array('autologin' => $autoLogin);
+		$user = ['autologin' => $autoLogin];
 
 		if (CWebUser::$data['autologin'] != $autoLogin) {
 			API::User()->updateProfile($user);
 		}
 
 		$request = getRequest('request');
-		$url = zbx_empty($request) ? CWebUser::$data['url'] : $request;
-		if (zbx_empty($url) || $url == $page['file']) {
-			$url = 'dashboard.php';
+		if (!zbx_empty($request)) {
+			$url = $request;
+		}
+		elseif (!zbx_empty(CWebUser::$data['url'])) {
+			$url = CWebUser::$data['url'];
+		}
+		else {
+			$url = ZBX_DEFAULT_URL;
 		}
 		redirect($url);
 		exit;
@@ -118,5 +121,5 @@ if (!CWebUser::$data['alias'] || CWebUser::$data['alias'] == ZBX_GUEST_USER) {
 	}
 }
 else {
-	redirect(zbx_empty(CWebUser::$data['url']) ? 'dashboard.php' : CWebUser::$data['url']);
+	redirect(zbx_empty(CWebUser::$data['url']) ? ZBX_DEFAULT_URL : CWebUser::$data['url']);
 }

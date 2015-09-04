@@ -19,18 +19,30 @@
 **/
 
 
-class CButton extends CInput {
+class CButton extends CTag implements CButtonInterface {
+
+	public function __construct($name = 'button', $caption = '') {
+		parent::__construct('button', true, $caption);
+		$this->setAttribute('type', 'button');
+
+		if ($name !== null) {
+			$this->setId(zbx_formatDomId($name));
+			$this->setAttribute('name', $name);
+		}
+	}
 
 	/**
-	 * For inputs of type "button", the "&" symbol should not be encoded.
+	 * Enable or disable the element.
 	 *
-	 * @var int
+	 * @param bool $value
 	 */
-	protected $attrEncStrategy = self::ENC_NOAMP;
-
-	public function __construct($name = 'button', $caption = '', $action = null, $class = null) {
-		parent::__construct('button', $name, $caption, $class);
-		$this->addAction('onclick', $action);
+	public function setEnabled($value) {
+		if ($value) {
+			$this->removeAttribute('disabled');
+		}
+		else {
+			$this->setAttribute('disabled', 'disabled');
+		}
 		return $this;
 	}
 }

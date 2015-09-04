@@ -46,6 +46,10 @@ extern ZBX_METRIC      parameter_hostname;
 
 static ZBX_METRIC	*commands = NULL;
 
+#define ZBX_COMMAND_ERROR		0
+#define ZBX_COMMAND_WITHOUT_PARAMS	1
+#define ZBX_COMMAND_WITH_PARAMS		2
+
 /******************************************************************************
  *                                                                            *
  * Function: parse_command_dyn                                                *
@@ -125,32 +129,36 @@ int	add_metric(ZBX_METRIC *metric, char *error, size_t max_error_len)
 
 int	add_user_parameter(const char *itemkey, char *command, char *error, size_t max_error_len)
 {
-	int		i;
-	char		key[MAX_STRING_LEN], parameters[MAX_STRING_LEN];
-	unsigned	flag = CF_USERPARAMETER;
+	int		ret;
+	unsigned	flags = CF_USERPARAMETER;
 	ZBX_METRIC	metric;
+	AGENT_REQUEST	request;
 
-	if (ZBX_COMMAND_ERROR == (i = parse_command(itemkey, key, sizeof(key), parameters, sizeof(parameters))))
+	init_request(&request);
+
+	if (SUCCEED == (ret = parse_item_key(itemkey, &request)))
 	{
+		if (1 == get_rparams_num(&request) && 0 == strcmp("[*]", itemkey + strlen(get_rkey(&request))))
+			flags |= CF_HAVEPARAMS;
+		else if (0 != get_rparams_num(&request))
+			ret = FAIL;
+	}
+
+	if (SUCCEED == ret)
+	{
+		metric.key = get_rkey(&request);
+		metric.flags = flags;
+		metric.function = &EXECUTE_USER_PARAMETER;
+		metric.test_param = command;
+
+		ret = add_metric(&metric, error, max_error_len);
+	}
+	else
 		zbx_strlcpy(error, "syntax error", max_error_len);
-		return FAIL;
-	}
-	else if (ZBX_COMMAND_WITH_PARAMS == i)
-	{
-		if (0 != strcmp(parameters, "*"))	/* must be '*' parameters */
-		{
-			zbx_strlcpy(error, "syntax error", max_error_len);
-			return FAIL;
-		}
-		flag |= CF_HAVEPARAMS;
-	}
 
-	metric.key = key;
-	metric.flags = flag;
-	metric.function = &EXECUTE_USER_PARAMETER;
-	metric.test_param = command;
+	free_request(&request);
 
-	return add_metric(&metric, error, max_error_len);
+	return ret;
 }
 
 void	init_metrics()
@@ -389,65 +397,6 @@ out:
 	return ret;
 }
 
-/******************************************************************************
- *                                                                            *
- * Function: parse_command                                                    *
- *                                                                            *
- * Purpose: parses item key and splits it into command and parameters         *
- *                                                                            *
- * Return value: ZBX_COMMAND_ERROR - error                                    *
- *               ZBX_COMMAND_WITHOUT_PARAMS - command without parameters      *
- *               ZBX_COMMAND_WITH_PARAMS - command with parameters            *
- *                                                                            *
- ******************************************************************************/
-int	parse_command(const char *key, char *cmd, size_t cmd_max_len, char *param, size_t param_max_len)
-{
-	const char	*pl, *pr;
-	size_t		sz;
-
-	for (pl = key; SUCCEED == is_key_char(*pl); pl++)
-		;
-
-	if (pl == key)
-		return ZBX_COMMAND_ERROR;
-
-	if (NULL != cmd)
-	{
-		if (cmd_max_len <= (sz = (size_t)(pl - key)))
-			return ZBX_COMMAND_ERROR;
-
-		memcpy(cmd, key, sz);
-		cmd[sz] = '\0';
-	}
-
-	if ('\0' == *pl)	/* no parameters specified */
-	{
-		if (NULL != param)
-			*param = '\0';
-		return ZBX_COMMAND_WITHOUT_PARAMS;
-	}
-
-	if ('[' != *pl)		/* unsupported character */
-		return ZBX_COMMAND_ERROR;
-
-	for (pr = ++pl; '\0' != *pr; pr++)
-		;
-
-	if (']' != *--pr)
-		return ZBX_COMMAND_ERROR;
-
-	if (NULL != param)
-	{
-		if (param_max_len <= (sz = (size_t)(pr - pl)))
-			return ZBX_COMMAND_ERROR;
-
-		memcpy(param, pl, sz);
-		param[sz] = '\0';
-	}
-
-	return ZBX_COMMAND_WITH_PARAMS;
-}
-
 void	test_parameter(const char *key)
 {
 #define	ZBX_COL_WIDTH	45
@@ -551,7 +500,7 @@ static int	zbx_check_user_parameter(const char *param, char *error, int max_erro
 				zbx_snprintf_alloc(&buf, &buf_alloc, &buf_offset, "0x%02x", *c);
 		}
 
-		zbx_snprintf(error, max_error_len, "special characters \"%s\" are not allowed in the parameters", buf);
+		zbx_snprintf(error, max_error_len, "Special characters \"%s\" are not allowed in the parameters.", buf);
 
 		zbx_free(buf);
 
@@ -660,7 +609,10 @@ int	process(const char *in_command, unsigned flags, AGENT_RESULT *result)
 
 	/* expected item from a module */
 	if (0 != (flags & PROCESS_MODULE_COMMAND) && 0 == (command->flags & CF_MODULE))
+	{
+		SET_MSG_RESULT(result, zbx_strdup(NULL, "Unsupported item key."));
 		goto notsupported;
+	}
 
 	/* command does not accept parameters but was called with parameters */
 	if (0 == (command->flags & CF_HAVEPARAMS) && 0 != request.nparam)
@@ -696,7 +648,7 @@ int	process(const char *in_command, unsigned flags, AGENT_RESULT *result)
 		/* "return NOTSUPPORTED;" would be more appropriate here for preserving original error */
 		/* message in "result" but would break things relying on ZBX_NOTSUPPORTED message. */
 		if (0 != (command->flags & CF_MODULE) && 0 == ISSET_MSG(result))
-			SET_MSG_RESULT(result, zbx_strdup(NULL, "Item is not supported."));
+			SET_MSG_RESULT(result, zbx_strdup(NULL, ZBX_NOTSUPPORTED_MSG));
 
 		goto notsupported;
 	}
@@ -725,7 +677,9 @@ zbx_log_t	*add_log_result(AGENT_RESULT *result, const char *value)
 	log = zbx_malloc(NULL, sizeof(zbx_log_t));
 
 	zbx_log_init(log);
-	log->value = zbx_strdup(log->value, value);
+
+	if (NULL != value)
+		log->value = zbx_strdup(log->value, value);
 
 	for (i = 0; NULL != result->logs && NULL != result->logs[i]; i++)
 		;
@@ -820,7 +774,8 @@ int	set_result_type(AGENT_RESULT *result, int value_type, int data_type, char *c
 			ret = SUCCEED;
 			break;
 		case ITEM_VALUE_TYPE_LOG:
-			zbx_replace_invalid_utf8(c);
+			if (NULL != c)
+				zbx_replace_invalid_utf8(c);
 			add_log_result(result, c);
 			ret = SUCCEED;
 			break;

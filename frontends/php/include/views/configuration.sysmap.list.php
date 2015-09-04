@@ -18,61 +18,52 @@
 ** Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **/
 
-
-$sysmapWidget = new CWidget();
-
-// create header buttons
-$createForm = new CForm('get');
-$createForm->cleanItems();
-$createForm->addItem(new CSubmit('form', _('Create map')));
-$createForm->addItem(new CButton('form', _('Import'), 'redirect("conf.import.php?rules_preset=map")'));
-
-$sysmapWidget->addPageHeader(_('CONFIGURATION OF NETWORK MAPS'), $createForm);
+$widget = (new CWidget())
+	->setTitle(_('Maps'))
+	->setControls((new CForm('get'))
+		->cleanItems()
+		->addItem((new CList())
+			->addItem(new CSubmit('form', _('Create map')))
+			->addItem((new CButton('form', _('Import')))->onClick('redirect("conf.import.php?rules_preset=map")'))
+		)
+	);
 
 // create form
-$sysmapForm = new CForm();
-$sysmapForm->setName('frm_maps');
-
-$sysmapWidget->addHeader(_('Maps'));
-$sysmapWidget->addHeaderRowNumber();
+$sysmapForm = (new CForm())->setName('frm_maps');
 
 // create table
-$sysmapTable = new CTableInfo(_('No maps found.'));
-$sysmapTable->setHeader(array(
-	new CCheckBox('all_maps', null, "checkAll('".$sysmapForm->getName()."', 'all_maps', 'maps');"),
-	make_sorting_header(_('Name'), 'name', $this->data['sort'], $this->data['sortorder']),
-	make_sorting_header(_('Width'), 'width', $this->data['sort'], $this->data['sortorder']),
-	make_sorting_header(_('Height'), 'height', $this->data['sort'], $this->data['sortorder']),
-	_('Edit')
-));
+$sysmapTable = (new CTableInfo())
+	->setHeader([
+		(new CColHeader(
+			(new CCheckBox('all_maps'))->onClick("checkAll('".$sysmapForm->getName()."', 'all_maps', 'maps');")
+		))->addClass(ZBX_STYLE_CELL_WIDTH),
+		make_sorting_header(_('Name'), 'name', $this->data['sort'], $this->data['sortorder']),
+		make_sorting_header(_('Width'), 'width', $this->data['sort'], $this->data['sortorder']),
+		make_sorting_header(_('Height'), 'height', $this->data['sort'], $this->data['sortorder']),
+		_('Map')
+	]);
 
 foreach ($this->data['maps'] as $map) {
-	$sysmapTable->addRow(array(
-		new CCheckBox('maps['.$map['sysmapid'].']', null, null, $map['sysmapid']),
-		new CLink($map['name'], 'sysmap.php?sysmapid='.$map['sysmapid']),
+	$sysmapTable->addRow([
+		new CCheckBox('maps['.$map['sysmapid'].']', $map['sysmapid']),
+		new CLink($map['name'], 'sysmaps.php?form=update&sysmapid='.$map['sysmapid'].'#form'),
 		$map['width'],
 		$map['height'],
-		new CLink(_('Edit'), 'sysmaps.php?form=update&sysmapid='.$map['sysmapid'].'#form')
-	));
+		new CLink(_('Edit'), 'sysmap.php?sysmapid='.$map['sysmapid']),
+	]);
 }
 
-// create go button
-$goComboBox = new CComboBox('action');
-
-$goComboBox->addItem('map.export', _('Export selected'));
-
-$goOption = new CComboItem('map.massdelete', _('Delete selected'));
-$goOption->setAttribute('confirm', _('Delete selected maps?'));
-$goComboBox->addItem($goOption);
-
-$goButton = new CSubmit('goButton', _('Go').' (0)');
-$goButton->setAttribute('id', 'goButton');
-zbx_add_post_js('chkbxRange.pageGoName = "maps";');
-
 // append table to form
-$sysmapForm->addItem(array($this->data['paging'], $sysmapTable, $this->data['paging'], get_table_header(array($goComboBox, $goButton))));
+$sysmapForm->addItem([
+	$sysmapTable,
+	$this->data['paging'],
+	new CActionButtonList('action', 'maps', [
+		'map.export' => ['name' => _('Export')],
+		'map.massdelete' => ['name' => _('Delete'), 'confirm' => _('Delete selected maps?')]
+	])
+]);
 
 // append form to widget
-$sysmapWidget->addItem($sysmapForm);
+$widget->addItem($sysmapForm);
 
-return $sysmapWidget;
+return $widget;

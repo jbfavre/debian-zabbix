@@ -55,12 +55,12 @@ typedef struct
 	int		delay;
 	int		history;
 	int		trends;
-	int		multiplier;
-	int		delta;
 	unsigned char	type;
 	unsigned char	value_type;
 	unsigned char	data_type;
 	unsigned char	status;
+	unsigned char	multiplier;
+	unsigned char	delta;
 	unsigned char	snmpv3_securitylevel;
 	unsigned char	snmpv3_authprotocol;
 	unsigned char	snmpv3_privprotocol;
@@ -181,8 +181,8 @@ static void	get_template_items(zbx_uint64_t hostid, const zbx_vector_uint64_t *t
 		item->history = atoi(row[8]);
 		item->trends = atoi(row[9]);
 		ZBX_STR2UCHAR(item->status, row[10]);
-		item->multiplier = atoi(row[13]);
-		item->delta = atoi(row[14]);
+		ZBX_STR2UCHAR(item->multiplier, row[13]);
+		ZBX_STR2UCHAR(item->delta, row[14]);
 		ZBX_DBROW2UINT64(item->valuemapid, row[17]);
 		ZBX_STR2UCHAR(item->snmpv3_securitylevel, row[23]);
 		ZBX_STR2UCHAR(item->snmpv3_authprotocol, row[24]);
@@ -582,7 +582,7 @@ void	save_template_items(zbx_uint64_t hostid, zbx_vector_ptr_t *items)
 				name_esc, (int)item->type, (int)item->value_type,
 				(int)item->data_type, item->delay, delay_flex_esc,
 				item->history, item->trends, (int)item->status, trapper_hosts_esc,
-				units_esc, item->multiplier, item->delta, formula_esc,
+				units_esc, (int)item->multiplier, (int)item->delta, formula_esc,
 				logtimefmt_esc, DBsql_id_ins(item->valuemapid), params_esc,
 				ipmi_sensor_esc, snmp_community_esc, snmp_oid_esc,
 				snmpv3_securityname_esc, (int)item->snmpv3_securitylevel,
@@ -651,8 +651,8 @@ void	save_template_items(zbx_uint64_t hostid, zbx_vector_ptr_t *items)
 		zbx_db_insert_add_values(&db_insert, itemid, item->name, item->key, hostid, (int)item->type,
 				(int)item->value_type, (int)item->data_type, item->delay, item->delay_flex,
 				item->history, item->trends, (int)item->status, item->trapper_hosts, item->units,
-				item->multiplier, item->delta, item->formula, item->logtimefmt, item->valuemapid,
-				item->params, item->ipmi_sensor, item->snmp_community, item->snmp_oid,
+				(int)item->multiplier, (int)item->delta, item->formula, item->logtimefmt,
+				item->valuemapid, item->params, item->ipmi_sensor, item->snmp_community, item->snmp_oid,
 				item->snmpv3_securityname, (int)item->snmpv3_securitylevel,
 				(int)item->snmpv3_authprotocol, item->snmpv3_authpassphrase,
 				(int)item->snmpv3_privprotocol, item->snmpv3_privpassphrase, (int)item->authtype,
@@ -889,7 +889,7 @@ out:
 
 	zbx_vector_uint64_destroy(&itemids);
 
-	zbx_vector_ptr_clean(&itemapps, zbx_ptr_free);
+	zbx_vector_ptr_clear_ext(&itemapps, zbx_ptr_free);
 	zbx_vector_ptr_destroy(&itemapps);
 }
 
@@ -985,7 +985,7 @@ out:
 
 	zbx_vector_uint64_destroy(&itemids);
 
-	zbx_vector_ptr_clean(&prototypes, zbx_ptr_free);
+	zbx_vector_ptr_clear_ext(&prototypes, zbx_ptr_free);
 	zbx_vector_ptr_destroy(&prototypes);
 }
 
@@ -1053,7 +1053,7 @@ void	free_lld_rule_condition(zbx_lld_rule_condition_t *condition)
  ******************************************************************************/
 void	free_lld_rule_map(zbx_lld_rule_map_t *rule)
 {
-	zbx_vector_ptr_clean(&rule->conditions, (zbx_mem_free_func_t)free_lld_rule_condition);
+	zbx_vector_ptr_clear_ext(&rule->conditions, (zbx_clean_func_t)free_lld_rule_condition);
 	zbx_vector_ptr_destroy(&rule->conditions);
 
 	zbx_vector_uint64_destroy(&rule->conditionids);
@@ -1098,10 +1098,10 @@ void	DBcopy_template_items(zbx_uint64_t hostid, const zbx_vector_uint64_t *templ
 	save_template_item_applications(&items);
 	save_template_discovery_prototypes(hostid, &items);
 out:
-	zbx_vector_ptr_clean(&lld_rules, (zbx_mem_free_func_t)free_lld_rule_map);
+	zbx_vector_ptr_clear_ext(&lld_rules, (zbx_clean_func_t)free_lld_rule_map);
 	zbx_vector_ptr_destroy(&lld_rules);
 
-	zbx_vector_ptr_clean(&items, (zbx_mem_free_func_t)free_template_item);
+	zbx_vector_ptr_clear_ext(&items, (zbx_clean_func_t)free_template_item);
 	zbx_vector_ptr_destroy(&items);
 
 	zabbix_log(LOG_LEVEL_DEBUG, "End of %s()", __function_name);
