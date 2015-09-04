@@ -72,14 +72,14 @@ int	DBconnect(int flag)
 			exit(EXIT_FAILURE);
 		}
 
-		zabbix_log(LOG_LEVEL_WARNING, "database is down: reconnecting in %d seconds", ZBX_DB_WAIT_DOWN);
+		zabbix_log(LOG_LEVEL_ERR, "database is down: reconnecting in %d seconds", ZBX_DB_WAIT_DOWN);
 		connection_failure = 1;
 		zbx_sleep(ZBX_DB_WAIT_DOWN);
 	}
 
 	if (0 != connection_failure)
 	{
-		zabbix_log(LOG_LEVEL_WARNING, "database connection re-established");
+		zabbix_log(LOG_LEVEL_ERR, "database connection re-established");
 		connection_failure = 0;
 	}
 
@@ -122,7 +122,7 @@ static void	DBtxn_operation(int (*txn_operation)())
 
 		if (ZBX_DB_DOWN == (rc = txn_operation()))
 		{
-			zabbix_log(LOG_LEVEL_WARNING, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
+			zabbix_log(LOG_LEVEL_ERR, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
 			connection_failure = 1;
 			sleep(ZBX_DB_WAIT_DOWN);
 		}
@@ -217,7 +217,7 @@ void	DBstatement_prepare(const char *sql)
 
 		if (ZBX_DB_DOWN == (rc = zbx_db_statement_prepare(sql)))
 		{
-			zabbix_log(LOG_LEVEL_WARNING, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
+			zabbix_log(LOG_LEVEL_ERR, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
 			connection_failure = 1;
 			sleep(ZBX_DB_WAIT_DOWN);
 		}
@@ -247,7 +247,7 @@ void	DBbind_parameter(int position, void *buffer, unsigned char type)
 
 		if (ZBX_DB_DOWN == (rc = zbx_db_bind_parameter(position, buffer, type)))
 		{
-			zabbix_log(LOG_LEVEL_WARNING, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
+			zabbix_log(LOG_LEVEL_ERR, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
 			connection_failure = 1;
 			sleep(ZBX_DB_WAIT_DOWN);
 		}
@@ -276,7 +276,7 @@ int	DBstatement_execute()
 
 		if (ZBX_DB_DOWN == (rc = zbx_db_statement_execute()))
 		{
-			zabbix_log(LOG_LEVEL_WARNING, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
+			zabbix_log(LOG_LEVEL_ERR, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
 			connection_failure = 1;
 			sleep(ZBX_DB_WAIT_DOWN);
 		}
@@ -311,7 +311,7 @@ int	__zbx_DBexecute(const char *fmt, ...)
 
 		if (ZBX_DB_DOWN == (rc = zbx_db_vexecute(fmt, args)))
 		{
-			zabbix_log(LOG_LEVEL_WARNING, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
+			zabbix_log(LOG_LEVEL_ERR, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
 			connection_failure = 1;
 			sleep(ZBX_DB_WAIT_DOWN);
 		}
@@ -378,7 +378,7 @@ DB_RESULT	__zbx_DBselect(const char *fmt, ...)
 
 		if ((DB_RESULT)ZBX_DB_DOWN == (rc = zbx_db_vselect(fmt, args)))
 		{
-			zabbix_log(LOG_LEVEL_WARNING, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
+			zabbix_log(LOG_LEVEL_ERR, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
 			connection_failure = 1;
 			sleep(ZBX_DB_WAIT_DOWN);
 		}
@@ -411,7 +411,7 @@ DB_RESULT	DBselectN(const char *query, int n)
 
 		if ((DB_RESULT)ZBX_DB_DOWN == (rc = zbx_db_select_n(query, n)))
 		{
-			zabbix_log(LOG_LEVEL_WARNING, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
+			zabbix_log(LOG_LEVEL_ERR, "database is down: retrying in %d seconds", ZBX_DB_WAIT_DOWN);
 			connection_failure = 1;
 			sleep(ZBX_DB_WAIT_DOWN);
 		}
@@ -858,7 +858,7 @@ void	DBget_item_from_db(DB_ITEM *item, DB_ROW row)
 	item->data_type = atoi(row[14]);
 }
 
-const ZBX_TABLE *DBget_table(const char *tablename)
+const ZBX_TABLE	*DBget_table(const char *tablename)
 {
 	int	t;
 
@@ -871,7 +871,7 @@ const ZBX_TABLE *DBget_table(const char *tablename)
 	return NULL;
 }
 
-const ZBX_FIELD *DBget_field(const ZBX_TABLE *table, const char *fieldname)
+const ZBX_FIELD	*DBget_field(const ZBX_TABLE *table, const char *fieldname)
 {
 	int	f;
 
@@ -2011,7 +2011,7 @@ static char	*zbx_db_format_values(ZBX_FIELD **fields, const zbx_db_value_t *valu
  ******************************************************************************/
 void	zbx_db_insert_clean(zbx_db_insert_t *self)
 {
-	int		i, j;
+	int	i, j;
 
 	for (i = 0; i < self->rows.values_num; i++)
 	{
@@ -2275,7 +2275,7 @@ void	zbx_db_insert_add_values(zbx_db_insert_t *self, ...)
 
 	zbx_db_insert_add_values_dyn(self, (const zbx_db_value_t **)values.values, values.values_num);
 
-	zbx_vector_ptr_clean(&values, zbx_ptr_free);
+	zbx_vector_ptr_clear_ext(&values, zbx_ptr_free);
 	zbx_vector_ptr_destroy(&values);
 }
 

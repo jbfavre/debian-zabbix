@@ -2,7 +2,7 @@
 
 include dirname(__FILE__).'/common.item.edit.js.php';
 
-$this->data['valueTypeVisibility'] = array();
+$this->data['valueTypeVisibility'] = [];
 zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_UINT64, 'data_type');
 zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_UINT64, 'row_data_type');
 zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_FLOAT, 'units');
@@ -26,18 +26,16 @@ zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_FLOAT, 'va
 zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_UINT64, 'valuemapid');
 zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_UINT64, 'row_valuemap');
 zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_UINT64, 'valuemap_name');
-if (empty($this->data['parent_discoveryid'])) {
-	zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_STR, 'inventory_link');
-	zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_STR, 'row_inventory_link');
-	zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_TEXT, 'inventory_link');
-	zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_TEXT, 'row_inventory_link');
-	zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_FLOAT, 'inventory_link');
-	zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_FLOAT, 'row_inventory_link');
-	zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_UINT64, 'inventory_link');
-	zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_UINT64, 'row_inventory_link');
-}
+zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_STR, 'inventory_link');
+zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_STR, 'row_inventory_link');
+zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_TEXT, 'inventory_link');
+zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_TEXT, 'row_inventory_link');
+zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_FLOAT, 'inventory_link');
+zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_FLOAT, 'row_inventory_link');
+zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_UINT64, 'inventory_link');
+zbx_subarray_push($this->data['valueTypeVisibility'], ITEM_VALUE_TYPE_UINT64, 'row_inventory_link');
 
-$this->data['dataTypeVisibility'] = array();
+$this->data['dataTypeVisibility'] = [];
 zbx_subarray_push($this->data['dataTypeVisibility'], ITEM_DATA_TYPE_DECIMAL, 'units');
 zbx_subarray_push($this->data['dataTypeVisibility'], ITEM_DATA_TYPE_DECIMAL, 'row_units');
 zbx_subarray_push($this->data['dataTypeVisibility'], ITEM_DATA_TYPE_OCTAL, 'units');
@@ -59,20 +57,19 @@ zbx_subarray_push($this->data['dataTypeVisibility'], ITEM_DATA_TYPE_HEXADECIMAL,
 
 ?>
 <script type="text/javascript">
-	/*
-	 * ITEM_TYPE_ZABBIX: 0
-	 * ITEM_TYPE_SNMPTRAP: 17
-	 * ITEM_TYPE_SIMPLE: 3
-	 */
 	function displayKeyButton() {
+		// selected item type
 		var type = parseInt(jQuery('#type').val());
 
-		if (type == 0 || type == 7 || type == 3 || type == 5 || type == 8 || type == 17) {
-			jQuery('#keyButton').prop('disabled', false);
-		}
-		else {
-			jQuery('#keyButton').prop('disabled', true);
-		}
+		jQuery('#keyButton').prop('disabled',
+			type != <?php echo ITEM_TYPE_ZABBIX; ?>
+				&& type != <?php echo ITEM_TYPE_ZABBIX_ACTIVE; ?>
+				&& type != <?php echo ITEM_TYPE_SIMPLE; ?>
+				&& type != <?php echo ITEM_TYPE_INTERNAL; ?>
+				&& type != <?php echo ITEM_TYPE_AGGREGATE; ?>
+				&& type != <?php echo ITEM_TYPE_DB_MONITOR; ?>
+				&& type != <?php echo ITEM_TYPE_SNMPTRAP; ?>
+		)
 	}
 
 	jQuery(document).ready(function() {
@@ -98,5 +95,21 @@ zbx_subarray_push($this->data['dataTypeVisibility'], ITEM_DATA_TYPE_HEXADECIMAL,
 				displayKeyButton();
 			})
 			.trigger('change');
+
+		// Whenever non-numeric type is changed back to numeric type, set the default value in "trends" field.
+		jQuery('#value_type').on('focus', function () {
+			old_value = jQuery(this).val();
+		}).change(function() {
+			var new_value = jQuery(this).val(),
+				trends = jQuery('#trends');
+
+			if ((old_value == <?= ITEM_VALUE_TYPE_STR ?> || old_value == <?= ITEM_VALUE_TYPE_LOG ?>
+					|| old_value == <?= ITEM_VALUE_TYPE_TEXT ?>)
+					&& ((new_value == <?= ITEM_VALUE_TYPE_FLOAT ?>
+					|| new_value == <?= ITEM_VALUE_TYPE_UINT64 ?>)
+					&& trends.val() == 0)) {
+				trends.val(<?= DAY_IN_YEAR ?>);
+			}
+		});
 	});
 </script>

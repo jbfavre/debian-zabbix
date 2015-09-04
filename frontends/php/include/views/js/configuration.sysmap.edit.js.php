@@ -29,8 +29,8 @@
 		// clone button
 		jQuery('#clone').click(function() {
 			jQuery('#sysmapid, #delete, #clone').remove();
-			jQuery('#update').val(<?php echo CJs::encodeJson(_('Add')); ?>).attr({id: 'add', name: 'add'});
-			jQuery('#cancel').addClass('ui-corner-left');
+			jQuery('#update').button('option', 'label', <?php echo CJs::encodeJson(_('Add')); ?>)
+				.attr({id: 'add', name: 'add'});
 			jQuery('#name').focus();
 		});
 	});

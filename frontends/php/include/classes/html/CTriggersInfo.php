@@ -21,133 +21,77 @@
 
 class CTriggersInfo extends CTable {
 
-	public $style;
-	public $show_header;
+	private $style = STYLE_HORIZONTAL;
 	private $groupid;
-	private $hostid;
 
-	public function __construct($groupid = null, $hostid = null, $style = STYLE_HORIZONTAL) {
-		$this->style = null;
+	public function __construct($groupid) {
+		parent::__construct();
 
-		parent::__construct(null, 'triggers_info');
-		$this->setOrientation($style);
-		$this->show_header = true;
-		$this->groupid = is_null($groupid) ? 0 : $groupid;
-		$this->hostid = is_null($hostid) ? 0 : $hostid;
+		$this->addClass(ZBX_STYLE_LIST_TABLE);
+		$this->groupid = $groupid;
 	}
 
 	public function setOrientation($value) {
-		if ($value != STYLE_HORIZONTAL && $value != STYLE_VERTICAL) {
-			return $this->error('Incorrect value for SetOrientation ['.$value.']');
-		}
 		$this->style = $value;
-	}
-
-	public function hideHeader() {
-		$this->show_header = false;
+		return $this;
 	}
 
 	public function bodyToString() {
 		$this->cleanItems();
 
-		$okCount = 0;
-		$notClassifiedCount = 0;
-		$informationCount = 0;
-		$warningCount = 0;
-		$averageCount = 0;
-		$highCount = 0;
-		$disasterCount = 0;
+		$config = select_config();
 
-		$options = array(
-			'output' => array('triggerid', 'priority', 'value'),
+		// array of triggers (not classified, information, warning, average, high, disaster) in problem state
+		$triggersProblemState = [];
+
+		// number of triggers in OK state
+		$triggersOkState = 0;
+
+		$options = [
+			'output' => ['triggerid', 'priority', 'value'],
 			'monitored' => true,
 			'skipDependent' => true
-		);
+		];
 
-		if ($this->hostid > 0) {
-			$options['hostids'] = $this->hostid;
-		}
-		elseif ($this->groupid > 0) {
+		if ($this->groupid != 0) {
 			$options['groupids'] = $this->groupid;
 		}
 		$triggers = API::Trigger()->get($options);
 
 		foreach ($triggers as $trigger) {
-			if ($trigger['value'] == TRIGGER_VALUE_TRUE) {
-				switch ($trigger['priority']) {
-					case TRIGGER_SEVERITY_NOT_CLASSIFIED:
-						$notClassifiedCount++;
-						break;
-					case TRIGGER_SEVERITY_INFORMATION:
-						$informationCount++;
-						break;
-					case TRIGGER_SEVERITY_WARNING:
-						$warningCount++;
-						break;
-					case TRIGGER_SEVERITY_AVERAGE:
-						$averageCount++;
-						break;
-					case TRIGGER_SEVERITY_HIGH:
-						$highCount++;
-						break;
-					case TRIGGER_SEVERITY_DISASTER:
-						$disasterCount++;
-						break;
-				}
-			}
-			elseif ($trigger['value'] == TRIGGER_VALUE_FALSE) {
-				$okCount++;
+			switch ($trigger['value']) {
+				case TRIGGER_VALUE_TRUE:
+					if (!array_key_exists($trigger['priority'], $triggersProblemState)) {
+						$triggersProblemState[$trigger['priority']] = 0;
+					}
+
+					$triggersProblemState[$trigger['priority']]++;
+					break;
+
+				case TRIGGER_VALUE_FALSE:
+					$triggersOkState++;
 			}
 		}
 
-		if ($this->show_header) {
-			$header_str = _('Triggers info').SPACE;
+		$severityCells = [getSeverityCell(null, $config, $triggersOkState.SPACE._('Ok'), true)];
 
-			if ($this->groupid != 0) {
-				$group = get_hostgroup_by_groupid($this->groupid);
-				$header_str .= _('Group').SPACE.'&quot;'.$group['name'].'&quot;';
-			}
-			else {
-				$header_str .= _('All groups');
-			}
+		for ($severity = TRIGGER_SEVERITY_NOT_CLASSIFIED; $severity < TRIGGER_SEVERITY_COUNT; $severity++) {
+			$severityCount = isset($triggersProblemState[$severity]) ? $triggersProblemState[$severity] : 0;
 
-			$header = new CCol($header_str, 'header');
-			if ($this->style == STYLE_HORIZONTAL) {
-				$header->setColspan(8);
-			}
-			$this->addRow($header);
+			$severityCells[] = getSeverityCell($severity,
+				$config,
+				$severityCount.SPACE.getSeverityName($severity, $config),
+				!$severityCount
+			);
 		}
 
-		$okCount = getSeverityCell(null, $okCount.SPACE._('Ok'), true);
-		$notClassifiedCount = getSeverityCell(TRIGGER_SEVERITY_NOT_CLASSIFIED,
-			$notClassifiedCount.SPACE.getSeverityCaption(TRIGGER_SEVERITY_NOT_CLASSIFIED), !$notClassifiedCount
-		);
-		$informationCount = getSeverityCell(TRIGGER_SEVERITY_INFORMATION,
-			$informationCount.SPACE.getSeverityCaption(TRIGGER_SEVERITY_INFORMATION), !$informationCount
-		);
-		$warningCount = getSeverityCell(TRIGGER_SEVERITY_WARNING,
-			$warningCount.SPACE.getSeverityCaption(TRIGGER_SEVERITY_WARNING), !$warningCount);
-		$averageCount = getSeverityCell(TRIGGER_SEVERITY_AVERAGE,
-			$averageCount.SPACE.getSeverityCaption(TRIGGER_SEVERITY_AVERAGE), !$averageCount
-		);
-		$highCount = getSeverityCell(TRIGGER_SEVERITY_HIGH,
-			$highCount.SPACE.getSeverityCaption(TRIGGER_SEVERITY_HIGH), !$highCount
-		);
-		$disasterCount = getSeverityCell(TRIGGER_SEVERITY_DISASTER,
-			$disasterCount.SPACE.getSeverityCaption(TRIGGER_SEVERITY_DISASTER), !$disasterCount
-		);
-
-		if (STYLE_HORIZONTAL == $this->style) {
-			$this->addRow(array($okCount, $notClassifiedCount, $informationCount, $warningCount, $averageCount, $highCount, $disasterCount));
+		if ($this->style == STYLE_HORIZONTAL) {
+			$this->addRow($severityCells);
 		}
 		else {
-			$this->addRow($okCount);
-			$this->addRow($notClassifiedCount);
-			$this->addRow($informationCount);
-			$this->addRow($warningCount);
-			$this->addRow($averageCount);
-			$this->addRow($highCount);
-			$this->addRow($disasterCount);
+			foreach ($severityCells as $severityCell) {
+				$this->addRow($severityCell);
+			}
 		}
 
 		return parent::bodyToString();

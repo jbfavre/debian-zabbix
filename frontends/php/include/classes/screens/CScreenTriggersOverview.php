@@ -28,39 +28,42 @@ class CScreenTriggersOverview extends CScreenBase {
 	 */
 	public function get() {
 		// fetch hosts
-		$hosts = API::Host()->get(array(
-			'output' => array('hostid', 'status'),
+		$hosts = API::Host()->get([
+			'output' => ['hostid', 'status'],
 			'selectGraphs' => ($this->screenitem['style'] == STYLE_LEFT) ? API_OUTPUT_COUNT : null,
 			'selectScreens' => ($this->screenitem['style'] == STYLE_LEFT) ? API_OUTPUT_COUNT : null,
 			'groupids' => $this->screenitem['resourceid'],
 			'preservekeys' => true
-		));
+		]);
 
 		$hostIds = array_keys($hosts);
 
-		$options = array(
-			'output' => array(
-				'description', 'expression', 'priority', 'url', 'value', 'triggerid', 'lastchange', 'flags'
-			),
-			'selectHosts' => array('hostid', 'name', 'status'),
-			'selectItems' => array('itemid', 'hostid', 'name', 'key_', 'value_type'),
+		$options = [
+			'output' => [
+				'triggerid', 'expression', 'description', 'url', 'value', 'priority', 'lastchange', 'flags'
+			],
+			'selectHosts' => ['hostid', 'name', 'status'],
+			'selectItems' => ['itemid', 'hostid', 'name', 'key_', 'value_type'],
 			'hostids' => $hostIds,
 			'monitored' => true,
 			'skipDependent' => true,
-			'sortfield' => 'description'
-		);
+			'sortfield' => 'description',
+			'preservekeys' => true
+		];
 
 		// application filter
 		if ($this->screenitem['application'] !== '') {
-			$applications = API::Application()->get(array(
-				'output' => array('applicationid'),
+			$applications = API::Application()->get([
+				'output' => ['applicationid'],
 				'hostids' => $hostIds,
-				'search' => array('name' => $this->screenitem['application'])
-			));
+				'search' => ['name' => $this->screenitem['application']]
+			]);
 			$options['applicationids'] = zbx_objectValues($applications, 'applicationid');
 		}
 
 		$triggers = API::Trigger()->get($options);
+
+		$triggers = CMacrosResolverHelper::resolveTriggerUrl($triggers);
 
 		/*
 		 * Each screen cell with "Triggers overview" depends on one specific group which in this case is 'resourceid'.

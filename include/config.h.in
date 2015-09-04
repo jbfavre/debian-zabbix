@@ -99,6 +99,9 @@
 /* Define to 1 if Iksemel library should be enabled. */
 #undef HAVE_IKSEMEL
 
+/* Define to 1 if you have NETLINK INET_DIAG support. */
+#undef HAVE_INET_DIAG
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
@@ -162,8 +165,14 @@
 /* Define to 1 if libxml2 libraries are available */
 #undef HAVE_LIBXML2
 
+/* Define to 1 if you have the <linux/inet_diag.h> header file. */
+#undef HAVE_LINUX_INET_DIAG_H
+
 /* Define to 1 if you have the <linux/kernel.h> header file. */
 #undef HAVE_LINUX_KERNEL_H
+
+/* Define to 1 if you have the <linux/netlink.h> header file. */
+#undef HAVE_LINUX_NETLINK_H
 
 /* Define to 1 if format '%qu' exists. */
 #undef HAVE_LONG_LONG_QU

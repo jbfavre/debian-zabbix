@@ -570,11 +570,11 @@ function executeScript(hostId, scriptId, confirmation) {
 			});
 
 		if (empty(hostId)) {
-			jQuery('.ui-dialog-buttonset button:first').prop('disabled', true).addClass('ui-state-disabled');
-			jQuery('.ui-dialog-buttonset button:last').addClass('main').focus();
+			jQuery('.ui-dialog-buttonset .ui-button:first').prop('disabled', true).addClass('ui-state-disabled');
+			jQuery('.ui-dialog-buttonset .ui-button:last').addClass('main').focus();
 		}
 		else {
-			jQuery('.ui-dialog-buttonset button:first').addClass('main');
+			jQuery('.ui-dialog-buttonset .ui-button:first').addClass('main');
 		}
 	}
 	else {
@@ -649,19 +649,4 @@ function showModalWindow(title, text, buttons) {
 				jQuery(this).dialog('destroy');
 			}
 		});
-}
-
-/**
- * Disable setup step button.
- *
- * @param string buttonId
- */
-function disableSetupStepButton(buttonId) {
-	jQuery(buttonId)
-		.addClass('ui-state-disabled')
-		.addClass('ui-button-disabled')
-		.attr('disabled', 'disabled')
-		.attr('aria-disabled', 'true');
-
-	jQuery('.info_bar .ok').remove();
 }

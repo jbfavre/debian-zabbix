@@ -1,14 +1,14 @@
 <script type="text/x-jquery-tmpl" id="mappingRow">
 	<tr>
 		<td>
-			<input class="input text " type="text" name="mappings[#{mappingNum}][value]" value="#{value}" size="20" maxlength="64">
+			<input type="text" name="mappings[#{mappingNum}][value]" value="#{value}" style="width: <?= ZBX_TEXTAREA_SMALL_WIDTH ?>px" maxlength="64">
 		</td>
 		<td>&rArr;</td>
 		<td>
-			<input class="input text" type="text" name="mappings[#{mappingNum}][newvalue]" value="#{newvalue}" size="30" maxlength="64">
+			<input type="text" name="mappings[#{mappingNum}][newvalue]" value="#{newvalue}" style="width: <?= ZBX_TEXTAREA_SMALL_WIDTH ?>px" maxlength="64">
 		</td>
 		<td>
-			<input class="input link_menu removeMapping" type="button" value="<?php echo Chtml::encode(_('Remove')); ?>">
+			<button class="<?= ZBX_STYLE_BTN_LINK ?> removeMapping" type="button"><?= _('Remove') ?></button>
 		</td>
 	</tr>
 </script>
@@ -67,6 +67,6 @@
 	jQuery(document).ready(function() {
 		jQuery('#save').button();
 		jQuery('#addMapping').click(mappingsManager.addNew);
-		jQuery('#mappingsTable tbody').on('click', 'input.removeMapping', mappingsManager.remove);
+		jQuery('#mappingsTable tbody').on('click', '.removeMapping', mappingsManager.remove);
 	});
 </script>

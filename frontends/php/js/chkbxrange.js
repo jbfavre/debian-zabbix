@@ -27,7 +27,7 @@ var chkbxRange = {
 	prefix:			null,	// prefix for cookie name
 	pageGoName:		null,	// which checkboxes should be counted by Go button and saved to cookies
 	selectedIds:	{},		// ids of selected objects
-	goButton:		null,
+	footerButtons:	{},		// action buttons at the bottom of page
 	cookieName:		null,
 
 	init: function() {
@@ -39,7 +39,7 @@ var chkbxRange = {
 		this.resetOtherPageCookies();
 
 		// initialize checkboxes
-		var chkboxes = jQuery('.tableinfo .checkbox:not(:disabled)');
+		var chkboxes = jQuery('.list-table input[type=checkbox]:not(:disabled)');
 		if (chkboxes.length > 0) {
 			for (var i = 0; i < chkboxes.length; i++) {
 				this.implement(chkboxes[i]);
@@ -56,7 +56,7 @@ var chkbxRange = {
 			}
 			// no checkboxes selected from cookies, check browser cache if checkboxes are still checked and update state
 			else {
-				var checkedFromCache = jQuery('.tableinfo tr:not(.header) .checkbox:checked:not(:disabled)');
+				var checkedFromCache = jQuery('.list-table tr:not(.header) input[type=checkbox]:checked:not(:disabled)');
 				var objectIds = jQuery.map(checkedFromCache, jQuery.proxy(function(checkbox) {
 					return this.getObjectIdFromName(checkbox.name);
 				}, this));
@@ -66,11 +66,11 @@ var chkbxRange = {
 			this.update(this.pageGoName);
 		}
 
-		// bind event to the "Go" button
-		this.goButton = $('goButton');
-		if (!is_null(this.goButton)) {
-			addListener(this.goButton, 'click', this.submitGo.bindAsEventListener(this), false);
-		}
+		this.footerButtons = jQuery('#action_buttons button');
+		var thisChkbxRange = this;
+		this.footerButtons.each(function() {
+			addListener(this, 'click', thisChkbxRange.submitFooterButton.bindAsEventListener(thisChkbxRange), false);
+		});
 	},
 
 	implement: function(obj) {
@@ -177,7 +177,9 @@ var chkbxRange = {
 			if (objectIds.indexOf(objectId) > -1) {
 				checkbox.checked = checked;
 
-				jQuery(checkbox).closest('tr').toggleClass('selected', checked);
+				jQuery(checkbox).closest('tr').toggleClass('row-selected', checked);
+				// Remove class attribute if it's empty
+				jQuery(checkbox).closest('tr').filter('*[class=""]').removeAttr('class');
 
 				if (checked) {
 					this.selectedIds[objectId] = objectId;
@@ -252,33 +254,32 @@ var chkbxRange = {
 			count++;
 		});
 
-		// update go button
-		var goButton = jQuery('#goButton');
-		goButton.val(goButton.val().split(' ')[0] + ' (' + count + ')')
-			.prop('disabled', count == 0);
-		jQuery('#action').prop('disabled', count == 0);
+		var selectedCountSpan = jQuery('#selected_count');
+		selectedCountSpan.text(count + ' ' + selectedCountSpan.text().split(' ')[1]);
+
+		jQuery('#action_buttons button').prop('disabled', count == 0);
 	},
 
 	// check if all checkboxes are selected and select main checkbox, else disable checkbox, select options and button
 	updateMainCheckbox: function() {
-		var mainCheckbox = jQuery('.tableinfo .header .checkbox:not(:disabled)');
+		var mainCheckbox = jQuery('.list-table .header input[type=checkbox]:not(:disabled)');
 		if (!mainCheckbox.length) {
 			return;
 		}
 
-		var countAvailable = jQuery('.tableinfo tr:not(.header) .checkbox:not(:disabled)').length;
+		var countAvailable = jQuery('.list-table tr:not(.header) input[type=checkbox]:not(:disabled)').length;
 
 		if (countAvailable > 0) {
-			var countChecked = jQuery('.tableinfo tr:not(.header) .checkbox:not(:disabled):checked').length;
+			var countChecked = jQuery('.list-table tr:not(.header) input[type=checkbox]:not(:disabled):checked').length;
 
 			mainCheckbox = mainCheckbox[0];
 			mainCheckbox.checked = (countChecked == countAvailable);
 
 			if (mainCheckbox.checked) {
-				jQuery('.tableinfo .header').addClass('selectedMain');
+				jQuery('.list-table .header').addClass('selectedMain');
 			}
 			else {
-				jQuery('.tableinfo .header').removeClass('selectedMain');
+				jQuery('.list-table .header').removeClass('selectedMain');
 			}
 		}
 		else {
@@ -313,20 +314,19 @@ var chkbxRange = {
 		}
 	},
 
-	submitGo: function(e) {
+	submitFooterButton: function(e) {
 		e = e || window.event;
 
-		var goSelect = $('action');
-		var confirmText = goSelect.options[goSelect.selectedIndex].getAttribute('confirm');
-
-		if (!is_null(confirmText) && !confirm(confirmText)) {
+		var footerButton = jQuery(e.target),
+			form = footerButton.closest('form'),
+			confirmText = footerButton.attr('confirm');
+		if (confirmText && !confirm(confirmText)) {
 			Event.stop(e);
 			return false;
 		}
 
-		var form = jQuery('#goButton').closest('form');
 		for (var key in this.selectedIds) {
-			if (!empty(this.selectedIds[key])) {
+			if (this.selectedIds.hasOwnProperty(key) && this.selectedIds[key] !== null) {
 				create_var(form.attr('name'), this.pageGoName + '[' + key + ']', key, false);
 			}
 		}

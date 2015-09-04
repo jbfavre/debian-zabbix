@@ -96,63 +96,6 @@ function encodeValues(&$value, $encodeTwice = true) {
 	}
 }
 
-// add JavaScript for calling after page loading
-function zbx_add_post_js($script) {
-	global $ZBX_PAGE_POST_JS;
-
-	if ($ZBX_PAGE_POST_JS === null) {
-		$ZBX_PAGE_POST_JS = array();
-	}
-
-	if (!in_array($script, $ZBX_PAGE_POST_JS)) {
-		$ZBX_PAGE_POST_JS[] = $script;
-	}
-}
-
-function insert_javascript_for_editable_combobox() {
-	if (defined('EDITABLE_COMBOBOX_SCRIPT_INSERTTED')) {
-		return null;
-	}
-	define('EDITABLE_COMBOBOX_SCRIPT_INSERTTED', 1);
-
-	$js = '
-		function CEditableComboBoxInit(obj) {
-			// store previous value
-			obj.oldValue = obj.value;
-		}
-
-		function CEditableComboBoxOnChange(obj, size, width) {
-			if (-1 != obj.value) {
-				obj.oldValue = obj.value;
-			}
-			else {
-				var newObj = document.createElement("input");
-
-				newObj.type = "text";
-				newObj.name = obj.name;
-				newObj.className = "input text";
-
-				if (size !== null) {
-					newObj.size = size;
-				}
-
-				if (width !== null) {
-					newObj.style.width = width + "px";
-				}
-
-				if (obj.oldValue) {
-					newObj.value = obj.oldValue;
-				}
-
-				obj.parentNode.replaceChild(newObj, obj);
-
-				newObj.focus();
-				newObj.select();
-			}
-		}';
-	insert_js($js);
-}
-
 function insert_show_color_picker_javascript() {
 	global $SHOW_COLOR_PICKER_SCRIPT_INSERTED;
 
@@ -160,68 +103,71 @@ function insert_show_color_picker_javascript() {
 		return;
 	}
 	$SHOW_COLOR_PICKER_SCRIPT_INSERTED = true;
-	$table = new CTable();
+	$table = [];
 
 	// gray colors
-	$row = array();
-	foreach (array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F') as $c) {
+	$row = [];
+	foreach (['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'] as $c) {
 		$color = $c.$c.$c.$c.$c.$c;
-		$row[] = new CColorCell(null, $color, 'set_color("'.$color.'");');
+		$row[] = (new CColorCell(null, $color))
+			->setTitle('#'.$color)
+			->onClick('set_color("'.$color.'");');
 	}
-	$table->addRow($row);
+	$table[] = (new CDiv($row))->addClass(ZBX_STYLE_COLOR_PICKER);
 
 	// other colors
-	$colors = array(
-		array('r' => 0, 'g' => 0, 'b' => 1),
-		array('r' => 0, 'g' => 1, 'b' => 0),
-		array('r' => 1, 'g' => 0, 'b' => 0),
-		array('r' => 0, 'g' => 1, 'b' => 1),
-		array('r' => 1, 'g' => 0, 'b' => 1),
-		array('r' => 1, 'g' => 1, 'b' => 0)
-	);
+	$colors = [
+		['r' => 0, 'g' => 0, 'b' => 1],
+		['r' => 0, 'g' => 1, 'b' => 0],
+		['r' => 1, 'g' => 0, 'b' => 0],
+		['r' => 0, 'g' => 1, 'b' => 1],
+		['r' => 1, 'g' => 0, 'b' => 1],
+		['r' => 1, 'g' => 1, 'b' => 0]
+	];
 
-	$brigs = array(
-		array(0 => '0', 1 => '3'),
-		array(0 => '0', 1 => '4'),
-		array(0 => '0', 1 => '5'),
-		array(0 => '0', 1 => '6'),
-		array(0 => '0', 1 => '7'),
-		array(0 => '0', 1 => '8'),
-		array(0 => '0', 1 => '9'),
-		array(0 => '0', 1 => 'A'),
-		array(0 => '0', 1 => 'B'),
-		array(0 => '0', 1 => 'C'),
-		array(0 => '0', 1 => 'D'),
-		array(0 => '0', 1 => 'E'),
-		array(0 => '3', 1 => 'F'),
-		array(0 => '6', 1 => 'F'),
-		array(0 => '9', 1 => 'F'),
-		array(0 => 'C', 1 => 'F')
-	);
+	$brigs = [
+		[0 => '0', 1 => '3'],
+		[0 => '0', 1 => '4'],
+		[0 => '0', 1 => '5'],
+		[0 => '0', 1 => '6'],
+		[0 => '0', 1 => '7'],
+		[0 => '0', 1 => '8'],
+		[0 => '0', 1 => '9'],
+		[0 => '0', 1 => 'A'],
+		[0 => '0', 1 => 'B'],
+		[0 => '0', 1 => 'C'],
+		[0 => '0', 1 => 'D'],
+		[0 => '0', 1 => 'E'],
+		[0 => '3', 1 => 'F'],
+		[0 => '6', 1 => 'F'],
+		[0 => '9', 1 => 'F'],
+		[0 => 'C', 1 => 'F']
+	];
 
 	foreach ($colors as $c) {
-		$row = array();
+		$row = [];
 		foreach ($brigs as $br) {
 			$r = $br[$c['r']];
 			$g = $br[$c['g']];
 			$b = $br[$c['b']];
 
 			$color = $r.$r.$g.$g.$b.$b;
-			$row[] = new CColorCell(null, $color, 'set_color("'.$color.'");');
+			$row[] = (new CColorCell(null, $color))
+				->setTitle('#'.$color)
+				->onClick('set_color("'.$color.'");');
 		}
-		$table->addRow($row);
+		$table[] = (new CDiv($row))->addClass(ZBX_STYLE_COLOR_PICKER);
 	}
 
-	$cancel = new CSpan(_('Cancel'), 'link');
-	$cancel->setAttribute('onclick', 'javascript: hide_color_picker();');
+	$cancel = (new CSpan())
+		->addClass(ZBX_STYLE_OVERLAY_CLOSE_BTN)
+		->onClick('javascript: hide_color_picker();');
 
-	$tmp = array($table, $cancel);
-	$script = '
-		var color_picker = null;
-		var curr_lbl = null;
-		var curr_txt = null;
-		var color_table = '.zbx_jsvalue(unpack_object($tmp))."\n";
-	insert_js($script);
+	$tmp = [$cancel, $table];
+	insert_js('var color_picker = null,'."\n".
+		'curr_lbl = null,'."\n".
+		'curr_txt = null,'."\n".
+		'color_table = '.zbx_jsvalue(unpack_object($tmp))."\n");
 	zbx_add_post_js('create_color_picker();');
 }
 
@@ -509,18 +455,23 @@ function get_js($script, $jQueryDocumentReady = false) {
 		: '<script type="text/javascript">'."\n".$script."\n".'</script>';
 }
 
+// add JavaScript for calling after page loading
+function zbx_add_post_js($script) {
+	global $ZBX_PAGE_POST_JS;
+
+	if ($ZBX_PAGE_POST_JS === null) {
+		$ZBX_PAGE_POST_JS = [];
+	}
+
+	if (!in_array($script, $ZBX_PAGE_POST_JS)) {
+		$ZBX_PAGE_POST_JS[] = $script;
+	}
+}
+
 function insertPagePostJs() {
 	global $ZBX_PAGE_POST_JS;
 
 	if ($ZBX_PAGE_POST_JS) {
-		$js = '';
-
-		foreach ($ZBX_PAGE_POST_JS as $script) {
-			$js .= $script."\n";
-		}
-
-		if ($js) {
-			echo get_js($js, true);
-		}
+		echo get_js(implode("\n", $ZBX_PAGE_POST_JS), true);
 	}
 }

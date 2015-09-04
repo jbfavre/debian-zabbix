@@ -27,23 +27,26 @@ class CScreenEvents extends CScreenBase {
 	 * @return CDiv (screen inside container)
 	 */
 	public function get() {
-		$options = array(
+		$options = [
 			'monitored' => true,
-			'value' => array(TRIGGER_VALUE_TRUE, TRIGGER_VALUE_FALSE),
+			'value' => [TRIGGER_VALUE_TRUE, TRIGGER_VALUE_FALSE],
 			'triggerLimit' => $this->screenitem['elements'],
 			'eventLimit' => $this->screenitem['elements']
-		);
+		];
 
-		$item = new CTableInfo(_('No events found.'));
-		$item->setHeader(array(
-			_('Time'),
-			_('Host'),
-			_('Description'),
-			_('Value'),
-			_('Severity')
-		));
+		$item = (new CTableInfo())
+			->setHeader([
+				_('Time'),
+				_('Host'),
+				_('Description'),
+				_('Value'),
+				_('Severity')
+			]);
 
 		$events = getLastEvents($options);
+
+		$config = select_config();
+
 		foreach ($events as $event) {
 			$trigger = $event['trigger'];
 			$host = $event['host'];
@@ -53,7 +56,7 @@ class CScreenEvents extends CScreenBase {
 			// add colors and blinking to span depending on configuration and trigger parameters
 			addTriggerValueStyle($statusSpan, $event['value'], $event['clock'], $event['acknowledged']);
 
-			$item->addRow(array(
+			$item->addRow([
 				zbx_date2str(DATE_TIME_FORMAT_SECONDS, $event['clock']),
 				$host['name'],
 				new CLink(
@@ -61,8 +64,8 @@ class CScreenEvents extends CScreenBase {
 					'tr_events.php?triggerid='.$event['objectid'].'&eventid='.$event['eventid']
 				),
 				$statusSpan,
-				getSeverityCell($trigger['priority'])
-			));
+				getSeverityCell($trigger['priority'], $config)
+			]);
 		}
 
 		return $this->getOutput($item);
