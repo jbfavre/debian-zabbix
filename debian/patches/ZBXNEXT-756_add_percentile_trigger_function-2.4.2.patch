@@ -1,0 +1,232 @@
+--- a/frontends/php/include/classes/validators/CFunctionValidator.php
++++ b/frontends/php/include/classes/validators/CFunctionValidator.php
+@@ -175,6 +175,14 @@ class CFunctionValidator extends CValida
+ 				),
+ 				'value_types' => $valueTypesNum
+ 			),
++			'percentile' => array(
++				'args' => array(
++					array('type' => 'sec_num', 'mandat' => true),
++					array('type' => 'num', 'mandat' => true),
++					array('type' => 'sec_zero', 'can_be_empty' => true)
++				),
++				'value_types' => $valueTypesNum
++			),
+ 			'nodata'=> array(
+ 				'args' => array(
+ 					array('type' => 'sec_zero', 'mandat' => true)
+--- a/frontends/php/include/triggers.inc.php
++++ b/frontends/php/include/triggers.inc.php
+@@ -2077,6 +2077,7 @@ function get_item_function_info($expr) {
+ 		'logsource' =>	array('value_type' => _('0 or 1'),	'type' => T_ZBX_INT,			'validation' => IN('0,1')),
+ 		'max' =>		array('value_type' => $value_type,	'type' => $type_of_value_type,	'validation' => NOT_EMPTY),
+ 		'min' =>		array('value_type' => $value_type,	'type' => $type_of_value_type,	'validation' => NOT_EMPTY),
++		'percentile' =>	array('value_type' => $value_type,	'type' => $type_of_value_type,	'validation' => NOT_EMPTY),
+ 		'nodata' =>		array('value_type' => _('0 or 1'),	'type' => T_ZBX_INT,			'validation' => IN('0,1')),
+ 		'now' =>		array('value_type' => _('Numeric (integer 64bit)'), 'type' => T_ZBX_INT, 'validation' => NOT_EMPTY),
+ 		'prev' =>		array('value_type' => $value_type,	'type' => $type_of_value_type,	'validation' => NOT_EMPTY),
+--- a/frontends/php/popup_trexpr.php
++++ b/frontends/php/popup_trexpr.php
+@@ -67,6 +67,21 @@ $param2SecCount = array(
+ 		'M' => $metrics // metrcis
+ 	)
+ );
++$param2PcntSecCount = array(
++	array(
++		'C' => _('Last of').' (T)',	/* caption */
++		'T' => T_ZBX_INT,	/* type */
++		'M' => $metrics		/* metrcis */
++	),
++		array(
++		'C' => 'Percentile (P)', /* caption */
++		'T' => T_ZBX_STR /* I would use T_ZBX_INT but then we get "seconds" text after the parameter box. */
++	),
++	array(
++		'C' => _('Time shift').' ', // caption
++		'T' => T_ZBX_INT // type
++	)
++);
+ $param3SecVal = array(
+ 	array(
+ 		'C' => _('Last of').' (T)', // caption
+@@ -285,6 +300,26 @@ $functions = array(
+ 		'params' => $param1SecCount,
+ 		'allowed_types' => $allowedTypesNumeric
+ 		),
++	'percentile[<]' => array(
++		'description' =>  _('Pth percentile for period T is < N'),
++		'params' => $param2PcntSecCount,
++		'allowed_types' => $allowedTypesNumeric
++		),
++	'percentile[>]' => array(
++		'description' =>  _('Pth percentile for period T is > N'),
++		'params' => $param2PcntSecCount,
++		'allowed_types' => $allowedTypesNumeric
++		),
++	'percentile[=]' => array(
++		'description' =>  _('Pth percentile for period T is = N'),
++		'params' => $param2PcntSecCount,
++		'allowed_types' => $allowedTypesNumeric
++		),
++	'percentile[#]' => array(
++		'description' =>  _('Pth percentile for period T is NOT N'),
++		'params' => $param2PcntSecCount,
++		'allowed_types' => $allowedTypesNumeric
++		),
+ 	'prev[<]' => array(
+ 		'description' =>  _('Previous value is < N'),
+ 		'allowed_types' => $allowedTypesAny
+--- a/src/libs/zbxserver/evalfunc.c
++++ b/src/libs/zbxserver/evalfunc.c
+@@ -25,6 +25,16 @@
+ #include "evalfunc.h"
+ #include "zbxregexp.h"
+ 
++int   compare_float(const void *float1, const void *float2) {
++	if (*(double *)float1 > *(double *)float2)
++		return 1;
++	else if (*(double *)float1 < *(double *)float2)
++		return -1;
++	else
++		return 0;
++
++}
++
+ static int	__get_function_parameter_uint31(zbx_uint64_t hostid, const char *parameters, int Nparam,
+ 		int *value, int *flag, int defaults_on_empty, int def_value, int def_flag)
+ {
+@@ -997,6 +1007,112 @@ out:
+ 
+ /******************************************************************************
+  *                                                                            *
++ * Function: evaluate_PERCENTILE                                              *
++ *                                                                            *
++ * Purpose: evaluate function 'percentile' for the item                       *
++ *                                                                            *
++ * Parameters: item - item (performance metric)                               *
++ *             parameters - percent and number of seconds/values              *
++ *                                                                            *
++ * Return value: SUCCEED - evaluated successfully, result is stored in 'value'*
++ *               FAIL - failed to evaluate function                           *
++ *                                                                            *
++ * Author: Matthew Gould                                                      *
++ *         Based on patch for Zabbix 1.8 by Sergey Kononenko                  *
++ *                                                                            *
++ * Comments:                                                                  *
++ *                                                                            *
++ ******************************************************************************/
++static int      evaluate_PERCENTILE(char *value, DC_ITEM *item, const char *function, const char *parameters, time_t now)
++{
++	const char			*__function_name = "evaluate_PERCENTILE";
++	int             		nparams, arg1, flag, ret = FAIL, i, seconds = 0, nvalues = 0, percent;
++
++	zbx_vector_history_record_t	values;
++
++	zabbix_log(LOG_LEVEL_DEBUG, "In %s()", __function_name);
++
++	zbx_history_record_vector_create(&values);
++
++	if (ITEM_VALUE_TYPE_FLOAT != item->value_type && ITEM_VALUE_TYPE_UINT64 != item->value_type)
++		goto out;
++
++	nparams = num_param(parameters);
++	if (!(nparams == 2 || nparams == 3))
++		goto out;
++
++	if (SUCCEED != get_function_parameter_uint31(item->host.hostid, parameters, 2, &percent, &flag))
++		goto out;
++
++	if (SUCCEED != get_function_parameter_uint31(item->host.hostid, parameters, 1, &arg1, &flag) || 0 == arg1)
++		goto out;
++
++	if (3 == nparams)
++	{
++		int	time_shift, time_shift_flag;
++
++		if (SUCCEED != get_function_parameter_uint31_default(item->host.hostid, parameters, 3, &time_shift,
++				&time_shift_flag, 0, ZBX_FLAG_SEC) || ZBX_FLAG_SEC != time_shift_flag)
++			goto out;
++
++		now -= time_shift;
++	}
++
++	if (percent < 0 || percent > 100)
++	{
++		zabbix_log(LOG_LEVEL_WARNING, "No result for invalid %d PERCENTILE", percent);
++		goto out;
++	}
++	if (ZBX_FLAG_SEC == flag)
++		seconds = arg1;
++	else
++		nvalues = arg1;
++
++	if (FAIL == zbx_vc_get_value_range(item->itemid, item->value_type, &values, seconds, nvalues, now))
++		goto out;
++
++	if (0 < values.values_num)
++	{
++		if (100 == percent)
++		{
++			percent = values.values_num-1;
++		}
++		else
++		{
++			percent = (int)((percent/100.0)*values.values_num);
++		}
++		if (ITEM_VALUE_TYPE_UINT64 == item->value_type)
++		{
++			zbx_uint64_t *auint64 = zbx_malloc(auint64, sizeof(zbx_uint64_t) * values.values_num);
++			for (i = 0; i < values.values_num; i++)
++				auint64[i] = values.values[i].value.ui64;
++			qsort(auint64, values.values_num, sizeof(zbx_uint64_t), zbx_default_uint64_compare_func);
++			zbx_snprintf(value, MAX_BUFFER_LEN, ZBX_FS_UI64, auint64[percent]);
++			zbx_free(auint64);
++		}
++		else
++		{
++			double *afloat = zbx_malloc(afloat, sizeof(double) * values.values_num);
++			for (i = 0; i < values.values_num; i++)
++				afloat[i] = values.values[i].value.dbl;
++			qsort(afloat, values.values_num, sizeof(double), compare_float);
++			zbx_snprintf(value, MAX_BUFFER_LEN, ZBX_FS_DBL, afloat[percent]);
++			zbx_free(afloat);
++		}
++		ret = SUCCEED;
++	}
++	else
++		zabbix_log(LOG_LEVEL_DEBUG, "result for PERCENTILE is empty");
++out:
++	zbx_history_record_vector_destroy(&values, item->value_type);
++
++	zabbix_log(LOG_LEVEL_DEBUG, "End of %s():%s", __function_name, zbx_result_string(ret));
++
++	return ret;
++}
++
++/******************************************************************************
++ *                                                                            *
+  * Function: evaluate_DELTA                                                   *
+  *                                                                            *
+  * Purpose: evaluate function 'delta' for the item                            *
+@@ -1733,6 +1849,10 @@ int	evaluate_function(char *value, DC_IT
+ 	{
+ 		ret = evaluate_MAX(value, item, function, parameter, now);
+ 	}
++	else if (0 == strcmp(function, "percentile"))
++	{
++		ret = evaluate_PERCENTILE(value, item, function, parameter, now);
++	}
+ 	else if (0 == strcmp(function, "avg"))
+ 	{
+ 		ret = evaluate_AVG(value, item, function, parameter, now);
+--- a/src/libs/zbxserver/evalfunc.h
++++ b/src/libs/zbxserver/evalfunc.h
+@@ -26,6 +26,8 @@
+ #define ZBX_FLAG_SEC	0
+ #define ZBX_FLAG_VALUES	1
+ 
++int	compare_float(const void *float1, const void *float2);
++
+ int	evaluate_macro_function(char *value, const char *host, const char *key,
+ 		const char *function, const char *parameter);
+ 
