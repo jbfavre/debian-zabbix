@@ -8,12 +8,13 @@ Last-Update: 2013-11-21
 This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 --- a/src/libs/zbxdb/db.c
 +++ b/src/libs/zbxdb/db.c
-@@ -313,6 +313,8 @@ int	zbx_db_connect(char *host, char *use
+@@ -316,6 +316,9 @@ int	zbx_db_connect(char *host, char *use
+ 	{
+ 		zabbix_log(LOG_LEVEL_CRIT, "cannot allocate or initialize MYSQL database connection object");
+ 		exit(EXIT_FAILURE);
++	}else{
++		my_bool reconnect = 1;
++		mysql_options(conn, MYSQL_OPT_RECONNECT, &reconnect);
  	}
- #elif defined(HAVE_MYSQL)
- 	conn = mysql_init(NULL);
-+	my_bool reconnect = 1;
-+	mysql_options(conn, MYSQL_OPT_RECONNECT, &reconnect);
  
  	if (NULL == mysql_real_connect(conn, host, user, password, dbname, port, dbsocket, CLIENT_MULTI_STATEMENTS))
- 	{
