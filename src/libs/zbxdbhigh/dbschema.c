@@ -597,12 +597,12 @@ const ZBX_TABLE	tables[] = {
 		{"discovery_groupid",	NULL,	"groups",	"groupid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{"max_in_table",	"50",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"search_limit",	"1000",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
-		{"severity_color_0",	"DBDBDB",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
-		{"severity_color_1",	"D6F6FF",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
-		{"severity_color_2",	"FFF6A5",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
-		{"severity_color_3",	"FFB689",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
-		{"severity_color_4",	"FF9999",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
-		{"severity_color_5",	"FF3838",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
+		{"severity_color_0",	"97AAB3",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
+		{"severity_color_1",	"7499FF",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
+		{"severity_color_2",	"FFC859",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
+		{"severity_color_3",	"FFA059",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
+		{"severity_color_4",	"E97659",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
+		{"severity_color_5",	"E45959",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
 		{"severity_name_0",	"Not classified",	NULL,	NULL,	32,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
 		{"severity_name_1",	"Information",	NULL,	NULL,	32,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
 		{"severity_name_2",	"Warning",	NULL,	NULL,	32,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
@@ -638,6 +638,7 @@ const ZBX_TABLE	tables[] = {
 		{"hk_trends_mode",	"1",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"hk_trends_global",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"hk_trends",	"365",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{"default_inventory_mode",	"-1",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{0}
 		},
 		NULL
@@ -1552,6 +1553,14 @@ const ZBX_TABLE	tables[] = {
 		},
 		NULL
 	},
+	{"opinventory",	"operationid",	0,
+		{
+		{"operationid",	NULL,	"operations",	"operationid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"inventory_mode",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{0}
+		},
+		NULL
+	},
 	{"dbversion",	"",	0,
 		{
 		{"mandatory",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
@@ -2082,12 +2091,12 @@ dropdown_first_remember integer DEFAULT '1' NOT NULL,\n\
 discovery_groupid bigint  NOT NULL REFERENCES groups (groupid),\n\
 max_in_table integer DEFAULT '50' NOT NULL,\n\
 search_limit integer DEFAULT '1000' NOT NULL,\n\
-severity_color_0 varchar(6) DEFAULT 'DBDBDB' NOT NULL,\n\
-severity_color_1 varchar(6) DEFAULT 'D6F6FF' NOT NULL,\n\
-severity_color_2 varchar(6) DEFAULT 'FFF6A5' NOT NULL,\n\
-severity_color_3 varchar(6) DEFAULT 'FFB689' NOT NULL,\n\
-severity_color_4 varchar(6) DEFAULT 'FF9999' NOT NULL,\n\
-severity_color_5 varchar(6) DEFAULT 'FF3838' NOT NULL,\n\
+severity_color_0 varchar(6) DEFAULT '97AAB3' NOT NULL,\n\
+severity_color_1 varchar(6) DEFAULT '7499FF' NOT NULL,\n\
+severity_color_2 varchar(6) DEFAULT 'FFC859' NOT NULL,\n\
+severity_color_3 varchar(6) DEFAULT 'FFA059' NOT NULL,\n\
+severity_color_4 varchar(6) DEFAULT 'E97659' NOT NULL,\n\
+severity_color_5 varchar(6) DEFAULT 'E45959' NOT NULL,\n\
 severity_name_0 varchar(32) DEFAULT 'Not classified' NOT NULL,\n\
 severity_name_1 varchar(32) DEFAULT 'Information' NOT NULL,\n\
 severity_name_2 varchar(32) DEFAULT 'Warning' NOT NULL,\n\
@@ -2123,6 +2132,7 @@ hk_history integer DEFAULT '90' NOT NULL,\n\
 hk_trends_mode integer DEFAULT '1' NOT NULL,\n\
 hk_trends_global integer DEFAULT '0' NOT NULL,\n\
 hk_trends integer DEFAULT '365' NOT NULL,\n\
+default_inventory_mode integer DEFAULT '-1' NOT NULL,\n\
 PRIMARY KEY (configid)\n\
 );\n\
 CREATE INDEX config_1 ON config (alert_usrgrpid);\n\
@@ -2933,11 +2943,16 @@ PRIMARY KEY (application_discoveryid)\n\
 );\n\
 CREATE INDEX application_discovery_1 ON application_discovery (applicationid);\n\
 CREATE INDEX application_discovery_2 ON application_discovery (application_prototypeid);\n\
+CREATE TABLE opinventory (\n\
+operationid bigint  NOT NULL REFERENCES operations (operationid) ON DELETE CASCADE,\n\
+inventory_mode integer DEFAULT '0' NOT NULL,\n\
+PRIMARY KEY (operationid)\n\
+);\n\
 CREATE TABLE dbversion (\n\
 mandatory integer DEFAULT '0' NOT NULL,\n\
 optional integer DEFAULT '0' NOT NULL\n\
 );\n\
-INSERT INTO dbversion VALUES ('2050051','2050051');\n\
+INSERT INTO dbversion VALUES ('2050061','2050061');\n\
 ";
 const char	*const db_schema_fkeys[] = {
 	NULL
