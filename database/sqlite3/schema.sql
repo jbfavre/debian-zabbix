@@ -512,12 +512,12 @@ CREATE TABLE config (
 	discovery_groupid        bigint                                    NOT NULL REFERENCES groups (groupid),
 	max_in_table             integer         DEFAULT '50'              NOT NULL,
 	search_limit             integer         DEFAULT '1000'            NOT NULL,
-	severity_color_0         varchar(6)      DEFAULT 'DBDBDB'          NOT NULL,
-	severity_color_1         varchar(6)      DEFAULT 'D6F6FF'          NOT NULL,
-	severity_color_2         varchar(6)      DEFAULT 'FFF6A5'          NOT NULL,
-	severity_color_3         varchar(6)      DEFAULT 'FFB689'          NOT NULL,
-	severity_color_4         varchar(6)      DEFAULT 'FF9999'          NOT NULL,
-	severity_color_5         varchar(6)      DEFAULT 'FF3838'          NOT NULL,
+	severity_color_0         varchar(6)      DEFAULT '97AAB3'          NOT NULL,
+	severity_color_1         varchar(6)      DEFAULT '7499FF'          NOT NULL,
+	severity_color_2         varchar(6)      DEFAULT 'FFC859'          NOT NULL,
+	severity_color_3         varchar(6)      DEFAULT 'FFA059'          NOT NULL,
+	severity_color_4         varchar(6)      DEFAULT 'E97659'          NOT NULL,
+	severity_color_5         varchar(6)      DEFAULT 'E45959'          NOT NULL,
 	severity_name_0          varchar(32)     DEFAULT 'Not classified'  NOT NULL,
 	severity_name_1          varchar(32)     DEFAULT 'Information'     NOT NULL,
 	severity_name_2          varchar(32)     DEFAULT 'Warning'         NOT NULL,
@@ -553,6 +553,7 @@ CREATE TABLE config (
 	hk_trends_mode           integer         DEFAULT '1'               NOT NULL,
 	hk_trends_global         integer         DEFAULT '0'               NOT NULL,
 	hk_trends                integer         DEFAULT '365'             NOT NULL,
+	default_inventory_mode   integer         DEFAULT '-1'              NOT NULL,
 	PRIMARY KEY (configid)
 );
 CREATE INDEX config_1 ON config (alert_usrgrpid);
@@ -1363,8 +1364,13 @@ CREATE TABLE application_discovery (
 );
 CREATE INDEX application_discovery_1 ON application_discovery (applicationid);
 CREATE INDEX application_discovery_2 ON application_discovery (application_prototypeid);
+CREATE TABLE opinventory (
+	operationid              bigint                                    NOT NULL REFERENCES operations (operationid) ON DELETE CASCADE,
+	inventory_mode           integer         DEFAULT '0'               NOT NULL,
+	PRIMARY KEY (operationid)
+);
 CREATE TABLE dbversion (
 	mandatory                integer         DEFAULT '0'               NOT NULL,
 	optional                 integer         DEFAULT '0'               NOT NULL
 );
-INSERT INTO dbversion VALUES ('2050051','2050051');
+INSERT INTO dbversion VALUES ('2050061','2050061');

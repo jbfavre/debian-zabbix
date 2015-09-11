@@ -104,7 +104,8 @@ PROGRAMS = $(sbin_PROGRAMS)
 am_zabbix_agent_OBJECTS = zabbix_agent-zabbix_agent.$(OBJEXT) \
 	zabbix_agent-stats.$(OBJEXT) zabbix_agent-cpustat.$(OBJEXT) \
 	zabbix_agent-diskdevices.$(OBJEXT) \
-	zabbix_agent-vmstats.$(OBJEXT) zabbix_agent-zbxconf.$(OBJEXT)
+	zabbix_agent-vmstats.$(OBJEXT) zabbix_agent-zbxconf.$(OBJEXT) \
+	zabbix_agent-procstat.$(OBJEXT)
 zabbix_agent_OBJECTS = $(am_zabbix_agent_OBJECTS)
 am__DEPENDENCIES_1 =  \
 	$(top_srcdir)/src/libs/zbxsysinfo/libzbxagentsysinfo.a \
@@ -135,7 +136,8 @@ am_zabbix_agentd_OBJECTS = zabbix_agentd-active.$(OBJEXT) \
 	zabbix_agentd-logfiles.$(OBJEXT) \
 	zabbix_agentd-zabbix_agentd.$(OBJEXT) \
 	zabbix_agentd-zbxconf.$(OBJEXT) \
-	zabbix_agentd-listener.$(OBJEXT)
+	zabbix_agentd-listener.$(OBJEXT) \
+	zabbix_agentd-procstat.$(OBJEXT)
 zabbix_agentd_OBJECTS = $(am_zabbix_agentd_OBJECTS)
 zabbix_agentd_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(top_srcdir)/src/libs/zbxself/libzbxself.a
@@ -394,7 +396,8 @@ zabbix_agent_SOURCES = \
 	cpustat.c cpustat.h \
 	diskdevices.c diskdevices.h \
 	vmstats.c vmstats.h \
-	zbxconf.c zbxconf.h
+	zbxconf.c zbxconf.h \
+	procstat.c procstat.h
 
 zabbix_agent_LDADD = $(agents_ldadd)
 zabbix_agent_LDFLAGS = @AGENT_LDFLAGS@
@@ -407,7 +410,8 @@ zabbix_agentd_SOURCES = \
 	logfiles.c logfiles.h \
 	zabbix_agentd.c \
 	zbxconf.c zbxconf.h \
-	listener.c listener.h
+	listener.c listener.h \
+	procstat.c procstat.h
 
 zabbix_agentd_LDADD = $(agents_ldadd) \
 	$(top_srcdir)/src/libs/zbxself/libzbxself.a
@@ -520,6 +524,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agent-cpustat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agent-diskdevices.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agent-procstat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agent-stats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agent-vmstats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agent-zabbix_agent.Po@am__quote@
@@ -529,6 +534,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agentd-diskdevices.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agentd-listener.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agentd-logfiles.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agentd-procstat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agentd-stats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agentd-vmstats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zabbix_agentd-zabbix_agentd.Po@am__quote@
@@ -631,6 +637,20 @@ zabbix_agent-zbxconf.obj: zbxconf.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='zbxconf.c' object='zabbix_agent-zbxconf.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(zabbix_agent_CFLAGS) $(CFLAGS) -c -o zabbix_agent-zbxconf.obj `if test -f 'zbxconf.c'; then $(CYGPATH_W) 'zbxconf.c'; else $(CYGPATH_W) '$(srcdir)/zbxconf.c'; fi`
+
+zabbix_agent-procstat.o: procstat.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(zabbix_agent_CFLAGS) $(CFLAGS) -MT zabbix_agent-procstat.o -MD -MP -MF $(DEPDIR)/zabbix_agent-procstat.Tpo -c -o zabbix_agent-procstat.o `test -f 'procstat.c' || echo '$(srcdir)/'`procstat.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/zabbix_agent-procstat.Tpo $(DEPDIR)/zabbix_agent-procstat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='procstat.c' object='zabbix_agent-procstat.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(zabbix_agent_CFLAGS) $(CFLAGS) -c -o zabbix_agent-procstat.o `test -f 'procstat.c' || echo '$(srcdir)/'`procstat.c
+
+zabbix_agent-procstat.obj: procstat.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(zabbix_agent_CFLAGS) $(CFLAGS) -MT zabbix_agent-procstat.obj -MD -MP -MF $(DEPDIR)/zabbix_agent-procstat.Tpo -c -o zabbix_agent-procstat.obj `if test -f 'procstat.c'; then $(CYGPATH_W) 'procstat.c'; else $(CYGPATH_W) '$(srcdir)/procstat.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/zabbix_agent-procstat.Tpo $(DEPDIR)/zabbix_agent-procstat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='procstat.c' object='zabbix_agent-procstat.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(zabbix_agent_CFLAGS) $(CFLAGS) -c -o zabbix_agent-procstat.obj `if test -f 'procstat.c'; then $(CYGPATH_W) 'procstat.c'; else $(CYGPATH_W) '$(srcdir)/procstat.c'; fi`
 
 zabbix_agentd-active.o: active.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(zabbix_agentd_CFLAGS) $(CFLAGS) -MT zabbix_agentd-active.o -MD -MP -MF $(DEPDIR)/zabbix_agentd-active.Tpo -c -o zabbix_agentd-active.o `test -f 'active.c' || echo '$(srcdir)/'`active.c
@@ -757,6 +777,20 @@ zabbix_agentd-listener.obj: listener.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='listener.c' object='zabbix_agentd-listener.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(zabbix_agentd_CFLAGS) $(CFLAGS) -c -o zabbix_agentd-listener.obj `if test -f 'listener.c'; then $(CYGPATH_W) 'listener.c'; else $(CYGPATH_W) '$(srcdir)/listener.c'; fi`
+
+zabbix_agentd-procstat.o: procstat.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(zabbix_agentd_CFLAGS) $(CFLAGS) -MT zabbix_agentd-procstat.o -MD -MP -MF $(DEPDIR)/zabbix_agentd-procstat.Tpo -c -o zabbix_agentd-procstat.o `test -f 'procstat.c' || echo '$(srcdir)/'`procstat.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/zabbix_agentd-procstat.Tpo $(DEPDIR)/zabbix_agentd-procstat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='procstat.c' object='zabbix_agentd-procstat.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(zabbix_agentd_CFLAGS) $(CFLAGS) -c -o zabbix_agentd-procstat.o `test -f 'procstat.c' || echo '$(srcdir)/'`procstat.c
+
+zabbix_agentd-procstat.obj: procstat.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(zabbix_agentd_CFLAGS) $(CFLAGS) -MT zabbix_agentd-procstat.obj -MD -MP -MF $(DEPDIR)/zabbix_agentd-procstat.Tpo -c -o zabbix_agentd-procstat.obj `if test -f 'procstat.c'; then $(CYGPATH_W) 'procstat.c'; else $(CYGPATH_W) '$(srcdir)/procstat.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/zabbix_agentd-procstat.Tpo $(DEPDIR)/zabbix_agentd-procstat.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='procstat.c' object='zabbix_agentd-procstat.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(zabbix_agentd_CFLAGS) $(CFLAGS) -c -o zabbix_agentd-procstat.obj `if test -f 'procstat.c'; then $(CYGPATH_W) 'procstat.c'; else $(CYGPATH_W) '$(srcdir)/procstat.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique

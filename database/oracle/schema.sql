@@ -512,12 +512,12 @@ CREATE TABLE config (
 	discovery_groupid        number(20)                                NOT NULL,
 	max_in_table             number(10)      DEFAULT '50'              NOT NULL,
 	search_limit             number(10)      DEFAULT '1000'            NOT NULL,
-	severity_color_0         nvarchar2(6)    DEFAULT 'DBDBDB'          ,
-	severity_color_1         nvarchar2(6)    DEFAULT 'D6F6FF'          ,
-	severity_color_2         nvarchar2(6)    DEFAULT 'FFF6A5'          ,
-	severity_color_3         nvarchar2(6)    DEFAULT 'FFB689'          ,
-	severity_color_4         nvarchar2(6)    DEFAULT 'FF9999'          ,
-	severity_color_5         nvarchar2(6)    DEFAULT 'FF3838'          ,
+	severity_color_0         nvarchar2(6)    DEFAULT '97AAB3'          ,
+	severity_color_1         nvarchar2(6)    DEFAULT '7499FF'          ,
+	severity_color_2         nvarchar2(6)    DEFAULT 'FFC859'          ,
+	severity_color_3         nvarchar2(6)    DEFAULT 'FFA059'          ,
+	severity_color_4         nvarchar2(6)    DEFAULT 'E97659'          ,
+	severity_color_5         nvarchar2(6)    DEFAULT 'E45959'          ,
 	severity_name_0          nvarchar2(32)   DEFAULT 'Not classified'  ,
 	severity_name_1          nvarchar2(32)   DEFAULT 'Information'     ,
 	severity_name_2          nvarchar2(32)   DEFAULT 'Warning'         ,
@@ -553,6 +553,7 @@ CREATE TABLE config (
 	hk_trends_mode           number(10)      DEFAULT '1'               NOT NULL,
 	hk_trends_global         number(10)      DEFAULT '0'               NOT NULL,
 	hk_trends                number(10)      DEFAULT '365'             NOT NULL,
+	default_inventory_mode   number(10)      DEFAULT '-1'              NOT NULL,
 	PRIMARY KEY (configid)
 );
 CREATE INDEX config_1 ON config (alert_usrgrpid);
@@ -1366,11 +1367,16 @@ CREATE TABLE application_discovery (
 );
 CREATE INDEX application_discovery_1 ON application_discovery (applicationid);
 CREATE INDEX application_discovery_2 ON application_discovery (application_prototypeid);
+CREATE TABLE opinventory (
+	operationid              number(20)                                NOT NULL,
+	inventory_mode           number(10)      DEFAULT '0'               NOT NULL,
+	PRIMARY KEY (operationid)
+);
 CREATE TABLE dbversion (
 	mandatory                number(10)      DEFAULT '0'               NOT NULL,
 	optional                 number(10)      DEFAULT '0'               NOT NULL
 );
-INSERT INTO dbversion VALUES ('2050051','2050051');
+INSERT INTO dbversion VALUES ('2050061','2050061');
 CREATE SEQUENCE proxy_history_seq
 START WITH 1
 INCREMENT BY 1
@@ -1546,3 +1552,4 @@ ALTER TABLE item_application_prototype ADD CONSTRAINT c_item_application_prototy
 ALTER TABLE item_application_prototype ADD CONSTRAINT c_item_application_prototype_2 FOREIGN KEY (itemid) REFERENCES items (itemid) ON DELETE CASCADE;
 ALTER TABLE application_discovery ADD CONSTRAINT c_application_discovery_1 FOREIGN KEY (applicationid) REFERENCES applications (applicationid) ON DELETE CASCADE;
 ALTER TABLE application_discovery ADD CONSTRAINT c_application_discovery_2 FOREIGN KEY (application_prototypeid) REFERENCES application_prototype (application_prototypeid) ON DELETE CASCADE;
+ALTER TABLE opinventory ADD CONSTRAINT c_opinventory_1 FOREIGN KEY (operationid) REFERENCES operations (operationid) ON DELETE CASCADE;

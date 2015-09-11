@@ -612,6 +612,9 @@
 /* Version number of package */
 #undef VERSION
 
+/* Define to 1 on linux and solaris platforms */
+#undef ZBX_PROCSTAT_COLLECTOR
+
 /* Define integer field name in union 'sigval' of struct 'siginfo_t' */
 #undef ZBX_SIVAL_INT
 
