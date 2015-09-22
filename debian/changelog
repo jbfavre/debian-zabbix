@@ -1,3 +1,9 @@
+zabbix (1:2.4.6-3~bbc7+1) stable; urgency=medium
+
+  * Update d/gbp.conf
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Tue, 22 Sep 2015 14:07:18 +0200
+
 zabbix (1:2.4.6-2~bbc78+1) stable; urgency=medium
 
   * Add patch for traigger percentile function (ZBXNEXT-756)
