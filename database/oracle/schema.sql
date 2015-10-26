@@ -43,6 +43,12 @@ CREATE TABLE hosts (
 	flags                    number(10)      DEFAULT '0'               NOT NULL,
 	templateid               number(20)                                NULL,
 	description              nvarchar2(2048) DEFAULT ''                ,
+	tls_connect              number(10)      DEFAULT '1'               NOT NULL,
+	tls_accept               number(10)      DEFAULT '1'               NOT NULL,
+	tls_issuer               nvarchar2(1024) DEFAULT ''                ,
+	tls_subject              nvarchar2(1024) DEFAULT ''                ,
+	tls_psk_identity         nvarchar2(128)  DEFAULT ''                ,
+	tls_psk                  nvarchar2(512)  DEFAULT ''                ,
 	PRIMARY KEY (hostid)
 );
 CREATE INDEX hosts_1 ON hosts (host);
@@ -317,6 +323,7 @@ CREATE TABLE media_type (
 	smtp_verify_peer         number(10)      DEFAULT '0'               NOT NULL,
 	smtp_verify_host         number(10)      DEFAULT '0'               NOT NULL,
 	smtp_authentication      number(10)      DEFAULT '0'               NOT NULL,
+	exec_params              nvarchar2(255)  DEFAULT ''                ,
 	PRIMARY KEY (mediatypeid)
 );
 CREATE UNIQUE INDEX media_type_1 ON media_type (description);
@@ -1376,7 +1383,7 @@ CREATE TABLE dbversion (
 	mandatory                number(10)      DEFAULT '0'               NOT NULL,
 	optional                 number(10)      DEFAULT '0'               NOT NULL
 );
-INSERT INTO dbversion VALUES ('2050061','2050061');
+INSERT INTO dbversion VALUES ('2050069','2050069');
 CREATE SEQUENCE proxy_history_seq
 START WITH 1
 INCREMENT BY 1

@@ -88,10 +88,12 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ax_lib_ibm_db2.m4 \
 	$(top_srcdir)/m4/ax_lib_postgresql.m4 \
 	$(top_srcdir)/m4/ax_lib_sqlite3.m4 $(top_srcdir)/m4/iconv.m4 \
 	$(top_srcdir)/m4/jabber.m4 $(top_srcdir)/m4/ldap.m4 \
-	$(top_srcdir)/m4/libcurl.m4 $(top_srcdir)/m4/libssh2.m4 \
-	$(top_srcdir)/m4/libunixodbc.m4 $(top_srcdir)/m4/libxml2.m4 \
-	$(top_srcdir)/m4/netsnmp.m4 $(top_srcdir)/m4/openipmi.m4 \
-	$(top_srcdir)/m4/resolv.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/libcurl.m4 $(top_srcdir)/m4/libgnutls.m4 \
+	$(top_srcdir)/m4/libmbedtls.m4 $(top_srcdir)/m4/libopenssl.m4 \
+	$(top_srcdir)/m4/libssh2.m4 $(top_srcdir)/m4/libunixodbc.m4 \
+	$(top_srcdir)/m4/libxml2.m4 $(top_srcdir)/m4/netsnmp.m4 \
+	$(top_srcdir)/m4/openipmi.m4 $(top_srcdir)/m4/resolv.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -250,6 +252,9 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+GNUTLS_CFLAGS = @GNUTLS_CFLAGS@
+GNUTLS_LDFLAGS = @GNUTLS_LDFLAGS@
+GNUTLS_LIBS = @GNUTLS_LIBS@
 GREP = @GREP@
 ICONV_CFLAGS = @ICONV_CFLAGS@
 ICONV_LDFLAGS = @ICONV_LDFLAGS@
@@ -281,6 +286,9 @@ LIBXML2_LIBS = @LIBXML2_LIBS@
 LIBXML2_VERSION = @LIBXML2_VERSION@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
+MBEDTLS_CFLAGS = @MBEDTLS_CFLAGS@
+MBEDTLS_LDFLAGS = @MBEDTLS_LDFLAGS@
+MBEDTLS_LIBS = @MBEDTLS_LIBS@
 MKDIR_P = @MKDIR_P@
 MYSQL_CFLAGS = @MYSQL_CFLAGS@
 MYSQL_CONFIG = @MYSQL_CONFIG@
@@ -292,6 +300,9 @@ ODBC_CONFIG = @ODBC_CONFIG@
 OPENIPMI_CFLAGS = @OPENIPMI_CFLAGS@
 OPENIPMI_LDFLAGS = @OPENIPMI_LDFLAGS@
 OPENIPMI_LIBS = @OPENIPMI_LIBS@
+OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
+OPENSSL_LDFLAGS = @OPENSSL_LDFLAGS@
+OPENSSL_LIBS = @OPENSSL_LIBS@
 ORACLE_CPPFLAGS = @ORACLE_CPPFLAGS@
 ORACLE_LDFLAGS = @ORACLE_LDFLAGS@
 ORACLE_LIBS = @ORACLE_LIBS@
@@ -319,6 +330,8 @@ PROXY_LDFLAGS = @PROXY_LDFLAGS@
 PROXY_LIBS = @PROXY_LIBS@
 RANLIB = @RANLIB@
 RESOLV_LIBS = @RESOLV_LIBS@
+SENDER_LDFLAGS = @SENDER_LDFLAGS@
+SENDER_LIBS = @SENDER_LIBS@
 SERVER_LDFLAGS = @SERVER_LDFLAGS@
 SERVER_LIBS = @SERVER_LIBS@
 SET_MAKE = @SET_MAKE@
@@ -338,6 +351,8 @@ UNIXODBC_CFLAGS = @UNIXODBC_CFLAGS@
 UNIXODBC_LDFLAGS = @UNIXODBC_LDFLAGS@
 UNIXODBC_LIBS = @UNIXODBC_LIBS@
 VERSION = @VERSION@
+ZBXGET_LDFLAGS = @ZBXGET_LDFLAGS@
+ZBXGET_LIBS = @ZBXGET_LIBS@
 _libcurl_config = @_libcurl_config@
 _libnetsnmp_config = @_libnetsnmp_config@
 abs_builddir = @abs_builddir@

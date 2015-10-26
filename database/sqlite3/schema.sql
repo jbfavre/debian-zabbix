@@ -43,6 +43,12 @@ CREATE TABLE hosts (
 	flags                    integer         DEFAULT '0'               NOT NULL,
 	templateid               bigint                                    NULL REFERENCES hosts (hostid) ON DELETE CASCADE,
 	description              text            DEFAULT ''                NOT NULL,
+	tls_connect              integer         DEFAULT '1'               NOT NULL,
+	tls_accept               integer         DEFAULT '1'               NOT NULL,
+	tls_issuer               varchar(1024)   DEFAULT ''                NOT NULL,
+	tls_subject              varchar(1024)   DEFAULT ''                NOT NULL,
+	tls_psk_identity         varchar(128)    DEFAULT ''                NOT NULL,
+	tls_psk                  varchar(512)    DEFAULT ''                NOT NULL,
 	PRIMARY KEY (hostid)
 );
 CREATE INDEX hosts_1 ON hosts (host);
@@ -317,6 +323,7 @@ CREATE TABLE media_type (
 	smtp_verify_peer         integer         DEFAULT '0'               NOT NULL,
 	smtp_verify_host         integer         DEFAULT '0'               NOT NULL,
 	smtp_authentication      integer         DEFAULT '0'               NOT NULL,
+	exec_params              varchar(255)    DEFAULT ''                NOT NULL,
 	PRIMARY KEY (mediatypeid)
 );
 CREATE UNIQUE INDEX media_type_1 ON media_type (description);
@@ -1373,4 +1380,4 @@ CREATE TABLE dbversion (
 	mandatory                integer         DEFAULT '0'               NOT NULL,
 	optional                 integer         DEFAULT '0'               NOT NULL
 );
-INSERT INTO dbversion VALUES ('2050061','2050061');
+INSERT INTO dbversion VALUES ('2050069','2050069');
