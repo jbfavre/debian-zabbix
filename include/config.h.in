@@ -84,6 +84,9 @@
 /* Define to 1 if you have the `getloadavg' function. */
 #undef HAVE_GETLOADAVG
 
+/* Define to 1 if you have the 'libgnutls' library (-lgnutls) */
+#undef HAVE_GNUTLS
+
 /* Define to 1 if you have the <grp.h> header file. */
 #undef HAVE_GRP_H
 
@@ -225,11 +228,18 @@
 /* Define to 1 if OPENIPMI should be enabled. */
 #undef HAVE_OPENIPMI
 
+/* Define to 1 if you have 'libssl' and 'libcrypto' libraries (-lssl
+   -libcrypto) */
+#undef HAVE_OPENSSL
+
 /* Define to 1 if Oracle should be enabled. */
 #undef HAVE_ORACLE
 
 /* Define to 1 if you have the <pdh.h> header file. */
 #undef HAVE_PDH_H
+
+/* Define to 1 if you have the 'libpolarssl' library (-lpolarssl) */
+#undef HAVE_POLARSSL
 
 /* Define to 1 if PostgreSQL libraries are available */
 #undef HAVE_POSTGRESQL

@@ -83,6 +83,12 @@ const ZBX_TABLE	tables[] = {
 		{"flags",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"templateid",	NULL,	"hosts",	"hostid",	0,	ZBX_TYPE_ID,	0,	ZBX_FK_CASCADE_DELETE},
 		{"description",	"",	NULL,	NULL,	ZBX_TYPE_SHORTTEXT_LEN,	ZBX_TYPE_SHORTTEXT,	ZBX_NOTNULL,	0},
+		{"tls_connect",	"1",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL | ZBX_PROXY,	0},
+		{"tls_accept",	"1",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL | ZBX_PROXY,	0},
+		{"tls_issuer",	"",	NULL,	NULL,	1024,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
+		{"tls_subject",	"",	NULL,	NULL,	1024,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
+		{"tls_psk_identity",	"",	NULL,	NULL,	128,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
+		{"tls_psk",	"",	NULL,	NULL,	512,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{0}
 		},
 		NULL
@@ -378,6 +384,7 @@ const ZBX_TABLE	tables[] = {
 		{"smtp_verify_peer",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"smtp_verify_host",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"smtp_authentication",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{"exec_params",	"",	NULL,	NULL,	255,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
 		{0}
 		},
 		"description"
@@ -1622,6 +1629,12 @@ name varchar(128) DEFAULT '' NOT NULL,\n\
 flags integer DEFAULT '0' NOT NULL,\n\
 templateid bigint  NULL REFERENCES hosts (hostid) ON DELETE CASCADE,\n\
 description text DEFAULT '' NOT NULL,\n\
+tls_connect integer DEFAULT '1' NOT NULL,\n\
+tls_accept integer DEFAULT '1' NOT NULL,\n\
+tls_issuer varchar(1024) DEFAULT '' NOT NULL,\n\
+tls_subject varchar(1024) DEFAULT '' NOT NULL,\n\
+tls_psk_identity varchar(128) DEFAULT '' NOT NULL,\n\
+tls_psk varchar(512) DEFAULT '' NOT NULL,\n\
 PRIMARY KEY (hostid)\n\
 );\n\
 CREATE INDEX hosts_1 ON hosts (host);\n\
@@ -1896,6 +1909,7 @@ smtp_security integer DEFAULT '0' NOT NULL,\n\
 smtp_verify_peer integer DEFAULT '0' NOT NULL,\n\
 smtp_verify_host integer DEFAULT '0' NOT NULL,\n\
 smtp_authentication integer DEFAULT '0' NOT NULL,\n\
+exec_params varchar(255) DEFAULT '' NOT NULL,\n\
 PRIMARY KEY (mediatypeid)\n\
 );\n\
 CREATE UNIQUE INDEX media_type_1 ON media_type (description);\n\
@@ -2952,7 +2966,7 @@ CREATE TABLE dbversion (\n\
 mandatory integer DEFAULT '0' NOT NULL,\n\
 optional integer DEFAULT '0' NOT NULL\n\
 );\n\
-INSERT INTO dbversion VALUES ('2050061','2050061');\n\
+INSERT INTO dbversion VALUES ('2050069','2050069');\n\
 ";
 const char	*const db_schema_fkeys[] = {
 	NULL

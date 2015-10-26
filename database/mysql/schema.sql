@@ -43,6 +43,12 @@ CREATE TABLE `hosts` (
 	`flags`                  integer         DEFAULT '0'               NOT NULL,
 	`templateid`             bigint unsigned                           NULL,
 	`description`            text                                      NOT NULL,
+	`tls_connect`            integer         DEFAULT '1'               NOT NULL,
+	`tls_accept`             integer         DEFAULT '1'               NOT NULL,
+	`tls_issuer`             varchar(1024)   DEFAULT ''                NOT NULL,
+	`tls_subject`            varchar(1024)   DEFAULT ''                NOT NULL,
+	`tls_psk_identity`       varchar(128)    DEFAULT ''                NOT NULL,
+	`tls_psk`                varchar(512)    DEFAULT ''                NOT NULL,
 	PRIMARY KEY (hostid)
 ) ENGINE=InnoDB;
 CREATE INDEX `hosts_1` ON `hosts` (`host`);
@@ -317,6 +323,7 @@ CREATE TABLE `media_type` (
 	`smtp_verify_peer`       integer         DEFAULT '0'               NOT NULL,
 	`smtp_verify_host`       integer         DEFAULT '0'               NOT NULL,
 	`smtp_authentication`    integer         DEFAULT '0'               NOT NULL,
+	`exec_params`            varchar(255)    DEFAULT ''                NOT NULL,
 	PRIMARY KEY (mediatypeid)
 ) ENGINE=InnoDB;
 CREATE UNIQUE INDEX `media_type_1` ON `media_type` (`description`);
@@ -1376,7 +1383,7 @@ CREATE TABLE `dbversion` (
 	`mandatory`              integer         DEFAULT '0'               NOT NULL,
 	`optional`               integer         DEFAULT '0'               NOT NULL
 ) ENGINE=InnoDB;
-INSERT INTO dbversion VALUES ('2050061','2050061');
+INSERT INTO dbversion VALUES ('2050069','2050069');
 ALTER TABLE `hosts` ADD CONSTRAINT `c_hosts_1` FOREIGN KEY (`proxy_hostid`) REFERENCES `hosts` (`hostid`);
 ALTER TABLE `hosts` ADD CONSTRAINT `c_hosts_2` FOREIGN KEY (`maintenanceid`) REFERENCES `maintenances` (`maintenanceid`);
 ALTER TABLE `hosts` ADD CONSTRAINT `c_hosts_3` FOREIGN KEY (`templateid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE;
