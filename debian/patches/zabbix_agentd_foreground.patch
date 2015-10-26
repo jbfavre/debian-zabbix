@@ -1,8 +1,8 @@
 --- a/include/common.h
 +++ b/include/common.h
-@@ -1104,4 +1104,7 @@ int	zbx_strcmp_null(const char *s1, cons
- 
- char	*zbx_dyn_escape_shell_single_quote(const char *text);
+@@ -1124,4 +1124,7 @@ char	*zbx_dyn_escape_shell_single_quote(
+ #define HOST_TLS_PSK_LEN		512				/* for up to 256 hex-encoded bytes (ASCII) */
+ #define HOST_TLS_PSK_LEN_MAX		(HOST_TLS_PSK_LEN + 1)
  
 +#define ZBX_RUN_BACKGROUND      0
 +#define ZBX_RUN_FOREGROUND      1
@@ -16,7 +16,7 @@
  
 -int	daemon_start(int allow_root, const char *user);
 +int	daemon_start(int allow_root, const char *user, int run_foreground);
- void	daemon_stop();
+ void	daemon_stop(void);
  
  int	zbx_sigusr_send(int flags);
 @@ -36,6 +36,6 @@ int	zbx_sigusr_send(int flags);
@@ -29,7 +29,7 @@
  #endif	/* ZABBIX_DAEMON_H */
 --- a/src/libs/zbxnix/daemon.c
 +++ b/src/libs/zbxnix/daemon.c
-@@ -281,16 +281,17 @@ static void	set_daemon_signal_handlers()
+@@ -284,16 +284,17 @@ static void	set_daemon_signal_handlers(v
   *                                                                            *
   * Purpose: init process as daemon                                            *
   *                                                                            *
@@ -51,7 +51,7 @@
  {
  	pid_t		pid;
  	struct passwd	*pwd;
-@@ -345,15 +346,22 @@ int	daemon_start(int allow_root, const c
+@@ -348,15 +349,22 @@ int	daemon_start(int allow_root, const c
  #endif
  	}
  
@@ -80,8 +80,8 @@
  		assert(0);
 --- a/src/zabbix_agent/zabbix_agentd.c
 +++ b/src/zabbix_agent/zabbix_agentd.c
-@@ -62,6 +62,8 @@ const char	*progname = NULL;
- 	static char	DEFAULT_CONFIG_FILE[]	= SYSCONFDIR "/zabbix_agentd.conf";
+@@ -64,6 +64,8 @@ const char	*progname = NULL;
+ #	define DEFAULT_CONFIG_FILE	SYSCONFDIR "/zabbix_agentd.conf"
  #endif
  
 +int CONFIG_FOREGROUND = ZBX_RUN_BACKGROUND;
@@ -89,15 +89,15 @@
  /* application TITLE */
  const char	title_message[] = "zabbix_agentd"
  #if defined(_WIN64)
-@@ -104,6 +106,7 @@ const char	*help_message[] = {
- 	"",
+@@ -107,6 +109,7 @@ const char	*help_message[] = {
  	"Options:",
- 	"  -c --config config-file               Absolute path to the configuration file",
-+	"  -f --foreground                       Run in foreground don't fork",
- 	"  -p --print                            Print known items and exit",
- 	"  -t --test item-key                    Test specified item and exit",
+ 	"  -c --config config-file        Absolute path to the configuration file",
+ 	"                                 (default: \"" DEFAULT_CONFIG_FILE "\")",
++	"  -f --foreground                Run in foreground don't fork",
+ 	"  -p --print                     Print known items and exit",
+ 	"  -t --test item-key             Test specified item and exit",
  #ifdef _WINDOWS
-@@ -141,6 +144,7 @@ const char	*help_message[] = {
+@@ -151,6 +154,7 @@ const char	*help_message[] = {
  /* COMMAND LINE OPTIONS */
  static struct zbx_option	longopts[] =
  {
@@ -105,7 +105,7 @@
  	{"config",		1,	NULL,	'c'},
  	{"help",		0,	NULL,	'h'},
  	{"version",		0,	NULL,	'V'},
-@@ -161,7 +165,7 @@ static struct zbx_option	longopts[] =
+@@ -171,7 +175,7 @@ static struct zbx_option	longopts[] =
  };
  
  static char	shortopts[] =
@@ -114,17 +114,17 @@
  #ifndef _WINDOWS
  	"R:"
  #else
-@@ -262,6 +266,9 @@ static int	parse_commandline(int argc, c
- 	{
+@@ -272,6 +276,9 @@ static int	parse_commandline(int argc, c
+ 
  		switch (ch)
  		{
 +			case 'f':
 +				CONFIG_FOREGROUND = ZBX_RUN_FOREGROUND;
 +				break;
  			case 'c':
- 				opt_c++;
  				if (NULL == CONFIG_FILE)
-@@ -1095,7 +1102,7 @@ int	main(int argc, char **argv)
+ 					CONFIG_FILE = strdup(zbx_optarg);
+@@ -1144,7 +1151,7 @@ int	main(int argc, char **argv)
  			break;
  	}
  
@@ -135,15 +135,15 @@
  }
 --- a/src/zabbix_proxy/proxy.c
 +++ b/src/zabbix_proxy/proxy.c
-@@ -69,6 +69,7 @@ const char	*help_message[] = {
- 	"",
+@@ -75,6 +75,7 @@ const char	*help_message[] = {
  	"Options:",
- 	"  -c --config config-file               Absolute path to the configuration file",
-+	"  -f --foreground                       Run in foreground don't fork",
+ 	"  -c --config config-file        Absolute path to the configuration file",
+ 	"                                 (default: \"" DEFAULT_CONFIG_FILE "\")",
++	"  -f --foreground                Run in foreground don't fork",
  	"  -R --runtime-control runtime-option   Perform administrative functions",
  	"",
  	"    Runtime control options:",
-@@ -92,6 +93,7 @@ const char	*help_message[] = {
+@@ -100,6 +101,7 @@ const char	*help_message[] = {
  /* long options */
  static struct zbx_option	longopts[] =
  {
@@ -151,12 +151,66 @@
  	{"config",		1,	NULL,	'c'},
  	{"runtime-control",	1,	NULL,	'R'},
  	{"help",		0,	NULL,	'h'},
-@@ -100,7 +102,7 @@ static struct zbx_option	longopts[] =
+@@ -108,7 +110,7 @@ static struct zbx_option	longopts[] =
  };
  
  /* short options */
--static char	shortopts[] = "c:n:hVR:";
-+static char	shortopts[] = "c:n:fhVR:";
+-static char	shortopts[] = "c:hVR:";
++static char	shortopts[] = "c:fhVR:";
+ 
+ /* end of COMMAND LINE OPTIONS */
+ 
+@@ -216,6 +218,7 @@ char	*CONFIG_LOAD_MODULE_PATH	= NULL;
+ char	**CONFIG_LOAD_MODULE		= NULL;
+ 
+ char	*CONFIG_USER			= NULL;
++int    CONFIG_FOREGROUND               = ZBX_RUN_BACKGROUND;
+ 
+ /* web monitoring */
+ char	*CONFIG_SSL_CA_LOCATION		= NULL;
+@@ -721,6 +724,9 @@ int	main(int argc, char **argv)
+ 	{
+ 		switch (ch)
+ 		{
++			case 'f':
++				CONFIG_FOREGROUND = ZBX_RUN_FOREGROUND;
++				break;
+ 			case 'c':
+ 				opt_c++;
+ 				if (NULL == CONFIG_FILE)
+@@ -785,7 +791,7 @@ int	main(int argc, char **argv)
+ #ifdef HAVE_OPENIPMI
+ 	init_ipmi_handler();
+ #endif
+-	return daemon_start(CONFIG_ALLOW_ROOT, CONFIG_USER);
++	return daemon_start(CONFIG_ALLOW_ROOT, CONFIG_USER, CONFIG_FOREGROUND);
+ }
+ 
+ int	MAIN_ZABBIX_ENTRY()
+--- a/src/zabbix_server/server.c
++++ b/src/zabbix_server/server.c
+@@ -78,6 +78,7 @@ const char	*help_message[] = {
+ 	"Options:",
+ 	"  -c --config config-file        Absolute path to the configuration file",
+ 	"                                 (default: \"" DEFAULT_CONFIG_FILE "\")",
++	"  -f --foreground                Run in foreground don't fork",
+ 	"  -R --runtime-control runtime-option   Perform administrative functions",
+ 	"",
+ 	"    Runtime control options:",
+@@ -103,6 +104,7 @@ const char	*help_message[] = {
+ /* long options */
+ static struct zbx_option	longopts[] =
+ {
++	{"foreground",          0,      NULL,   'f'},
+ 	{"config",		1,	NULL,	'c'},
+ 	{"runtime-control",	1,	NULL,	'R'},
+ 	{"help",		0,	NULL,	'h'},
+@@ -111,7 +113,7 @@ static struct zbx_option	longopts[] =
+ };
+ 
+ /* short options */
+-static char	shortopts[] = "c:hVR:";
++static char	shortopts[] = "c:fhVR:";
  
  /* end of COMMAND LINE OPTIONS */
  
@@ -167,8 +221,8 @@
 +int    CONFIG_FOREGROUND               = ZBX_RUN_BACKGROUND;
  
  /* web monitoring */
- #ifdef HAVE_LIBCURL
-@@ -662,6 +665,9 @@ int	main(int argc, char **argv)
+ char	*CONFIG_SSL_CA_LOCATION		= NULL;
+@@ -674,6 +677,9 @@ int	main(int argc, char **argv)
  	{
  		switch (ch)
  		{
@@ -178,64 +232,10 @@
  			case 'c':
  				opt_c++;
  				if (NULL == CONFIG_FILE)
-@@ -727,7 +733,7 @@ int	main(int argc, char **argv)
+@@ -738,7 +744,7 @@ int	main(int argc, char **argv)
+ #ifdef HAVE_OPENIPMI
  	init_ipmi_handler();
  #endif
- 
--	return daemon_start(CONFIG_ALLOW_ROOT, CONFIG_USER);
-+	return daemon_start(CONFIG_ALLOW_ROOT, CONFIG_USER, CONFIG_FOREGROUND);
- }
- 
- int	MAIN_ZABBIX_ENTRY()
---- a/src/zabbix_server/server.c
-+++ b/src/zabbix_server/server.c
-@@ -72,6 +72,7 @@ const char	*help_message[] = {
- 	"The core daemon of Zabbix software.",
- 	"",
- 	"Options:",
-+	"  -f --foreground                       Run in foreground don't fork",
- 	"  -c --config config-file               Absolute path to the configuration file",
- 	"  -R --runtime-control runtime-option   Perform administrative functions",
- 	"",
-@@ -96,6 +97,7 @@ const char	*help_message[] = {
- /* long options */
- static struct zbx_option	longopts[] =
- {
-+	{"foreground",          0,      NULL,   'f'},
- 	{"config",		1,	NULL,	'c'},
- 	{"runtime-control",	1,	NULL,	'R'},
- 	{"help",		0,	NULL,	'h'},
-@@ -104,7 +106,7 @@ static struct zbx_option	longopts[] =
- };
- 
- /* short options */
--static char	shortopts[] = "c:n:hVR:";
-+static char	shortopts[] = "c:n:fhVR:";
- 
- /* end of COMMAND LINE OPTIONS */
- 
-@@ -205,6 +207,7 @@ char	*CONFIG_LOAD_MODULE_PATH	= NULL;
- char	**CONFIG_LOAD_MODULE		= NULL;
- 
- char	*CONFIG_USER			= NULL;
-+int    CONFIG_FOREGROUND               = ZBX_RUN_BACKGROUND;
- 
- /* web monitoring */
- #ifdef HAVE_LIBCURL
-@@ -627,6 +630,9 @@ int	main(int argc, char **argv)
- 	{
- 		switch (ch)
- 		{
-+			case 'f':
-+				CONFIG_FOREGROUND = ZBX_RUN_FOREGROUND;
-+				break;
- 			case 'c':
- 				opt_c++;
- 				if (NULL == CONFIG_FILE)
-@@ -692,7 +698,7 @@ int	main(int argc, char **argv)
- 	init_ipmi_handler();
- #endif
- 
 -	return daemon_start(CONFIG_ALLOW_ROOT, CONFIG_USER);
 +	return daemon_start(CONFIG_ALLOW_ROOT, CONFIG_USER, CONFIG_FOREGROUND);
  }

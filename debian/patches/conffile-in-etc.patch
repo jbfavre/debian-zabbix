@@ -7,8 +7,8 @@
 -	const CONFIG_FILE_PATH = '/conf/zabbix.conf.php';
 +	const CONFIG_FILE_PATH = '/etc/zabbix/zabbix.conf.php';
  
- 	public $configFile = null;
- 	public $config = [];
+ 	private static $supported_db_types = [
+ 		ZBX_DB_DB2 => true,
 --- a/frontends/php/include/classes/core/ZBase.php
 +++ b/frontends/php/include/classes/core/ZBase.php
 @@ -319,7 +319,8 @@ class ZBase {

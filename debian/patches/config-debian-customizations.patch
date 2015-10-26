@@ -77,7 +77,7 @@
  
  ### Option: DBHost
  #	Database host name.
-@@ -430,6 +431,8 @@ Timeout=4
+@@ -438,6 +439,8 @@ Timeout=4
  # Default:
  # AlertScriptsPath=${datadir}/zabbix/alertscripts
  
@@ -86,7 +86,7 @@
  ### Option: ExternalScripts
  #	Full path to location of external scripts.
  #	Default depends on compilation options.
-@@ -446,6 +449,8 @@ Timeout=4
+@@ -454,6 +457,8 @@ Timeout=4
  # Default:
  # FpingLocation=/usr/sbin/fping
  
@@ -95,7 +95,7 @@
  ### Option: Fping6Location
  #	Location of fping6.
  #	Make sure that fping6 binary has root ownership and SUID flag set.
-@@ -455,6 +460,8 @@ Timeout=4
+@@ -463,6 +468,8 @@ Timeout=4
  # Default:
  # Fping6Location=/usr/sbin/fping6
  
@@ -104,7 +104,7 @@
  ### Option: SSHKeyLocation
  #	Location of public and private keys for SSH checks and actions.
  #
-@@ -528,15 +535,15 @@ LogSlowQueries=3000
+@@ -536,15 +543,15 @@ LogSlowQueries=3000
  
  ### Option: Include
  #	You may include individual files or all files in a directory in the configuration file.
