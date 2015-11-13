@@ -1,6 +1,6 @@
 --- a/include/common.h
 +++ b/include/common.h
-@@ -1083,4 +1083,7 @@ int	parse_serveractive_element(char *str
+@@ -1089,4 +1089,7 @@ int	parse_serveractive_element(char *str
  
  char	*zbx_dyn_escape_shell_single_quote(const char *text);
  
@@ -155,8 +155,8 @@
  };
  
  /* short options */
--static char	shortopts[] = "c:n:hVR:";
-+static char	shortopts[] = "c:n:fhVR:";
+-static char	shortopts[] = "c:hVR:";
++static char	shortopts[] = "c:fhVR:";
  
  /* end of COMMAND LINE OPTIONS */
  
@@ -209,8 +209,8 @@
  };
  
  /* short options */
--static char	shortopts[] = "c:n:hVR:";
-+static char	shortopts[] = "c:n:fhVR:";
+-static char	shortopts[] = "c:hVR:";
++static char	shortopts[] = "c:fhVR:";
  
  /* end of COMMAND LINE OPTIONS */
  
