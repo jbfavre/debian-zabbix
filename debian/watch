@@ -3,4 +3,4 @@
 
 version=3
 opts=dversionmangle=s/\+dfsg// \
-http://sf.net/zabbix/zabbix-([0-9.]*)\.tar\.gz
+http://sf.net/zabbix/zabbix-(2\.4\.[0-9.]*)\.tar\.gz
