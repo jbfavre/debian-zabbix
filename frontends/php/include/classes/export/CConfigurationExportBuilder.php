@@ -1,7 +1,7 @@
 <?php
 /*
 ** Zabbix
-** Copyright (C) 2001-2015 Zabbix SIA
+** Copyright (C) 2001-2016 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -58,8 +58,6 @@ class CConfigurationExportBuilder {
 	 * @param array $templates
 	 */
 	public function buildTemplates(array $templates) {
-		order_result($templates, 'host');
-
 		$this->data['templates'] = [];
 
 		foreach ($templates as $template) {
@@ -76,6 +74,8 @@ class CConfigurationExportBuilder {
 				'screens' => $this->formatScreens($template['screens'])
 			];
 		}
+
+		order_result($this->data['templates'], 'template');
 	}
 
 	/**
@@ -84,8 +84,6 @@ class CConfigurationExportBuilder {
 	 * @param $hosts
 	 */
 	public function buildHosts(array $hosts) {
-		order_result($hosts, 'host');
-
 		$this->data['hosts'] = [];
 
 		foreach ($hosts as $host) {
@@ -117,6 +115,8 @@ class CConfigurationExportBuilder {
 				'inventory' => $this->formatHostInventory($host['inventory'])
 			];
 		}
+
+		order_result($this->data['hosts'], 'host');
 	}
 
 	/**
@@ -169,11 +169,10 @@ class CConfigurationExportBuilder {
 	 * @param array $maps
 	 */
 	public function buildMaps(array $maps) {
-		order_result($maps, 'name');
-
 		$this->data['maps'] = [];
 
 		foreach ($maps as $map) {
+			$tmpSelements = $this->formatMapElements($map['selements']);
 			$this->data['maps'][] = [
 				'name' => $map['name'],
 				'width' => $map['width'],
@@ -203,10 +202,52 @@ class CConfigurationExportBuilder {
 				'background' => $map['backgroundid'],
 				'iconmap' => $map['iconmap'],
 				'urls' => $this->formatMapUrls($map['urls']),
-				'selements' => $this->formatMapElements($map['selements']),
-				'links' => $this->formatMapLinks($map['links'])
+				'selements' => $tmpSelements,
+				'links' => $this->formatMapLinks($map['links'], $tmpSelements)
 			];
 		}
+
+		order_result($this->data['maps'], 'name');
+	}
+
+	/**
+	 * Format mappings.
+	 *
+	 * @param array $mappings
+	 *
+	 * @return array
+	 */
+	protected function formatMappings(array $mappings) {
+		$result = [];
+
+		foreach ($mappings as $mapping) {
+			$result[] = [
+				'value' => $mapping['value'],
+				'newvalue' => $mapping['newvalue']
+			];
+		}
+
+		CArrayHelper::sort($result, ['value']);
+
+		return $result;
+	}
+
+	/**
+	 * Format value maps.
+	 *
+	 * @param array $valuemaps
+	 */
+	public function buildValueMaps(array $valuemaps) {
+		$this->data['value_maps'] = [];
+
+		foreach ($valuemaps as $valuemap) {
+			$this->data['value_maps'][] = [
+				'name' => $valuemap['name'],
+				'mappings' => $this->formatMappings($valuemap['mappings'])
+			];
+		}
+
+		CArrayHelper::sort($this->data['value_maps'], ['name']);
 	}
 
 	/**
@@ -266,8 +307,6 @@ class CConfigurationExportBuilder {
 	protected function formatDiscoveryRules(array $discoveryRules) {
 		$result = [];
 
-		order_result($discoveryRules, 'name');
-
 		foreach ($discoveryRules as $discoveryRule) {
 			$data = [
 				'name' => $discoveryRule['name'],
@@ -310,6 +349,8 @@ class CConfigurationExportBuilder {
 			$result[] = $data;
 		}
 
+		order_result($result, 'key');
+
 		return $result;
 	}
 
@@ -336,8 +377,6 @@ class CConfigurationExportBuilder {
 	protected function formatGraphs(array $graphs) {
 		$result = [];
 
-		order_result($graphs, 'name');
-
 		foreach ($graphs as $graph) {
 			$result[] = [
 				'name' => $graph['name'],
@@ -360,6 +399,8 @@ class CConfigurationExportBuilder {
 			];
 		}
 
+		order_result($result, 'name');
+
 		return $result;
 	}
 
@@ -373,8 +414,6 @@ class CConfigurationExportBuilder {
 	protected function formatHostPrototypes(array $hostPrototypes) {
 		$result = [];
 
-		order_result($hostPrototypes, 'host');
-
 		foreach ($hostPrototypes as $hostPrototype) {
 			$result[] = [
 				'host' => $hostPrototype['host'],
@@ -385,6 +424,8 @@ class CConfigurationExportBuilder {
 				'templates' => $this->formatTemplateLinkage($hostPrototype['templates'])
 			];
 		}
+
+		order_result($result, 'host');
 
 		return $result;
 	}
@@ -398,6 +439,8 @@ class CConfigurationExportBuilder {
 	 */
 	protected function formatGroupLinks(array $groupLinks) {
 		$result = [];
+
+		order_result($groupLinks, 'name');
 
 		foreach ($groupLinks as $groupLink) {
 			$result[] = [
@@ -424,6 +467,8 @@ class CConfigurationExportBuilder {
 			];
 		}
 
+		order_result($result, 'name');
+
 		return $result;
 	}
 
@@ -437,13 +482,13 @@ class CConfigurationExportBuilder {
 	protected function formatTemplateLinkage(array $templates) {
 		$result = [];
 
-		order_result($templates, 'host');
-
 		foreach ($templates as $template) {
 			$result[] = [
 				'name' => $template['host']
 			];
 		}
+
+		order_result($result, 'name');
 
 		return $result;
 	}
@@ -458,8 +503,6 @@ class CConfigurationExportBuilder {
 	protected function formatTriggers(array $triggers) {
 		$result = [];
 
-		CArrayHelper::sort($triggers, ['description', 'expression']);
-
 		foreach ($triggers as $trigger) {
 			$result[] = [
 				'expression' => $trigger['expression'],
@@ -472,6 +515,8 @@ class CConfigurationExportBuilder {
 				'dependencies' => $this->formatDependencies($trigger['dependencies'])
 			];
 		}
+
+		CArrayHelper::sort($result, ['name', 'expression']);
 
 		return $result;
 	}
@@ -486,8 +531,6 @@ class CConfigurationExportBuilder {
 	protected function formatHostInterfaces(array $interfaces) {
 		$result = [];
 
-		order_result($interfaces, 'ip');
-
 		foreach ($interfaces as $interface) {
 			$result[] = [
 				'default' => $interface['main'],
@@ -500,6 +543,8 @@ class CConfigurationExportBuilder {
 				'interface_ref' => $interface['interface_ref']
 			];
 		}
+
+		CArrayHelper::sort($result, ['type', 'ip', 'dns', 'port']);
 
 		return $result;
 	}
@@ -514,13 +559,13 @@ class CConfigurationExportBuilder {
 	protected function formatGroups(array $groups) {
 		$result = [];
 
-		order_result($groups, 'name');
-
 		foreach ($groups as $group) {
 			$result[] = [
 				'name' => $group['name']
 			];
 		}
+
+		order_result($result, 'name');
 
 		return $result;
 	}
@@ -534,8 +579,6 @@ class CConfigurationExportBuilder {
 	 */
 	protected function formatItems(array $items) {
 		$result = [];
-
-		order_result($items, 'name');
 
 		foreach ($items as $item) {
 			$data = [
@@ -589,6 +632,8 @@ class CConfigurationExportBuilder {
 			$result[] = $data;
 		}
 
+		order_result($result, 'key');
+
 		return $result;
 	}
 
@@ -602,13 +647,13 @@ class CConfigurationExportBuilder {
 	protected function formatApplications(array $applications) {
 		$result = [];
 
-		order_result($applications, 'name');
-
 		foreach ($applications as $application) {
 			$result[] = [
 				'name' => $application['name']
 			];
 		}
+
+		order_result($result, 'name');
 
 		return $result;
 	}
@@ -623,14 +668,14 @@ class CConfigurationExportBuilder {
 	protected function formatMacros(array $macros) {
 		$result = [];
 
-		$macros = order_macros($macros, 'macro');
-
 		foreach ($macros as $macro) {
 			$result[] = [
 				'macro' => $macro['macro'],
 				'value' => $macro['value']
 			];
 		}
+
+		$macros = order_macros($result, 'macro');
 
 		return $result;
 	}
@@ -645,8 +690,6 @@ class CConfigurationExportBuilder {
 	protected function formatScreens(array $screens) {
 		$result = [];
 
-		order_result($screens, 'name');
-
 		foreach ($screens as $screen) {
 			$result[] = [
 				'name' => $screen['name'],
@@ -655,6 +698,8 @@ class CConfigurationExportBuilder {
 				'screen_items' => $this->formatScreenItems($screen['screenitems'])
 			];
 		}
+
+		order_result($result, 'name');
 
 		return $result;
 	}
@@ -669,14 +714,14 @@ class CConfigurationExportBuilder {
 	protected function formatDependencies(array $dependencies) {
 		$result = [];
 
-		CArrayHelper::sort($dependencies, ['description', 'expression']);
-
 		foreach ($dependencies as $dependency) {
 			$result[] = [
 				'name' => $dependency['description'],
 				'expression' => $dependency['expression']
 			];
 		}
+
+		CArrayHelper::sort($result, ['name', 'expression']);
 
 		return $result;
 	}
@@ -713,6 +758,8 @@ class CConfigurationExportBuilder {
 			];
 		}
 
+		CArrayHelper::sort($result, ['y', 'x']);
+
 		return $result;
 	}
 
@@ -738,6 +785,8 @@ class CConfigurationExportBuilder {
 			];
 		}
 
+		CArrayHelper::sort($result, ['sortorder']);
+
 		return $result;
 	}
 
@@ -759,6 +808,8 @@ class CConfigurationExportBuilder {
 			];
 		}
 
+		CArrayHelper::sort($result, ['name', 'url']);
+
 		return $result;
 	}
 
@@ -779,6 +830,8 @@ class CConfigurationExportBuilder {
 			];
 		}
 
+		CArrayHelper::sort($result, ['name', 'url']);
+
 		return $result;
 	}
 
@@ -789,8 +842,23 @@ class CConfigurationExportBuilder {
 	 *
 	 * @return array
 	 */
-	protected function formatMapLinks(array $links) {
+	protected function formatMapLinks(array $links, array $selements) {
 		$result = [];
+
+		// Get array where key is selementid and value is sort position.
+		$flippedSelements = CArrayHelper::flipByField($selements, 'selementid');
+		foreach ($links as &$link) {
+			$link['selementpos1'] = $flippedSelements[$link['selementid1']];
+			$link['selementpos2'] = $flippedSelements[$link['selementid2']];
+
+			// Sort selements positons asc.
+			if ($link['selementpos2'] < $link['selementpos1']) {
+				zbx_swap($link['selementpos1'], $link['selementpos2']);
+			}
+		}
+		unset($link);
+
+		CArrayHelper::sort($links, ['selementpos1', 'selementpos2']);
 
 		foreach ($links as $link) {
 			$result[] = [
@@ -815,6 +883,14 @@ class CConfigurationExportBuilder {
 	 */
 	protected function formatMapLinkTriggers(array $linktriggers) {
 		$result = [];
+
+		foreach ($linktriggers as &$linktrigger) {
+			$linktrigger['description'] = $linktrigger['triggerid']['description'];
+			$linktrigger['expression'] = $linktrigger['triggerid']['expression'];
+		}
+		unset($linktrigger);
+
+		CArrayHelper::sort($linktriggers, ['description', 'expression']);
 
 		foreach ($linktriggers as $linktrigger) {
 			$result[] = [
@@ -860,6 +936,8 @@ class CConfigurationExportBuilder {
 				'urls' => $this->formatMapElementUrls($element['urls'])
 			];
 		}
+
+		CArrayHelper::sort($result, ['y', 'x']);
 
 		return $result;
 	}

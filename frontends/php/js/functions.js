@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2015 Zabbix SIA
+** Copyright (C) 2001-2016 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -111,13 +111,6 @@ function removeObjectById(id) {
 	if (obj != null && typeof(obj) == 'object') {
 		obj.parentNode.removeChild(obj);
 	}
-}
-
-/**
- * Converts all HTML entities into the corresponding symbols.
- */
-jQuery.unescapeHtml = function(html) {
-	return jQuery('<div />').html(html).text();
 }
 
 /**
@@ -417,7 +410,8 @@ function formatTimestamp(timestamp, isTsDouble, isExtend) {
 	}
 
 	var days = Math.floor((timestamp - years * 31536000 - months * 2592000) / 86400),
-		hours = Math.floor((timestamp - years * 31536000 - months * 2592000 - days * 86400) / 3600);
+		hours = Math.floor((timestamp - years * 31536000 - months * 2592000 - days * 86400) / 3600),
+		minutes = Math.floor((timestamp - years * 31536000 - months * 2592000 - days * 86400 - hours * 3600) / 60);
 
 	// due to imprecise calculations it is possible that the remainder contains 12 whole months but no whole years
 	if (months == 12) {
@@ -435,6 +429,9 @@ function formatTimestamp(timestamp, isTsDouble, isExtend) {
 		if (hours.toString().length == 1) {
 			hours = '0' + hours;
 		}
+		if (minutes.toString().length == 1) {
+			minutes = '0' + minutes;
+		}
 	}
 
 	var str = (years == 0) ? '' : years + locale['S_YEAR_SHORT'] + ' ';
@@ -443,6 +440,7 @@ function formatTimestamp(timestamp, isTsDouble, isExtend) {
 		? days + locale['S_DAY_SHORT'] + ' '
 		: ((days == 0) ? '' : days + locale['S_DAY_SHORT'] + ' ');
 	str += (hours == 0) ? '' : hours + locale['S_HOUR_SHORT'] + ' ';
+	str += (minutes == 0) ? '' : minutes + locale['S_MINUTE_SHORT'] + ' ';
 
 	return str;
 }
@@ -531,6 +529,7 @@ function overlayDialogueDestroy() {
  * @param array  buttons				window buttons
  * @param string buttons[]['title']
  * @param string buttons[]['class']
+ * @param bool	 buttons[]['cancel']	(optional) it means what this button has cancel action
  * @param bool	 buttons[]['focused']
  * @param bool   buttons[]['enabled']
  * @param object buttons[]['click']
@@ -548,7 +547,8 @@ function overlayDialogue(params) {
 		class: 'overlay-dialogue-footer'
 	});
 
-	var button_focused = null;
+	var button_focused = null,
+		cancel_action = null;
 
 	jQuery.each(params.buttons, function(index, obj) {
 		var button = jQuery('<button>', {
@@ -572,6 +572,10 @@ function overlayDialogue(params) {
 			button_focused = button;
 		}
 
+		if ('cancel' in obj && obj.cancel === true) {
+			cancel_action = obj.action;
+		}
+
 		overlay_dialogue_footer.append(button);
 	});
 
@@ -590,6 +594,9 @@ function overlayDialogue(params) {
 				class: 'overlay-close-btn'
 			})
 				.click(function() {
+					if (cancel_action !== null) {
+						cancel_action();
+					}
 					overlayDialogueDestroy();
 					return false;
 				})
@@ -607,6 +614,9 @@ function overlayDialogue(params) {
 		.append(overlay_dialogue_footer)
 		.on('keypress keydown', function(e) {
 			if (e.which == 27) { // ESC
+				if (cancel_action !== null) {
+					cancel_action();
+				}
 				overlayDialogueDestroy();
 				return false;
 			}

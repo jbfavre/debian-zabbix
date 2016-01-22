@@ -110,9 +110,9 @@ am__v_AR_1 =
 libzbxcommon_a_AR = $(AR) $(ARFLAGS)
 libzbxcommon_a_LIBADD =
 am_libzbxcommon_a_OBJECTS = misc.$(OBJEXT) xml.$(OBJEXT) \
-	comms.$(OBJEXT) str.$(OBJEXT) time.$(OBJEXT) \
-	zbxgetopt.$(OBJEXT) alias.$(OBJEXT) file.$(OBJEXT) \
-	setproctitle.$(OBJEXT) iprange.$(OBJEXT)
+	comms.$(OBJEXT) str.$(OBJEXT) zbxgetopt.$(OBJEXT) \
+	alias.$(OBJEXT) file.$(OBJEXT) setproctitle.$(OBJEXT) \
+	iprange.$(OBJEXT)
 libzbxcommon_a_OBJECTS = $(am_libzbxcommon_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -354,7 +354,6 @@ libzbxcommon_a_SOURCES = \
 	xml.c \
 	comms.c \
 	str.c \
-	time.c \
 	zbxgetopt.c \
 	alias.c \
 	file.c \
@@ -417,7 +416,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/misc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/setproctitle.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/str.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/time.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xml.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/zbxgetopt.Po@am__quote@
 

@@ -87,6 +87,8 @@ CREATE TABLE screens (
 	hsize                    number(10)      DEFAULT '1'               NOT NULL,
 	vsize                    number(10)      DEFAULT '1'               NOT NULL,
 	templateid               number(20)                                NULL,
+	userid                   number(20)                                NULL,
+	private                  number(10)      DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (screenid)
 );
 CREATE INDEX screens_1 ON screens (templateid);
@@ -113,13 +115,47 @@ CREATE TABLE screens_items (
 	PRIMARY KEY (screenitemid)
 );
 CREATE INDEX screens_items_1 ON screens_items (screenid);
+CREATE TABLE screen_user (
+	screenuserid             number(20)                                NOT NULL,
+	screenid                 number(20)                                NOT NULL,
+	userid                   number(20)                                NOT NULL,
+	permission               number(10)      DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (screenuserid)
+);
+CREATE UNIQUE INDEX screen_user_1 ON screen_user (screenid,userid);
+CREATE TABLE screen_usrgrp (
+	screenusrgrpid           number(20)                                NOT NULL,
+	screenid                 number(20)                                NOT NULL,
+	usrgrpid                 number(20)                                NOT NULL,
+	permission               number(10)      DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (screenusrgrpid)
+);
+CREATE UNIQUE INDEX screen_usrgrp_1 ON screen_usrgrp (screenid,usrgrpid);
 CREATE TABLE slideshows (
 	slideshowid              number(20)                                NOT NULL,
 	name                     nvarchar2(255)  DEFAULT ''                ,
 	delay                    number(10)      DEFAULT '0'               NOT NULL,
+	userid                   number(20)                                NOT NULL,
+	private                  number(10)      DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (slideshowid)
 );
 CREATE UNIQUE INDEX slideshows_1 ON slideshows (name);
+CREATE TABLE slideshow_user (
+	slideshowuserid          number(20)                                NOT NULL,
+	slideshowid              number(20)                                NOT NULL,
+	userid                   number(20)                                NOT NULL,
+	permission               number(10)      DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (slideshowuserid)
+);
+CREATE UNIQUE INDEX slideshow_user_1 ON slideshow_user (slideshowid,userid);
+CREATE TABLE slideshow_usrgrp (
+	slideshowusrgrpid        number(20)                                NOT NULL,
+	slideshowid              number(20)                                NOT NULL,
+	usrgrpid                 number(20)                                NOT NULL,
+	permission               number(10)      DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (slideshowusrgrpid)
+);
+CREATE UNIQUE INDEX slideshow_usrgrp_1 ON slideshow_usrgrp (slideshowid,usrgrpid);
 CREATE TABLE slides (
 	slideid                  number(20)                                NOT NULL,
 	slideshowid              number(20)                                NOT NULL,
@@ -656,14 +692,12 @@ CREATE TABLE graph_theme (
 	leftpercentilecolor      nvarchar2(6)    DEFAULT ''                ,
 	rightpercentilecolor     nvarchar2(6)    DEFAULT ''                ,
 	nonworktimecolor         nvarchar2(6)    DEFAULT ''                ,
-	gridview                 number(10)      DEFAULT '1'               NOT NULL,
-	legendview               number(10)      DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (graphthemeid)
 );
 CREATE UNIQUE INDEX graph_theme_1 ON graph_theme (theme);
 CREATE TABLE globalmacro (
 	globalmacroid            number(20)                                NOT NULL,
-	macro                    nvarchar2(64)   DEFAULT ''                ,
+	macro                    nvarchar2(255)  DEFAULT ''                ,
 	value                    nvarchar2(255)  DEFAULT ''                ,
 	PRIMARY KEY (globalmacroid)
 );
@@ -671,7 +705,7 @@ CREATE UNIQUE INDEX globalmacro_1 ON globalmacro (macro);
 CREATE TABLE hostmacro (
 	hostmacroid              number(20)                                NOT NULL,
 	hostid                   number(20)                                NOT NULL,
-	macro                    nvarchar2(64)   DEFAULT ''                ,
+	macro                    nvarchar2(255)  DEFAULT ''                ,
 	value                    nvarchar2(255)  DEFAULT ''                ,
 	PRIMARY KEY (hostmacroid)
 );
@@ -808,6 +842,8 @@ CREATE TABLE sysmaps (
 	iconmapid                number(20)                                NULL,
 	expand_macros            number(10)      DEFAULT '0'               NOT NULL,
 	severity_min             number(10)      DEFAULT '0'               NOT NULL,
+	userid                   number(20)                                NOT NULL,
+	private                  number(10)      DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (sysmapid)
 );
 CREATE UNIQUE INDEX sysmaps_1 ON sysmaps (name);
@@ -880,6 +916,22 @@ CREATE TABLE sysmap_url (
 	PRIMARY KEY (sysmapurlid)
 );
 CREATE UNIQUE INDEX sysmap_url_1 ON sysmap_url (sysmapid,name);
+CREATE TABLE sysmap_user (
+	sysmapuserid             number(20)                                NOT NULL,
+	sysmapid                 number(20)                                NOT NULL,
+	userid                   number(20)                                NOT NULL,
+	permission               number(10)      DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (sysmapuserid)
+);
+CREATE UNIQUE INDEX sysmap_user_1 ON sysmap_user (sysmapid,userid);
+CREATE TABLE sysmap_usrgrp (
+	sysmapusrgrpid           number(20)                                NOT NULL,
+	sysmapid                 number(20)                                NOT NULL,
+	usrgrpid                 number(20)                                NOT NULL,
+	permission               number(10)      DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (sysmapusrgrpid)
+);
+CREATE UNIQUE INDEX sysmap_usrgrp_1 ON sysmap_usrgrp (sysmapid,usrgrpid);
 CREATE TABLE maintenances_hosts (
 	maintenance_hostid       number(20)                                NOT NULL,
 	maintenanceid            number(20)                                NOT NULL,
@@ -1020,7 +1072,7 @@ CREATE TABLE proxy_history (
 	state                    number(10)      DEFAULT '0'               NOT NULL,
 	lastlogsize              number(20)      DEFAULT '0'               NOT NULL,
 	mtime                    number(10)      DEFAULT '0'               NOT NULL,
-	meta                     number(10)      DEFAULT '0'               NOT NULL,
+	flags                    number(10)      DEFAULT '0'               NOT NULL,
 	PRIMARY KEY (id)
 );
 CREATE INDEX proxy_history_1 ON proxy_history (clock);
@@ -1383,7 +1435,7 @@ CREATE TABLE dbversion (
 	mandatory                number(10)      DEFAULT '0'               NOT NULL,
 	optional                 number(10)      DEFAULT '0'               NOT NULL
 );
-INSERT INTO dbversion VALUES ('2050069','2050069');
+INSERT INTO dbversion VALUES ('2050119','2050119');
 CREATE SEQUENCE proxy_history_seq
 START WITH 1
 INCREMENT BY 1
@@ -1429,7 +1481,17 @@ ALTER TABLE group_prototype ADD CONSTRAINT c_group_prototype_3 FOREIGN KEY (temp
 ALTER TABLE group_discovery ADD CONSTRAINT c_group_discovery_1 FOREIGN KEY (groupid) REFERENCES groups (groupid) ON DELETE CASCADE;
 ALTER TABLE group_discovery ADD CONSTRAINT c_group_discovery_2 FOREIGN KEY (parent_group_prototypeid) REFERENCES group_prototype (group_prototypeid);
 ALTER TABLE screens ADD CONSTRAINT c_screens_1 FOREIGN KEY (templateid) REFERENCES hosts (hostid) ON DELETE CASCADE;
+ALTER TABLE screens ADD CONSTRAINT c_screens_3 FOREIGN KEY (userid) REFERENCES users (userid);
 ALTER TABLE screens_items ADD CONSTRAINT c_screens_items_1 FOREIGN KEY (screenid) REFERENCES screens (screenid) ON DELETE CASCADE;
+ALTER TABLE screen_user ADD CONSTRAINT c_screen_user_1 FOREIGN KEY (screenid) REFERENCES screens (screenid) ON DELETE CASCADE;
+ALTER TABLE screen_user ADD CONSTRAINT c_screen_user_2 FOREIGN KEY (userid) REFERENCES users (userid) ON DELETE CASCADE;
+ALTER TABLE screen_usrgrp ADD CONSTRAINT c_screen_usrgrp_1 FOREIGN KEY (screenid) REFERENCES screens (screenid) ON DELETE CASCADE;
+ALTER TABLE screen_usrgrp ADD CONSTRAINT c_screen_usrgrp_2 FOREIGN KEY (usrgrpid) REFERENCES usrgrp (usrgrpid) ON DELETE CASCADE;
+ALTER TABLE slideshows ADD CONSTRAINT c_slideshows_3 FOREIGN KEY (userid) REFERENCES users (userid);
+ALTER TABLE slideshow_user ADD CONSTRAINT c_slideshow_user_1 FOREIGN KEY (slideshowid) REFERENCES slideshows (slideshowid) ON DELETE CASCADE;
+ALTER TABLE slideshow_user ADD CONSTRAINT c_slideshow_user_2 FOREIGN KEY (userid) REFERENCES users (userid) ON DELETE CASCADE;
+ALTER TABLE slideshow_usrgrp ADD CONSTRAINT c_slideshow_usrgrp_1 FOREIGN KEY (slideshowid) REFERENCES slideshows (slideshowid) ON DELETE CASCADE;
+ALTER TABLE slideshow_usrgrp ADD CONSTRAINT c_slideshow_usrgrp_2 FOREIGN KEY (usrgrpid) REFERENCES usrgrp (usrgrpid) ON DELETE CASCADE;
 ALTER TABLE slides ADD CONSTRAINT c_slides_1 FOREIGN KEY (slideshowid) REFERENCES slideshows (slideshowid) ON DELETE CASCADE;
 ALTER TABLE slides ADD CONSTRAINT c_slides_2 FOREIGN KEY (screenid) REFERENCES screens (screenid) ON DELETE CASCADE;
 ALTER TABLE drules ADD CONSTRAINT c_drules_1 FOREIGN KEY (proxy_hostid) REFERENCES hosts (hostid);
@@ -1504,6 +1566,7 @@ ALTER TABLE icon_mapping ADD CONSTRAINT c_icon_mapping_1 FOREIGN KEY (iconmapid)
 ALTER TABLE icon_mapping ADD CONSTRAINT c_icon_mapping_2 FOREIGN KEY (iconid) REFERENCES images (imageid);
 ALTER TABLE sysmaps ADD CONSTRAINT c_sysmaps_1 FOREIGN KEY (backgroundid) REFERENCES images (imageid);
 ALTER TABLE sysmaps ADD CONSTRAINT c_sysmaps_2 FOREIGN KEY (iconmapid) REFERENCES icon_map (iconmapid);
+ALTER TABLE sysmaps ADD CONSTRAINT c_sysmaps_3 FOREIGN KEY (userid) REFERENCES users (userid);
 ALTER TABLE sysmaps_elements ADD CONSTRAINT c_sysmaps_elements_1 FOREIGN KEY (sysmapid) REFERENCES sysmaps (sysmapid) ON DELETE CASCADE;
 ALTER TABLE sysmaps_elements ADD CONSTRAINT c_sysmaps_elements_2 FOREIGN KEY (iconid_off) REFERENCES images (imageid);
 ALTER TABLE sysmaps_elements ADD CONSTRAINT c_sysmaps_elements_3 FOREIGN KEY (iconid_on) REFERENCES images (imageid);
@@ -1516,6 +1579,10 @@ ALTER TABLE sysmaps_link_triggers ADD CONSTRAINT c_sysmaps_link_triggers_1 FOREI
 ALTER TABLE sysmaps_link_triggers ADD CONSTRAINT c_sysmaps_link_triggers_2 FOREIGN KEY (triggerid) REFERENCES triggers (triggerid) ON DELETE CASCADE;
 ALTER TABLE sysmap_element_url ADD CONSTRAINT c_sysmap_element_url_1 FOREIGN KEY (selementid) REFERENCES sysmaps_elements (selementid) ON DELETE CASCADE;
 ALTER TABLE sysmap_url ADD CONSTRAINT c_sysmap_url_1 FOREIGN KEY (sysmapid) REFERENCES sysmaps (sysmapid) ON DELETE CASCADE;
+ALTER TABLE sysmap_user ADD CONSTRAINT c_sysmap_user_1 FOREIGN KEY (sysmapid) REFERENCES sysmaps (sysmapid) ON DELETE CASCADE;
+ALTER TABLE sysmap_user ADD CONSTRAINT c_sysmap_user_2 FOREIGN KEY (userid) REFERENCES users (userid) ON DELETE CASCADE;
+ALTER TABLE sysmap_usrgrp ADD CONSTRAINT c_sysmap_usrgrp_1 FOREIGN KEY (sysmapid) REFERENCES sysmaps (sysmapid) ON DELETE CASCADE;
+ALTER TABLE sysmap_usrgrp ADD CONSTRAINT c_sysmap_usrgrp_2 FOREIGN KEY (usrgrpid) REFERENCES usrgrp (usrgrpid) ON DELETE CASCADE;
 ALTER TABLE maintenances_hosts ADD CONSTRAINT c_maintenances_hosts_1 FOREIGN KEY (maintenanceid) REFERENCES maintenances (maintenanceid) ON DELETE CASCADE;
 ALTER TABLE maintenances_hosts ADD CONSTRAINT c_maintenances_hosts_2 FOREIGN KEY (hostid) REFERENCES hosts (hostid) ON DELETE CASCADE;
 ALTER TABLE maintenances_groups ADD CONSTRAINT c_maintenances_groups_1 FOREIGN KEY (maintenanceid) REFERENCES maintenances (maintenanceid) ON DELETE CASCADE;

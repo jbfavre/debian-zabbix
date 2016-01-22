@@ -1,7 +1,7 @@
 <?php
 /*
 ** Zabbix
-** Copyright (C) 2001-2015 Zabbix SIA
+** Copyright (C) 2001-2016 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -743,7 +743,9 @@ class CHttpTest extends CApiService {
 	 * @return bool
 	 */
 	protected  function checkStatusCode($statusCodeRange) {
-		if ($statusCodeRange === '' || preg_match('/^'.ZBX_PREG_EXPRESSION_USER_MACROS.'$/', $statusCodeRange)) {
+		$user_macro_parser = new CUserMacroParser();
+
+		if ($statusCodeRange === '' || $user_macro_parser->parse($statusCodeRange) == CParser::PARSE_SUCCESS) {
 			return true;
 		}
 		else {

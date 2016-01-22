@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2015 Zabbix SIA
+** Copyright (C) 2001-2016 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -32,7 +32,6 @@
 
 extern unsigned char	process_type, program_type;
 extern int		server_num, process_num;
-
 
 void	zbx_proxyconfig_sigusr_handler(int flags)
 {
@@ -66,26 +65,26 @@ static void	process_configuration_sync(size_t *data_size)
 	/* reset the performance metric */
 	*data_size = 0;
 
-	connect_to_server(&sock, 600, CONFIG_PROXYCONFIG_RETRY); /* retry till have a connection */
+	connect_to_server(&sock, 600, CONFIG_PROXYCONFIG_RETRY);	/* retry till have a connection */
 
 	if (SUCCEED != get_data_from_server(&sock, ZBX_PROTO_VALUE_PROXY_CONFIG, &error))
 	{
 		zabbix_log(LOG_LEVEL_WARNING, "cannot obtain configuration data from server at \"%s\": %s",
-				get_ip_by_socket(&sock), error);
+				sock.peer, error);
 		goto out;
 	}
 
 	if ('\0' == *sock.buffer)
 	{
 		zabbix_log(LOG_LEVEL_WARNING, "cannot obtain configuration data from server at \"%s\": %s",
-				get_ip_by_socket(&sock), "empty string received");
+				sock.peer, "empty string received");
 		goto out;
 	}
 
 	if (SUCCEED != zbx_json_open(sock.buffer, &jp))
 	{
 		zabbix_log(LOG_LEVEL_WARNING, "cannot obtain configuration data from server at \"%s\": %s",
-				get_ip_by_socket(&sock), zbx_json_strerror());
+				sock.peer, zbx_json_strerror());
 		goto out;
 	}
 
@@ -103,13 +102,13 @@ static void	process_configuration_sync(size_t *data_size)
 			info = zbx_dsprintf(info, "negative response \"%s\"", value);
 
 		zabbix_log(LOG_LEVEL_WARNING, "cannot obtain configuration data from server at \"%s\": %s",
-				get_ip_by_socket(&sock), info);
+				sock.peer, info);
 		zbx_free(info);
 		goto out;
 	}
 
 	zabbix_log(LOG_LEVEL_WARNING, "received configuration data from server at \"%s\", datalen " ZBX_FS_SIZE_T,
-			get_ip_by_socket(&sock), (zbx_fs_size_t)*data_size);
+			sock.peer, (zbx_fs_size_t)*data_size);
 
 	process_proxyconfig(&jp);
 out:
@@ -158,6 +157,8 @@ ZBX_THREAD_ENTRY(proxyconfig_thread, args)
 
 	for (;;)
 	{
+		zbx_handle_log();
+
 		zbx_setproctitle("%s [loading configuration]", get_process_type_string(process_type));
 
 		sec = zbx_time();

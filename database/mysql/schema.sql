@@ -87,6 +87,8 @@ CREATE TABLE `screens` (
 	`hsize`                  integer         DEFAULT '1'               NOT NULL,
 	`vsize`                  integer         DEFAULT '1'               NOT NULL,
 	`templateid`             bigint unsigned                           NULL,
+	`userid`                 bigint unsigned                           NULL,
+	`private`                integer         DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (screenid)
 ) ENGINE=InnoDB;
 CREATE INDEX `screens_1` ON `screens` (`templateid`);
@@ -113,13 +115,47 @@ CREATE TABLE `screens_items` (
 	PRIMARY KEY (screenitemid)
 ) ENGINE=InnoDB;
 CREATE INDEX `screens_items_1` ON `screens_items` (`screenid`);
+CREATE TABLE `screen_user` (
+	`screenuserid`           bigint unsigned                           NOT NULL,
+	`screenid`               bigint unsigned                           NOT NULL,
+	`userid`                 bigint unsigned                           NOT NULL,
+	`permission`             integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (screenuserid)
+) ENGINE=InnoDB;
+CREATE UNIQUE INDEX `screen_user_1` ON `screen_user` (`screenid`,`userid`);
+CREATE TABLE `screen_usrgrp` (
+	`screenusrgrpid`         bigint unsigned                           NOT NULL,
+	`screenid`               bigint unsigned                           NOT NULL,
+	`usrgrpid`               bigint unsigned                           NOT NULL,
+	`permission`             integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (screenusrgrpid)
+) ENGINE=InnoDB;
+CREATE UNIQUE INDEX `screen_usrgrp_1` ON `screen_usrgrp` (`screenid`,`usrgrpid`);
 CREATE TABLE `slideshows` (
 	`slideshowid`            bigint unsigned                           NOT NULL,
 	`name`                   varchar(255)    DEFAULT ''                NOT NULL,
 	`delay`                  integer         DEFAULT '0'               NOT NULL,
+	`userid`                 bigint unsigned                           NOT NULL,
+	`private`                integer         DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (slideshowid)
 ) ENGINE=InnoDB;
 CREATE UNIQUE INDEX `slideshows_1` ON `slideshows` (`name`);
+CREATE TABLE `slideshow_user` (
+	`slideshowuserid`        bigint unsigned                           NOT NULL,
+	`slideshowid`            bigint unsigned                           NOT NULL,
+	`userid`                 bigint unsigned                           NOT NULL,
+	`permission`             integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (slideshowuserid)
+) ENGINE=InnoDB;
+CREATE UNIQUE INDEX `slideshow_user_1` ON `slideshow_user` (`slideshowid`,`userid`);
+CREATE TABLE `slideshow_usrgrp` (
+	`slideshowusrgrpid`      bigint unsigned                           NOT NULL,
+	`slideshowid`            bigint unsigned                           NOT NULL,
+	`usrgrpid`               bigint unsigned                           NOT NULL,
+	`permission`             integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (slideshowusrgrpid)
+) ENGINE=InnoDB;
+CREATE UNIQUE INDEX `slideshow_usrgrp_1` ON `slideshow_usrgrp` (`slideshowid`,`usrgrpid`);
 CREATE TABLE `slides` (
 	`slideid`                bigint unsigned                           NOT NULL,
 	`slideshowid`            bigint unsigned                           NOT NULL,
@@ -656,14 +692,12 @@ CREATE TABLE `graph_theme` (
 	`leftpercentilecolor`    varchar(6)      DEFAULT ''                NOT NULL,
 	`rightpercentilecolor`   varchar(6)      DEFAULT ''                NOT NULL,
 	`nonworktimecolor`       varchar(6)      DEFAULT ''                NOT NULL,
-	`gridview`               integer         DEFAULT '1'               NOT NULL,
-	`legendview`             integer         DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (graphthemeid)
 ) ENGINE=InnoDB;
 CREATE UNIQUE INDEX `graph_theme_1` ON `graph_theme` (`theme`);
 CREATE TABLE `globalmacro` (
 	`globalmacroid`          bigint unsigned                           NOT NULL,
-	`macro`                  varchar(64)     DEFAULT ''                NOT NULL,
+	`macro`                  varchar(255)    DEFAULT ''                NOT NULL,
 	`value`                  varchar(255)    DEFAULT ''                NOT NULL,
 	PRIMARY KEY (globalmacroid)
 ) ENGINE=InnoDB;
@@ -671,7 +705,7 @@ CREATE UNIQUE INDEX `globalmacro_1` ON `globalmacro` (`macro`);
 CREATE TABLE `hostmacro` (
 	`hostmacroid`            bigint unsigned                           NOT NULL,
 	`hostid`                 bigint unsigned                           NOT NULL,
-	`macro`                  varchar(64)     DEFAULT ''                NOT NULL,
+	`macro`                  varchar(255)    DEFAULT ''                NOT NULL,
 	`value`                  varchar(255)    DEFAULT ''                NOT NULL,
 	PRIMARY KEY (hostmacroid)
 ) ENGINE=InnoDB;
@@ -808,6 +842,8 @@ CREATE TABLE `sysmaps` (
 	`iconmapid`              bigint unsigned                           NULL,
 	`expand_macros`          integer         DEFAULT '0'               NOT NULL,
 	`severity_min`           integer         DEFAULT '0'               NOT NULL,
+	`userid`                 bigint unsigned                           NOT NULL,
+	`private`                integer         DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (sysmapid)
 ) ENGINE=InnoDB;
 CREATE UNIQUE INDEX `sysmaps_1` ON `sysmaps` (`name`);
@@ -880,6 +916,22 @@ CREATE TABLE `sysmap_url` (
 	PRIMARY KEY (sysmapurlid)
 ) ENGINE=InnoDB;
 CREATE UNIQUE INDEX `sysmap_url_1` ON `sysmap_url` (`sysmapid`,`name`);
+CREATE TABLE `sysmap_user` (
+	`sysmapuserid`           bigint unsigned                           NOT NULL,
+	`sysmapid`               bigint unsigned                           NOT NULL,
+	`userid`                 bigint unsigned                           NOT NULL,
+	`permission`             integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (sysmapuserid)
+) ENGINE=InnoDB;
+CREATE UNIQUE INDEX `sysmap_user_1` ON `sysmap_user` (`sysmapid`,`userid`);
+CREATE TABLE `sysmap_usrgrp` (
+	`sysmapusrgrpid`         bigint unsigned                           NOT NULL,
+	`sysmapid`               bigint unsigned                           NOT NULL,
+	`usrgrpid`               bigint unsigned                           NOT NULL,
+	`permission`             integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (sysmapusrgrpid)
+) ENGINE=InnoDB;
+CREATE UNIQUE INDEX `sysmap_usrgrp_1` ON `sysmap_usrgrp` (`sysmapid`,`usrgrpid`);
 CREATE TABLE `maintenances_hosts` (
 	`maintenance_hostid`     bigint unsigned                           NOT NULL,
 	`maintenanceid`          bigint unsigned                           NOT NULL,
@@ -1020,7 +1072,7 @@ CREATE TABLE `proxy_history` (
 	`state`                  integer         DEFAULT '0'               NOT NULL,
 	`lastlogsize`            bigint unsigned DEFAULT '0'               NOT NULL,
 	`mtime`                  integer         DEFAULT '0'               NOT NULL,
-	`meta`                   integer         DEFAULT '0'               NOT NULL,
+	`flags`                  integer         DEFAULT '0'               NOT NULL,
 	PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 CREATE INDEX `proxy_history_1` ON `proxy_history` (`clock`);
@@ -1383,7 +1435,7 @@ CREATE TABLE `dbversion` (
 	`mandatory`              integer         DEFAULT '0'               NOT NULL,
 	`optional`               integer         DEFAULT '0'               NOT NULL
 ) ENGINE=InnoDB;
-INSERT INTO dbversion VALUES ('2050069','2050069');
+INSERT INTO dbversion VALUES ('2050119','2050119');
 ALTER TABLE `hosts` ADD CONSTRAINT `c_hosts_1` FOREIGN KEY (`proxy_hostid`) REFERENCES `hosts` (`hostid`);
 ALTER TABLE `hosts` ADD CONSTRAINT `c_hosts_2` FOREIGN KEY (`maintenanceid`) REFERENCES `maintenances` (`maintenanceid`);
 ALTER TABLE `hosts` ADD CONSTRAINT `c_hosts_3` FOREIGN KEY (`templateid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE;
@@ -1393,7 +1445,17 @@ ALTER TABLE `group_prototype` ADD CONSTRAINT `c_group_prototype_3` FOREIGN KEY (
 ALTER TABLE `group_discovery` ADD CONSTRAINT `c_group_discovery_1` FOREIGN KEY (`groupid`) REFERENCES `groups` (`groupid`) ON DELETE CASCADE;
 ALTER TABLE `group_discovery` ADD CONSTRAINT `c_group_discovery_2` FOREIGN KEY (`parent_group_prototypeid`) REFERENCES `group_prototype` (`group_prototypeid`);
 ALTER TABLE `screens` ADD CONSTRAINT `c_screens_1` FOREIGN KEY (`templateid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE;
+ALTER TABLE `screens` ADD CONSTRAINT `c_screens_3` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`);
 ALTER TABLE `screens_items` ADD CONSTRAINT `c_screens_items_1` FOREIGN KEY (`screenid`) REFERENCES `screens` (`screenid`) ON DELETE CASCADE;
+ALTER TABLE `screen_user` ADD CONSTRAINT `c_screen_user_1` FOREIGN KEY (`screenid`) REFERENCES `screens` (`screenid`) ON DELETE CASCADE;
+ALTER TABLE `screen_user` ADD CONSTRAINT `c_screen_user_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE;
+ALTER TABLE `screen_usrgrp` ADD CONSTRAINT `c_screen_usrgrp_1` FOREIGN KEY (`screenid`) REFERENCES `screens` (`screenid`) ON DELETE CASCADE;
+ALTER TABLE `screen_usrgrp` ADD CONSTRAINT `c_screen_usrgrp_2` FOREIGN KEY (`usrgrpid`) REFERENCES `usrgrp` (`usrgrpid`) ON DELETE CASCADE;
+ALTER TABLE `slideshows` ADD CONSTRAINT `c_slideshows_3` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`);
+ALTER TABLE `slideshow_user` ADD CONSTRAINT `c_slideshow_user_1` FOREIGN KEY (`slideshowid`) REFERENCES `slideshows` (`slideshowid`) ON DELETE CASCADE;
+ALTER TABLE `slideshow_user` ADD CONSTRAINT `c_slideshow_user_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE;
+ALTER TABLE `slideshow_usrgrp` ADD CONSTRAINT `c_slideshow_usrgrp_1` FOREIGN KEY (`slideshowid`) REFERENCES `slideshows` (`slideshowid`) ON DELETE CASCADE;
+ALTER TABLE `slideshow_usrgrp` ADD CONSTRAINT `c_slideshow_usrgrp_2` FOREIGN KEY (`usrgrpid`) REFERENCES `usrgrp` (`usrgrpid`) ON DELETE CASCADE;
 ALTER TABLE `slides` ADD CONSTRAINT `c_slides_1` FOREIGN KEY (`slideshowid`) REFERENCES `slideshows` (`slideshowid`) ON DELETE CASCADE;
 ALTER TABLE `slides` ADD CONSTRAINT `c_slides_2` FOREIGN KEY (`screenid`) REFERENCES `screens` (`screenid`) ON DELETE CASCADE;
 ALTER TABLE `drules` ADD CONSTRAINT `c_drules_1` FOREIGN KEY (`proxy_hostid`) REFERENCES `hosts` (`hostid`);
@@ -1468,6 +1530,7 @@ ALTER TABLE `icon_mapping` ADD CONSTRAINT `c_icon_mapping_1` FOREIGN KEY (`iconm
 ALTER TABLE `icon_mapping` ADD CONSTRAINT `c_icon_mapping_2` FOREIGN KEY (`iconid`) REFERENCES `images` (`imageid`);
 ALTER TABLE `sysmaps` ADD CONSTRAINT `c_sysmaps_1` FOREIGN KEY (`backgroundid`) REFERENCES `images` (`imageid`);
 ALTER TABLE `sysmaps` ADD CONSTRAINT `c_sysmaps_2` FOREIGN KEY (`iconmapid`) REFERENCES `icon_map` (`iconmapid`);
+ALTER TABLE `sysmaps` ADD CONSTRAINT `c_sysmaps_3` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`);
 ALTER TABLE `sysmaps_elements` ADD CONSTRAINT `c_sysmaps_elements_1` FOREIGN KEY (`sysmapid`) REFERENCES `sysmaps` (`sysmapid`) ON DELETE CASCADE;
 ALTER TABLE `sysmaps_elements` ADD CONSTRAINT `c_sysmaps_elements_2` FOREIGN KEY (`iconid_off`) REFERENCES `images` (`imageid`);
 ALTER TABLE `sysmaps_elements` ADD CONSTRAINT `c_sysmaps_elements_3` FOREIGN KEY (`iconid_on`) REFERENCES `images` (`imageid`);
@@ -1480,6 +1543,10 @@ ALTER TABLE `sysmaps_link_triggers` ADD CONSTRAINT `c_sysmaps_link_triggers_1` F
 ALTER TABLE `sysmaps_link_triggers` ADD CONSTRAINT `c_sysmaps_link_triggers_2` FOREIGN KEY (`triggerid`) REFERENCES `triggers` (`triggerid`) ON DELETE CASCADE;
 ALTER TABLE `sysmap_element_url` ADD CONSTRAINT `c_sysmap_element_url_1` FOREIGN KEY (`selementid`) REFERENCES `sysmaps_elements` (`selementid`) ON DELETE CASCADE;
 ALTER TABLE `sysmap_url` ADD CONSTRAINT `c_sysmap_url_1` FOREIGN KEY (`sysmapid`) REFERENCES `sysmaps` (`sysmapid`) ON DELETE CASCADE;
+ALTER TABLE `sysmap_user` ADD CONSTRAINT `c_sysmap_user_1` FOREIGN KEY (`sysmapid`) REFERENCES `sysmaps` (`sysmapid`) ON DELETE CASCADE;
+ALTER TABLE `sysmap_user` ADD CONSTRAINT `c_sysmap_user_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE;
+ALTER TABLE `sysmap_usrgrp` ADD CONSTRAINT `c_sysmap_usrgrp_1` FOREIGN KEY (`sysmapid`) REFERENCES `sysmaps` (`sysmapid`) ON DELETE CASCADE;
+ALTER TABLE `sysmap_usrgrp` ADD CONSTRAINT `c_sysmap_usrgrp_2` FOREIGN KEY (`usrgrpid`) REFERENCES `usrgrp` (`usrgrpid`) ON DELETE CASCADE;
 ALTER TABLE `maintenances_hosts` ADD CONSTRAINT `c_maintenances_hosts_1` FOREIGN KEY (`maintenanceid`) REFERENCES `maintenances` (`maintenanceid`) ON DELETE CASCADE;
 ALTER TABLE `maintenances_hosts` ADD CONSTRAINT `c_maintenances_hosts_2` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE;
 ALTER TABLE `maintenances_groups` ADD CONSTRAINT `c_maintenances_groups_1` FOREIGN KEY (`maintenanceid`) REFERENCES `maintenances` (`maintenanceid`) ON DELETE CASCADE;
