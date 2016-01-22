@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2015 Zabbix SIA
+** Copyright (C) 2001-2016 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -47,7 +47,7 @@ int	CONFIG_LOG_LEVEL		= LOG_LEVEL_WARNING;
 int	CONFIG_BUFFER_SIZE		= 100;
 int	CONFIG_BUFFER_SEND		= 5;
 
-int	CONFIG_MAX_LINES_PER_SECOND	= 100;
+int	CONFIG_MAX_LINES_PER_SECOND	= 20;
 
 char	*CONFIG_LOAD_MODULE_PATH	= NULL;
 

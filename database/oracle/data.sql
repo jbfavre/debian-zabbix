@@ -155,189 +155,6 @@ INSERT INTO group_prototype (group_prototypeid,hostid,name,groupid,templateid) v
 INSERT INTO group_prototype (group_prototypeid,hostid,name,groupid,templateid) values ('7','10092','{#CLUSTER.NAME}',NULL,NULL)
 /
 
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('3','System performance','2','3','10001')
-/
-
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('4','Zabbix server health','2','3','10047')
-/
-
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('5','System performance','2','2','10076')
-/
-
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('6','System performance','2','2','10077')
-/
-
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('7','System performance','2','2','10075')
-/
-
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('9','System performance','2','3','10074')
-/
-
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('10','System performance','2','3','10078')
-/
-
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('15','MySQL performance','2','1','10073')
-/
-
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('16','Zabbix server','2','2',NULL)
-/
-
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('17','Zabbix proxy health','2','2','10048')
-/
-
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('18','System performance','1','2','10079')
-/
-
-INSERT INTO screens (screenid,name,hsize,vsize,templateid) values ('19','System performance','2','2','10081')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('20','3','0','433','500','120','0','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('22','3','0','387','500','148','1','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('24','4','0','392','500','212','0','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('25','4','0','404','500','100','1','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('26','4','0','406','555','114','0','1','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('27','4','0','410','500','128','1','1','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('28','5','0','469','500','148','0','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('30','6','0','475','500','114','0','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('31','6','0','474','500','100','1','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('32','7','0','463','500','120','0','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('33','7','0','462','500','106','1','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('36','9','0','457','500','120','0','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('37','9','0','456','500','106','1','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('40','10','0','481','500','114','0','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('41','10','0','480','500','100','1','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('42','15','0','454','500','200','0','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('43','15','0','455','500','270','1','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('44','16','2','1','500','100','0','0','2','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('45','16','0','524','400','156','0','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('46','16','0','525','400','100','1','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('47','4','0','527','500','160','0','2','2','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('48','17','0','532','500','212','0','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('49','17','0','530','500','100','1','0','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('50','17','0','531','500','100','0','1','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('51','17','0','529','500','128','1','1','1','1','0','1','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('52','9','0','544','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('53','5','0','471','500','100','1','0','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('54','5','0','498','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('55','5','0','540','500','100','1','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('56','7','0','541','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('57','7','0','464','500','300','1','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('58','6','0','542','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('59','3','0','533','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('60','3','0','436','500','300','1','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('61','3','1','10009','500','100','0','2','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('62','3','1','10013','500','100','1','2','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('63','18','0','487','500','100','0','0','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('64','18','0','543','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('65','9','0','458','500','300','1','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('66','9','1','22838','500','100','0','2','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('67','9','1','22837','500','100','1','2','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('68','10','0','545','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('69','10','0','482','500','300','1','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('70','10','1','22998','500','100','0','2','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('71','10','1','22997','500','100','1','2','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('72','19','0','495','500','100','0','0','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('73','19','0','546','500','100','1','0','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('74','19','1','23140','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
-/
-
-INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('75','19','1','23138','500','100','1','1','1','1','0','0','0','0','','0','0','','3')
-/
-
 INSERT INTO drules (druleid,proxy_hostid,name,iprange,delay,status) values ('2',NULL,'Local network','192.168.0.1-254','3600','1')
 /
 
@@ -965,7 +782,7 @@ INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,hi
 INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('22232','0','','','10050','Agent ping','agent.ping','60','7','365','0','3','','','0','0','','0','','','1','',NULL,'10','','','','0','0','','','','','0',NULL,'','The agent always returns 1 for this item. It could be used in combination with nodata() for availability check.','0','0','0','0','','0')
 /
 
-INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('22396','5','','','10047','Zabbix $2 write cache, % free','zabbix[wcache,text,pfree]','60','7','365','0','0','','%','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0',NULL,'','','0','0','0','0','','0')
+INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('22396','5','','','10047','Zabbix history index cache, % free','zabbix[wcache,index,pfree]','60','7','365','0','0','','%','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0',NULL,'','','0','0','0','0','','0')
 /
 
 INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('22399','5','','','10047','Zabbix $4 $2 processes, in %','zabbix[process,poller,avg,busy]','60','7','365','0','0','','%','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0',NULL,'','','0','0','0','0','','0')
@@ -2144,7 +1961,7 @@ INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,hi
 INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('23340','5','','','10048','Values processed by Zabbix proxy per second','zabbix[wcache,values]','60','7','365','0','0','','','0','1','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0',NULL,'','','0','30','0','0','','0')
 /
 
-INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('23341','5','','','10048','Zabbix $2 write cache, % free','zabbix[wcache,text,pfree]','60','7','365','0','0','','%','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0',NULL,'','','0','30','0','0','','0')
+INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('23341','5','','','10048','Zabbix history index cache, % free','zabbix[wcache,index,pfree]','60','7','365','0','0','','%','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0',NULL,'','','0','30','0','0','','0')
 /
 
 INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('23342','5','','','10048','Zabbix $2 write cache, % free','zabbix[wcache,history,pfree]','60','7','365','0','0','','%','0','0','','0','','','1','',NULL,NULL,'','','','0','0','','','','','0',NULL,'','','0','30','0','0','','0')
@@ -2768,7 +2585,7 @@ INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,hi
 INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('23274','5','','','10084','Zabbix $2 write cache, % free','zabbix[wcache,history,pfree]','60','7','365','0','0','','%','0','0','','0','','','1','','22183',NULL,'','','','0','0','','','','','0',NULL,'','','0','0','0','0','','0')
 /
 
-INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('23275','5','','','10084','Zabbix $2 write cache, % free','zabbix[wcache,text,pfree]','60','7','365','0','0','','%','0','0','','0','','','1','','22396',NULL,'','','','0','0','','','','','0',NULL,'','','0','0','0','0','','0')
+INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('23275','5','','','10084','Zabbix history index cache, % free','zabbix[wcache,index,pfree]','60','7','365','0','0','','%','0','0','','0','','','1','','22396',NULL,'','','','0','0','','','','','0',NULL,'','','0','0','0','0','','0')
 /
 
 INSERT INTO items (itemid,type,snmp_community,snmp_oid,hostid,name,key_,delay,history,trends,status,value_type,trapper_hosts,units,multiplier,delta,snmpv3_securityname,snmpv3_securitylevel,snmpv3_authpassphrase,snmpv3_privpassphrase,formula,logtimefmt,templateid,valuemapid,delay_flex,params,ipmi_sensor,data_type,authtype,username,password,publickey,privatekey,flags,interfaceid,port,description,inventory_link,lifetime,snmpv3_authprotocol,snmpv3_privprotocol,snmpv3_contextname,evaltype) values ('23276','5','','','10084','Zabbix $2 write cache, % free','zabbix[wcache,trend,pfree]','60','7','365','0','0','','%','0','0','','0','','','1','','22185',NULL,'','','','0','0','','','','','0',NULL,'','','0','0','0','0','','0')
@@ -3113,7 +2930,7 @@ INSERT INTO triggers (triggerid,expression,description,url,status,priority,comme
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13015','{12641}<25','Less than 25% free in the configuration cache','','0','3','Consider increasing CacheSize in the zabbix_server.conf configuration file',NULL,'0','0')
 /
 
-INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13017','{12651}<25','Less than 25% free in the text history cache','','0','3','',NULL,'0','0')
+INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13017','{12651}<25','Less than 25% free in the history index cache','','0','3','',NULL,'0','0')
 /
 
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13019','{12649}<25','Less than 25% free in the trends cache','','0','3','',NULL,'0','0')
@@ -3614,7 +3431,7 @@ INSERT INTO triggers (triggerid,expression,description,url,status,priority,comme
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13518','{12947}<25','Less than 25% free in the history cache','','0','3','',NULL,'0','0')
 /
 
-INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13519','{12948}<25','Less than 25% free in the text history cache','','0','3','',NULL,'0','0')
+INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13519','{12948}<25','Less than 25% free in the history index cache','','0','3','',NULL,'0','0')
 /
 
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13520','{12949}>100','More than 100 items having missing data for more than 10 minutes','','0','2','zabbix[queue,10m] item is collecting data about how many items are missing data for more than 10 minutes (next parameter)',NULL,'0','0')
@@ -3860,7 +3677,7 @@ INSERT INTO triggers (triggerid,expression,description,url,status,priority,comme
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13488','{12897}<25','Less than 25% free in the history cache','','0','3','','13073','0','0')
 /
 
-INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13489','{12898}<25','Less than 25% free in the text history cache','','0','3','','13017','0','0')
+INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13489','{12898}<25','Less than 25% free in the history index cache','','0','3','','13017','0','0')
 /
 
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13490','{12899}<25','Less than 25% free in the trends cache','','0','3','','13019','0','0')
@@ -6209,10 +6026,10 @@ INSERT INTO graphs_items (gitemid,graphid,itemid,drawtype,sortorder,color,yaxiss
 INSERT INTO graphs_items (gitemid,graphid,itemid,drawtype,sortorder,color,yaxisside,calc_fnc,type) values ('1818','546','23158','5','0','00C800','0','2','0')
 /
 
-INSERT INTO graph_theme (graphthemeid,theme,backgroundcolor,graphcolor,gridcolor,maingridcolor,gridbordercolor,textcolor,highlightcolor,leftpercentilecolor,rightpercentilecolor,nonworktimecolor,gridview,legendview) values ('1','blue-theme','FFFFFF','FFFFFF','CCD5D9','ACBBC2','ACBBC2','1F2C33','E33734','429E47','E33734','EBEBEB','1','1')
+INSERT INTO graph_theme (graphthemeid,theme,backgroundcolor,graphcolor,gridcolor,maingridcolor,gridbordercolor,textcolor,highlightcolor,leftpercentilecolor,rightpercentilecolor,nonworktimecolor) values ('1','blue-theme','FFFFFF','FFFFFF','CCD5D9','ACBBC2','ACBBC2','1F2C33','E33734','429E47','E33734','EBEBEB')
 /
 
-INSERT INTO graph_theme (graphthemeid,theme,backgroundcolor,graphcolor,gridcolor,maingridcolor,gridbordercolor,textcolor,highlightcolor,leftpercentilecolor,rightpercentilecolor,nonworktimecolor,gridview,legendview) values ('2','dark-theme','2B2B2B','2B2B2B','454545','4F4F4F','4F4F4F','F2F2F2','E45959','59DB8F','E45959','333333','1','1')
+INSERT INTO graph_theme (graphthemeid,theme,backgroundcolor,graphcolor,gridcolor,maingridcolor,gridbordercolor,textcolor,highlightcolor,leftpercentilecolor,rightpercentilecolor,nonworktimecolor) values ('2','dark-theme','2B2B2B','2B2B2B','454545','4F4F4F','4F4F4F','F2F2F2','E45959','59DB8F','E45959','333333')
 /
 
 INSERT INTO globalmacro (globalmacroid,macro,value) values ('2','{$SNMP_COMMUNITY}','public')
@@ -9242,7 +9059,190 @@ INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('164','17','5
 INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('165','17','599','Network Connect Timeout Error')
 /
 
-INSERT INTO sysmaps (sysmapid,name,width,height,backgroundid,label_type,label_location,highlight,expandproblem,markelements,show_unack,grid_size,grid_show,grid_align,label_format,label_type_host,label_type_hostgroup,label_type_trigger,label_type_map,label_type_image,label_string_host,label_string_hostgroup,label_string_trigger,label_string_map,label_string_image,iconmapid,expand_macros,severity_min) values ('1','Local network','680','200',NULL,'0','0','1','1','1','0','50','1','1','0','2','2','2','2','2','','','','','',NULL,'1','0')
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('3','System performance','2','3','10001',NULL,'0')
+/
+
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('4','Zabbix server health','2','3','10047',NULL,'0')
+/
+
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('5','System performance','2','2','10076',NULL,'0')
+/
+
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('6','System performance','2','2','10077',NULL,'0')
+/
+
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('7','System performance','2','2','10075',NULL,'0')
+/
+
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('9','System performance','2','3','10074',NULL,'0')
+/
+
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('10','System performance','2','3','10078',NULL,'0')
+/
+
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('15','MySQL performance','2','1','10073',NULL,'0')
+/
+
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('16','Zabbix server','2','2',NULL,'1','0')
+/
+
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('17','Zabbix proxy health','2','2','10048',NULL,'0')
+/
+
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('18','System performance','1','2','10079',NULL,'0')
+/
+
+INSERT INTO screens (screenid,name,hsize,vsize,templateid,userid,private) values ('19','System performance','2','2','10081',NULL,'0')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('20','3','0','433','500','120','0','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('22','3','0','387','500','148','1','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('24','4','0','392','500','212','0','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('25','4','0','404','500','100','1','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('26','4','0','406','555','114','0','1','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('27','4','0','410','500','128','1','1','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('28','5','0','469','500','148','0','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('30','6','0','475','500','114','0','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('31','6','0','474','500','100','1','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('32','7','0','463','500','120','0','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('33','7','0','462','500','106','1','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('36','9','0','457','500','120','0','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('37','9','0','456','500','106','1','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('40','10','0','481','500','114','0','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('41','10','0','480','500','100','1','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('42','15','0','454','500','200','0','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('43','15','0','455','500','270','1','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('44','16','2','1','500','100','0','0','2','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('45','16','0','524','400','156','0','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('46','16','0','525','400','100','1','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('47','4','0','527','500','160','0','2','2','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('48','17','0','532','500','212','0','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('49','17','0','530','500','100','1','0','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('50','17','0','531','500','100','0','1','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('51','17','0','529','500','128','1','1','1','1','0','1','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('52','9','0','544','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('53','5','0','471','500','100','1','0','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('54','5','0','498','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('55','5','0','540','500','100','1','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('56','7','0','541','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('57','7','0','464','500','300','1','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('58','6','0','542','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('59','3','0','533','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('60','3','0','436','500','300','1','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('61','3','1','10009','500','100','0','2','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('62','3','1','10013','500','100','1','2','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('63','18','0','487','500','100','0','0','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('64','18','0','543','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('65','9','0','458','500','300','1','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('66','9','1','22838','500','100','0','2','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('67','9','1','22837','500','100','1','2','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('68','10','0','545','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('69','10','0','482','500','300','1','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('70','10','1','22998','500','100','0','2','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('71','10','1','22997','500','100','1','2','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('72','19','0','495','500','100','0','0','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('73','19','0','546','500','100','1','0','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('74','19','1','23140','500','100','0','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO screens_items (screenitemid,screenid,resourcetype,resourceid,width,height,x,y,colspan,rowspan,elements,valign,halign,style,url,dynamic,sort_triggers,application,max_columns) values ('75','19','1','23138','500','100','1','1','1','1','0','0','0','0','','0','0','','3')
+/
+
+INSERT INTO sysmaps (sysmapid,name,width,height,backgroundid,label_type,label_location,highlight,expandproblem,markelements,show_unack,grid_size,grid_show,grid_align,label_format,label_type_host,label_type_hostgroup,label_type_trigger,label_type_map,label_type_image,label_string_host,label_string_hostgroup,label_string_trigger,label_string_map,label_string_image,iconmapid,expand_macros,severity_min,userid,private) values ('1','Local network','680','200',NULL,'0','0','1','1','1','0','50','1','1','0','2','2','2','2','2','','','','','',NULL,'1','0','1','0')
 /
 
 INSERT INTO sysmaps_elements (selementid,sysmapid,elementid,elementtype,iconid_off,iconid_on,label,label_location,x,y,iconid_disabled,iconid_maintenance,elementsubtype,areatype,width,height,viewtype,use_iconmap,application) values ('1','1','10084','0','185',NULL,'{HOST.NAME}' || chr(13) || chr(10) || '{HOST.CONN}','0','111','61',NULL,NULL,'0','0','200','200','0','0','')

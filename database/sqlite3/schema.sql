@@ -87,6 +87,8 @@ CREATE TABLE screens (
 	hsize                    integer         DEFAULT '1'               NOT NULL,
 	vsize                    integer         DEFAULT '1'               NOT NULL,
 	templateid               bigint                                    NULL REFERENCES hosts (hostid) ON DELETE CASCADE,
+	userid                   bigint                                    NULL REFERENCES users (userid),
+	private                  integer         DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (screenid)
 );
 CREATE INDEX screens_1 ON screens (templateid);
@@ -113,13 +115,47 @@ CREATE TABLE screens_items (
 	PRIMARY KEY (screenitemid)
 );
 CREATE INDEX screens_items_1 ON screens_items (screenid);
+CREATE TABLE screen_user (
+	screenuserid             bigint                                    NOT NULL,
+	screenid                 bigint                                    NOT NULL REFERENCES screens (screenid) ON DELETE CASCADE,
+	userid                   bigint                                    NOT NULL REFERENCES users (userid) ON DELETE CASCADE,
+	permission               integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (screenuserid)
+);
+CREATE UNIQUE INDEX screen_user_1 ON screen_user (screenid,userid);
+CREATE TABLE screen_usrgrp (
+	screenusrgrpid           bigint                                    NOT NULL,
+	screenid                 bigint                                    NOT NULL REFERENCES screens (screenid) ON DELETE CASCADE,
+	usrgrpid                 bigint                                    NOT NULL REFERENCES usrgrp (usrgrpid) ON DELETE CASCADE,
+	permission               integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (screenusrgrpid)
+);
+CREATE UNIQUE INDEX screen_usrgrp_1 ON screen_usrgrp (screenid,usrgrpid);
 CREATE TABLE slideshows (
 	slideshowid              bigint                                    NOT NULL,
 	name                     varchar(255)    DEFAULT ''                NOT NULL,
 	delay                    integer         DEFAULT '0'               NOT NULL,
+	userid                   bigint                                    NOT NULL REFERENCES users (userid),
+	private                  integer         DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (slideshowid)
 );
 CREATE UNIQUE INDEX slideshows_1 ON slideshows (name);
+CREATE TABLE slideshow_user (
+	slideshowuserid          bigint                                    NOT NULL,
+	slideshowid              bigint                                    NOT NULL REFERENCES slideshows (slideshowid) ON DELETE CASCADE,
+	userid                   bigint                                    NOT NULL REFERENCES users (userid) ON DELETE CASCADE,
+	permission               integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (slideshowuserid)
+);
+CREATE UNIQUE INDEX slideshow_user_1 ON slideshow_user (slideshowid,userid);
+CREATE TABLE slideshow_usrgrp (
+	slideshowusrgrpid        bigint                                    NOT NULL,
+	slideshowid              bigint                                    NOT NULL REFERENCES slideshows (slideshowid) ON DELETE CASCADE,
+	usrgrpid                 bigint                                    NOT NULL REFERENCES usrgrp (usrgrpid) ON DELETE CASCADE,
+	permission               integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (slideshowusrgrpid)
+);
+CREATE UNIQUE INDEX slideshow_usrgrp_1 ON slideshow_usrgrp (slideshowid,usrgrpid);
 CREATE TABLE slides (
 	slideid                  bigint                                    NOT NULL,
 	slideshowid              bigint                                    NOT NULL REFERENCES slideshows (slideshowid) ON DELETE CASCADE,
@@ -656,14 +692,12 @@ CREATE TABLE graph_theme (
 	leftpercentilecolor      varchar(6)      DEFAULT ''                NOT NULL,
 	rightpercentilecolor     varchar(6)      DEFAULT ''                NOT NULL,
 	nonworktimecolor         varchar(6)      DEFAULT ''                NOT NULL,
-	gridview                 integer         DEFAULT '1'               NOT NULL,
-	legendview               integer         DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (graphthemeid)
 );
 CREATE UNIQUE INDEX graph_theme_1 ON graph_theme (theme);
 CREATE TABLE globalmacro (
 	globalmacroid            bigint                                    NOT NULL,
-	macro                    varchar(64)     DEFAULT ''                NOT NULL,
+	macro                    varchar(255)    DEFAULT ''                NOT NULL,
 	value                    varchar(255)    DEFAULT ''                NOT NULL,
 	PRIMARY KEY (globalmacroid)
 );
@@ -671,7 +705,7 @@ CREATE UNIQUE INDEX globalmacro_1 ON globalmacro (macro);
 CREATE TABLE hostmacro (
 	hostmacroid              bigint                                    NOT NULL,
 	hostid                   bigint                                    NOT NULL REFERENCES hosts (hostid) ON DELETE CASCADE,
-	macro                    varchar(64)     DEFAULT ''                NOT NULL,
+	macro                    varchar(255)    DEFAULT ''                NOT NULL,
 	value                    varchar(255)    DEFAULT ''                NOT NULL,
 	PRIMARY KEY (hostmacroid)
 );
@@ -808,6 +842,8 @@ CREATE TABLE sysmaps (
 	iconmapid                bigint                                    NULL REFERENCES icon_map (iconmapid),
 	expand_macros            integer         DEFAULT '0'               NOT NULL,
 	severity_min             integer         DEFAULT '0'               NOT NULL,
+	userid                   bigint                                    NOT NULL REFERENCES users (userid),
+	private                  integer         DEFAULT '1'               NOT NULL,
 	PRIMARY KEY (sysmapid)
 );
 CREATE UNIQUE INDEX sysmaps_1 ON sysmaps (name);
@@ -880,6 +916,22 @@ CREATE TABLE sysmap_url (
 	PRIMARY KEY (sysmapurlid)
 );
 CREATE UNIQUE INDEX sysmap_url_1 ON sysmap_url (sysmapid,name);
+CREATE TABLE sysmap_user (
+	sysmapuserid             bigint                                    NOT NULL,
+	sysmapid                 bigint                                    NOT NULL REFERENCES sysmaps (sysmapid) ON DELETE CASCADE,
+	userid                   bigint                                    NOT NULL REFERENCES users (userid) ON DELETE CASCADE,
+	permission               integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (sysmapuserid)
+);
+CREATE UNIQUE INDEX sysmap_user_1 ON sysmap_user (sysmapid,userid);
+CREATE TABLE sysmap_usrgrp (
+	sysmapusrgrpid           bigint                                    NOT NULL,
+	sysmapid                 bigint                                    NOT NULL REFERENCES sysmaps (sysmapid) ON DELETE CASCADE,
+	usrgrpid                 bigint                                    NOT NULL REFERENCES usrgrp (usrgrpid) ON DELETE CASCADE,
+	permission               integer         DEFAULT '2'               NOT NULL,
+	PRIMARY KEY (sysmapusrgrpid)
+);
+CREATE UNIQUE INDEX sysmap_usrgrp_1 ON sysmap_usrgrp (sysmapid,usrgrpid);
 CREATE TABLE maintenances_hosts (
 	maintenance_hostid       bigint                                    NOT NULL,
 	maintenanceid            bigint                                    NOT NULL REFERENCES maintenances (maintenanceid) ON DELETE CASCADE,
@@ -1020,7 +1072,7 @@ CREATE TABLE proxy_history (
 	state                    integer         DEFAULT '0'               NOT NULL,
 	lastlogsize              bigint          DEFAULT '0'               NOT NULL,
 	mtime                    integer         DEFAULT '0'               NOT NULL,
-	meta                     integer         DEFAULT '0'               NOT NULL
+	flags                    integer         DEFAULT '0'               NOT NULL
 );
 CREATE INDEX proxy_history_1 ON proxy_history (clock);
 CREATE TABLE proxy_dhistory (
@@ -1380,4 +1432,4 @@ CREATE TABLE dbversion (
 	mandatory                integer         DEFAULT '0'               NOT NULL,
 	optional                 integer         DEFAULT '0'               NOT NULL
 );
-INSERT INTO dbversion VALUES ('2050069','2050069');
+INSERT INTO dbversion VALUES ('2050119','2050119');

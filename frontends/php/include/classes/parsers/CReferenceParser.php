@@ -1,7 +1,7 @@
 <?php
 /*
 ** Zabbix
-** Copyright (C) 2001-2015 Zabbix SIA
+** Copyright (C) 2001-2016 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -19,21 +19,36 @@
 **/
 
 
-$screenWidget = (new CWidget())->setTitle(_('Screens'))->addHeader($this->data['screen']['name']);
-if (!empty($this->data['screen']['templateid'])) {
-	$screenWidget->addItem(get_header_host_table('screens', $this->data['screen']['templateid']));
+/**
+ * A parser for reference macros like $1-$9.
+ */
+class CReferenceParser extends CParser {
+
+	/**
+	 * @param string    $source
+	 * @param int       $pos
+	 *
+	 * @return int
+	 */
+	public function parse($source, $pos = 0) {
+		$this->length = 0;
+		$this->match = '';
+
+		$p = $pos;
+
+		if (!isset($source[$p]) || $source[$p] !== '$') {
+			return CParser::PARSE_FAIL;
+		}
+		$p++;
+
+		if (!isset($source[$p]) || $source[$p] < '1' || $source[$p] > '9') {
+			return CParser::PARSE_FAIL;
+		}
+		$p++;
+
+		$this->length = $p - $pos;
+		$this->match = substr($source, $pos, $this->length);
+
+		return (isset($source[$pos + $this->length]) ? self::PARSE_SUCCESS_CONT : self::PARSE_SUCCESS);
+	}
 }
-$screenWidget->addItem(BR());
-
-$screenBuilder = new CScreenBuilder([
-	'isFlickerfree' => false,
-	'screen' => $this->data['screen'],
-	'mode' => SCREEN_MODE_EDIT,
-	'updateProfile' => false
-]);
-$screenWidget->addItem($screenBuilder->show());
-
-$screenBuilder->insertInitScreenJs($this->data['screenid']);
-$screenBuilder->insertProcessObjectsJs();
-
-return $screenWidget;

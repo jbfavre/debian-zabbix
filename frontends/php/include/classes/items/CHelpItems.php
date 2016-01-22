@@ -1,7 +1,7 @@
 <?php
 /*
 ** Zabbix
-** Copyright (C) 2001-2015 Zabbix SIA
+** Copyright (C) 2001-2016 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -218,7 +218,7 @@ class CHelpItems {
 				],
 				[
 					'key' => 'system.run[command,<mode>]',
-					'description' => _('Run specified command on the host. Returns text result of the command')
+					'description' => _('Run specified command on the host. Returns text result of the command; 1 - with mode as nowait (regardless of command result)')
 				],
 				[
 					'key' => 'system.stat[resource,<type>]',
@@ -500,7 +500,7 @@ class CHelpItems {
 				],
 				[
 					'key' => 'system.run[command,<mode>]',
-					'description' => _('Run specified command on the host. Returns text result of the command')
+					'description' => _('Run specified command on the host. Returns text result of the command; 1 - with mode as nowait (regardless of command result)')
 				],
 				[
 					'key' => 'system.stat[resource,<type>]',

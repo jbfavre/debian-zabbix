@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2015 Zabbix SIA
+** Copyright (C) 2001-2016 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -132,6 +132,8 @@ const ZBX_TABLE	tables[] = {
 		{"hsize",	"1",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"vsize",	"1",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"templateid",	NULL,	"hosts",	"hostid",	0,	ZBX_TYPE_ID,	0,	ZBX_FK_CASCADE_DELETE},
+		{"userid",	NULL,	"users",	"userid",	0,	ZBX_TYPE_ID,	0,	0},
+		{"private",	"1",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{0}
 		},
 		NULL
@@ -161,14 +163,56 @@ const ZBX_TABLE	tables[] = {
 		},
 		NULL
 	},
+	{"screen_user",	"screenuserid",	0,
+		{
+		{"screenuserid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
+		{"screenid",	NULL,	"screens",	"screenid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"userid",	NULL,	"users",	"userid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"permission",	"2",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{0}
+		},
+		"screenid,userid"
+	},
+	{"screen_usrgrp",	"screenusrgrpid",	0,
+		{
+		{"screenusrgrpid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
+		{"screenid",	NULL,	"screens",	"screenid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"usrgrpid",	NULL,	"usrgrp",	"usrgrpid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"permission",	"2",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{0}
+		},
+		"screenid,usrgrpid"
+	},
 	{"slideshows",	"slideshowid",	0,
 		{
 		{"slideshowid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
 		{"name",	"",	NULL,	NULL,	255,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
 		{"delay",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{"userid",	NULL,	"users",	"userid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
+		{"private",	"1",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{0}
 		},
 		"name"
+	},
+	{"slideshow_user",	"slideshowuserid",	0,
+		{
+		{"slideshowuserid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
+		{"slideshowid",	NULL,	"slideshows",	"slideshowid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"userid",	NULL,	"users",	"userid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"permission",	"2",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{0}
+		},
+		"slideshowid,userid"
+	},
+	{"slideshow_usrgrp",	"slideshowusrgrpid",	0,
+		{
+		{"slideshowusrgrpid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
+		{"slideshowid",	NULL,	"slideshows",	"slideshowid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"usrgrpid",	NULL,	"usrgrp",	"usrgrpid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"permission",	"2",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{0}
+		},
+		"slideshowid,usrgrpid"
 	},
 	{"slides",	"slideid",	0,
 		{
@@ -744,8 +788,6 @@ const ZBX_TABLE	tables[] = {
 		{"leftpercentilecolor",	"",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
 		{"rightpercentilecolor",	"",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
 		{"nonworktimecolor",	"",	NULL,	NULL,	6,	ZBX_TYPE_CHAR,	ZBX_NOTNULL,	0},
-		{"gridview",	"1",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
-		{"legendview",	"1",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{0}
 		},
 		"theme"
@@ -753,7 +795,7 @@ const ZBX_TABLE	tables[] = {
 	{"globalmacro",	"globalmacroid",	0,
 		{
 		{"globalmacroid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
-		{"macro",	"",	NULL,	NULL,	64,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
+		{"macro",	"",	NULL,	NULL,	255,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{"value",	"",	NULL,	NULL,	255,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{0}
 		},
@@ -763,7 +805,7 @@ const ZBX_TABLE	tables[] = {
 		{
 		{"hostmacroid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
 		{"hostid",	NULL,	"hosts",	"hostid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL | ZBX_PROXY,	ZBX_FK_CASCADE_DELETE},
-		{"macro",	"",	NULL,	NULL,	64,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
+		{"macro",	"",	NULL,	NULL,	255,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{"value",	"",	NULL,	NULL,	255,	ZBX_TYPE_CHAR,	ZBX_NOTNULL | ZBX_PROXY,	0},
 		{0}
 		},
@@ -916,6 +958,8 @@ const ZBX_TABLE	tables[] = {
 		{"iconmapid",	NULL,	"icon_map",	"iconmapid",	0,	ZBX_TYPE_ID,	0,	0},
 		{"expand_macros",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"severity_min",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{"userid",	NULL,	"users",	"userid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
+		{"private",	"1",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{0}
 		},
 		"name"
@@ -989,6 +1033,26 @@ const ZBX_TABLE	tables[] = {
 		{0}
 		},
 		"sysmapid,name"
+	},
+	{"sysmap_user",	"sysmapuserid",	0,
+		{
+		{"sysmapuserid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
+		{"sysmapid",	NULL,	"sysmaps",	"sysmapid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"userid",	NULL,	"users",	"userid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"permission",	"2",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{0}
+		},
+		"sysmapid,userid"
+	},
+	{"sysmap_usrgrp",	"sysmapusrgrpid",	0,
+		{
+		{"sysmapusrgrpid",	NULL,	NULL,	NULL,	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	0},
+		{"sysmapid",	NULL,	"sysmaps",	"sysmapid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"usrgrpid",	NULL,	"usrgrp",	"usrgrpid",	0,	ZBX_TYPE_ID,	ZBX_NOTNULL,	ZBX_FK_CASCADE_DELETE},
+		{"permission",	"2",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{0}
+		},
+		"sysmapid,usrgrpid"
 	},
 	{"maintenances_hosts",	"maintenance_hostid",	0,
 		{
@@ -1152,7 +1216,7 @@ const ZBX_TABLE	tables[] = {
 		{"state",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{"lastlogsize",	"0",	NULL,	NULL,	0,	ZBX_TYPE_UINT,	ZBX_NOTNULL,	0},
 		{"mtime",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
-		{"meta",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
+		{"flags",	"0",	NULL,	NULL,	0,	ZBX_TYPE_INT,	ZBX_NOTNULL,	0},
 		{0}
 		},
 		NULL
@@ -1673,6 +1737,8 @@ name varchar(255)  NOT NULL,\n\
 hsize integer DEFAULT '1' NOT NULL,\n\
 vsize integer DEFAULT '1' NOT NULL,\n\
 templateid bigint  NULL REFERENCES hosts (hostid) ON DELETE CASCADE,\n\
+userid bigint  NULL REFERENCES users (userid),\n\
+private integer DEFAULT '1' NOT NULL,\n\
 PRIMARY KEY (screenid)\n\
 );\n\
 CREATE INDEX screens_1 ON screens (templateid);\n\
@@ -1699,13 +1765,47 @@ max_columns integer DEFAULT '3' NOT NULL,\n\
 PRIMARY KEY (screenitemid)\n\
 );\n\
 CREATE INDEX screens_items_1 ON screens_items (screenid);\n\
+CREATE TABLE screen_user (\n\
+screenuserid bigint  NOT NULL,\n\
+screenid bigint  NOT NULL REFERENCES screens (screenid) ON DELETE CASCADE,\n\
+userid bigint  NOT NULL REFERENCES users (userid) ON DELETE CASCADE,\n\
+permission integer DEFAULT '2' NOT NULL,\n\
+PRIMARY KEY (screenuserid)\n\
+);\n\
+CREATE UNIQUE INDEX screen_user_1 ON screen_user (screenid,userid);\n\
+CREATE TABLE screen_usrgrp (\n\
+screenusrgrpid bigint  NOT NULL,\n\
+screenid bigint  NOT NULL REFERENCES screens (screenid) ON DELETE CASCADE,\n\
+usrgrpid bigint  NOT NULL REFERENCES usrgrp (usrgrpid) ON DELETE CASCADE,\n\
+permission integer DEFAULT '2' NOT NULL,\n\
+PRIMARY KEY (screenusrgrpid)\n\
+);\n\
+CREATE UNIQUE INDEX screen_usrgrp_1 ON screen_usrgrp (screenid,usrgrpid);\n\
 CREATE TABLE slideshows (\n\
 slideshowid bigint  NOT NULL,\n\
 name varchar(255) DEFAULT '' NOT NULL,\n\
 delay integer DEFAULT '0' NOT NULL,\n\
+userid bigint  NOT NULL REFERENCES users (userid),\n\
+private integer DEFAULT '1' NOT NULL,\n\
 PRIMARY KEY (slideshowid)\n\
 );\n\
 CREATE UNIQUE INDEX slideshows_1 ON slideshows (name);\n\
+CREATE TABLE slideshow_user (\n\
+slideshowuserid bigint  NOT NULL,\n\
+slideshowid bigint  NOT NULL REFERENCES slideshows (slideshowid) ON DELETE CASCADE,\n\
+userid bigint  NOT NULL REFERENCES users (userid) ON DELETE CASCADE,\n\
+permission integer DEFAULT '2' NOT NULL,\n\
+PRIMARY KEY (slideshowuserid)\n\
+);\n\
+CREATE UNIQUE INDEX slideshow_user_1 ON slideshow_user (slideshowid,userid);\n\
+CREATE TABLE slideshow_usrgrp (\n\
+slideshowusrgrpid bigint  NOT NULL,\n\
+slideshowid bigint  NOT NULL REFERENCES slideshows (slideshowid) ON DELETE CASCADE,\n\
+usrgrpid bigint  NOT NULL REFERENCES usrgrp (usrgrpid) ON DELETE CASCADE,\n\
+permission integer DEFAULT '2' NOT NULL,\n\
+PRIMARY KEY (slideshowusrgrpid)\n\
+);\n\
+CREATE UNIQUE INDEX slideshow_usrgrp_1 ON slideshow_usrgrp (slideshowid,usrgrpid);\n\
 CREATE TABLE slides (\n\
 slideid bigint  NOT NULL,\n\
 slideshowid bigint  NOT NULL REFERENCES slideshows (slideshowid) ON DELETE CASCADE,\n\
@@ -2242,14 +2342,12 @@ highlightcolor varchar(6) DEFAULT '' NOT NULL,\n\
 leftpercentilecolor varchar(6) DEFAULT '' NOT NULL,\n\
 rightpercentilecolor varchar(6) DEFAULT '' NOT NULL,\n\
 nonworktimecolor varchar(6) DEFAULT '' NOT NULL,\n\
-gridview integer DEFAULT '1' NOT NULL,\n\
-legendview integer DEFAULT '1' NOT NULL,\n\
 PRIMARY KEY (graphthemeid)\n\
 );\n\
 CREATE UNIQUE INDEX graph_theme_1 ON graph_theme (theme);\n\
 CREATE TABLE globalmacro (\n\
 globalmacroid bigint  NOT NULL,\n\
-macro varchar(64) DEFAULT '' NOT NULL,\n\
+macro varchar(255) DEFAULT '' NOT NULL,\n\
 value varchar(255) DEFAULT '' NOT NULL,\n\
 PRIMARY KEY (globalmacroid)\n\
 );\n\
@@ -2257,7 +2355,7 @@ CREATE UNIQUE INDEX globalmacro_1 ON globalmacro (macro);\n\
 CREATE TABLE hostmacro (\n\
 hostmacroid bigint  NOT NULL,\n\
 hostid bigint  NOT NULL REFERENCES hosts (hostid) ON DELETE CASCADE,\n\
-macro varchar(64) DEFAULT '' NOT NULL,\n\
+macro varchar(255) DEFAULT '' NOT NULL,\n\
 value varchar(255) DEFAULT '' NOT NULL,\n\
 PRIMARY KEY (hostmacroid)\n\
 );\n\
@@ -2394,6 +2492,8 @@ label_string_image varchar(255) DEFAULT '' NOT NULL,\n\
 iconmapid bigint  NULL REFERENCES icon_map (iconmapid),\n\
 expand_macros integer DEFAULT '0' NOT NULL,\n\
 severity_min integer DEFAULT '0' NOT NULL,\n\
+userid bigint  NOT NULL REFERENCES users (userid),\n\
+private integer DEFAULT '1' NOT NULL,\n\
 PRIMARY KEY (sysmapid)\n\
 );\n\
 CREATE UNIQUE INDEX sysmaps_1 ON sysmaps (name);\n\
@@ -2466,6 +2566,22 @@ elementtype integer DEFAULT '0' NOT NULL,\n\
 PRIMARY KEY (sysmapurlid)\n\
 );\n\
 CREATE UNIQUE INDEX sysmap_url_1 ON sysmap_url (sysmapid,name);\n\
+CREATE TABLE sysmap_user (\n\
+sysmapuserid bigint  NOT NULL,\n\
+sysmapid bigint  NOT NULL REFERENCES sysmaps (sysmapid) ON DELETE CASCADE,\n\
+userid bigint  NOT NULL REFERENCES users (userid) ON DELETE CASCADE,\n\
+permission integer DEFAULT '2' NOT NULL,\n\
+PRIMARY KEY (sysmapuserid)\n\
+);\n\
+CREATE UNIQUE INDEX sysmap_user_1 ON sysmap_user (sysmapid,userid);\n\
+CREATE TABLE sysmap_usrgrp (\n\
+sysmapusrgrpid bigint  NOT NULL,\n\
+sysmapid bigint  NOT NULL REFERENCES sysmaps (sysmapid) ON DELETE CASCADE,\n\
+usrgrpid bigint  NOT NULL REFERENCES usrgrp (usrgrpid) ON DELETE CASCADE,\n\
+permission integer DEFAULT '2' NOT NULL,\n\
+PRIMARY KEY (sysmapusrgrpid)\n\
+);\n\
+CREATE UNIQUE INDEX sysmap_usrgrp_1 ON sysmap_usrgrp (sysmapid,usrgrpid);\n\
 CREATE TABLE maintenances_hosts (\n\
 maintenance_hostid bigint  NOT NULL,\n\
 maintenanceid bigint  NOT NULL REFERENCES maintenances (maintenanceid) ON DELETE CASCADE,\n\
@@ -2606,7 +2722,7 @@ ns integer DEFAULT '0' NOT NULL,\n\
 state integer DEFAULT '0' NOT NULL,\n\
 lastlogsize bigint DEFAULT '0' NOT NULL,\n\
 mtime integer DEFAULT '0' NOT NULL,\n\
-meta integer DEFAULT '0' NOT NULL\n\
+flags integer DEFAULT '0' NOT NULL\n\
 );\n\
 CREATE INDEX proxy_history_1 ON proxy_history (clock);\n\
 CREATE TABLE proxy_dhistory (\n\
@@ -2966,7 +3082,7 @@ CREATE TABLE dbversion (\n\
 mandatory integer DEFAULT '0' NOT NULL,\n\
 optional integer DEFAULT '0' NOT NULL\n\
 );\n\
-INSERT INTO dbversion VALUES ('2050069','2050069');\n\
+INSERT INTO dbversion VALUES ('2050119','2050119');\n\
 ";
 const char	*const db_schema_fkeys[] = {
 	NULL

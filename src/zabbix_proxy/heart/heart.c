@@ -1,6 +1,6 @@
 /*
 ** Zabbix
-** Copyright (C) 2001-2015 Zabbix SIA
+** Copyright (C) 2001-2016 Zabbix SIA
 **
 ** This program is free software; you can redistribute it and/or modify
 ** it under the terms of the GNU General Public License as published by
@@ -54,7 +54,7 @@ static int	send_heartbeat(void)
 	if (SUCCEED != put_data_to_server(&sock, &j, &error))
 	{
 		zabbix_log(LOG_LEVEL_WARNING, "cannot send heartbeat message to server at \"%s\": %s",
-				get_ip_by_socket(&sock), error);
+				sock.peer, error);
 		ret = FAIL;
 	}
 
@@ -96,6 +96,8 @@ ZBX_THREAD_ENTRY(heart_thread, args)
 
 	for (;;)
 	{
+		zbx_handle_log();
+
 		if (0 != sleeptime)
 		{
 			zbx_setproctitle("%s [sending heartbeat message %s in " ZBX_FS_DBL " sec, "
