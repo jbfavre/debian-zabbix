@@ -1,6 +1,8 @@
---- a/src/zabbix_java/Makefile.in
-+++ b/src/zabbix_java/Makefile.in
-@@ -505,6 +505,7 @@ test: class
+Index: zabbix/src/zabbix_java/Makefile.in
+===================================================================
+--- zabbix.orig/src/zabbix_java/Makefile.in	2016-01-23 13:09:06.534938889 +0100
++++ zabbix/src/zabbix_java/Makefile.in	2016-01-23 13:09:06.534938889 +0100
+@@ -505,6 +505,7 @@
  class:
  	$(MKDIR_P) class/src
  	$(MKDIR_P) class/tests
@@ -8,9 +10,11 @@
  
  install: all
  	$(MKDIR_P) "$(ZJG_DEST)/bin"
---- a/src/zabbix_java/Makefile.am
-+++ b/src/zabbix_java/Makefile.am
-@@ -28,6 +28,7 @@ test: class
+Index: zabbix/src/zabbix_java/Makefile.am
+===================================================================
+--- zabbix.orig/src/zabbix_java/Makefile.am	2016-01-23 13:09:06.534938889 +0100
++++ zabbix/src/zabbix_java/Makefile.am	2016-01-23 13:09:06.534938889 +0100
+@@ -28,6 +28,7 @@
  class:
  	$(MKDIR_P) class/src
  	$(MKDIR_P) class/tests

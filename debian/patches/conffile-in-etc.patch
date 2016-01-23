@@ -1,6 +1,8 @@
---- a/frontends/php/include/classes/core/CConfigFile.php
-+++ b/frontends/php/include/classes/core/CConfigFile.php
-@@ -24,7 +24,7 @@ class CConfigFile {
+Index: zabbix/frontends/php/include/classes/core/CConfigFile.php
+===================================================================
+--- zabbix.orig/frontends/php/include/classes/core/CConfigFile.php	2016-01-23 13:09:07.190942069 +0100
++++ zabbix/frontends/php/include/classes/core/CConfigFile.php	2016-01-23 13:09:07.186942050 +0100
+@@ -24,7 +24,7 @@
  	const CONFIG_NOT_FOUND = 1;
  	const CONFIG_ERROR = 2;
  
@@ -9,9 +11,11 @@
  
  	private static $supported_db_types = [
  		ZBX_DB_DB2 => true,
---- a/frontends/php/include/classes/core/ZBase.php
-+++ b/frontends/php/include/classes/core/ZBase.php
-@@ -319,7 +319,8 @@ class ZBase {
+Index: zabbix/frontends/php/include/classes/core/ZBase.php
+===================================================================
+--- zabbix.orig/frontends/php/include/classes/core/ZBase.php	2016-01-23 13:09:07.190942069 +0100
++++ zabbix/frontends/php/include/classes/core/ZBase.php	2016-01-23 13:09:07.186942050 +0100
+@@ -299,7 +299,8 @@
  	 * Load zabbix config file.
  	 */
  	protected function loadConfigFile() {
@@ -21,9 +25,11 @@
  		$config = new CConfigFile($configFile);
  		$this->config = $config->load();
  	}
---- a/frontends/php/include/classes/setup/CSetupWizard.php
-+++ b/frontends/php/include/classes/setup/CSetupWizard.php
-@@ -347,8 +347,9 @@ class CSetupWizard extends CForm {
+Index: zabbix/frontends/php/include/classes/setup/CSetupWizard.php
+===================================================================
+--- zabbix.orig/frontends/php/include/classes/setup/CSetupWizard.php	2016-01-23 13:09:07.190942069 +0100
++++ zabbix/frontends/php/include/classes/setup/CSetupWizard.php	2016-01-23 13:09:07.186942050 +0100
+@@ -348,8 +348,9 @@
  	function stage5() {
  		$this->setConfig('ZBX_CONFIG_FILE_CORRECT', true);
  
@@ -35,7 +41,7 @@
  		$config->config = [
  			'DB' => [
  				'TYPE' => $this->getConfig('DB_TYPE'),
-@@ -517,7 +518,8 @@ class CSetupWizard extends CForm {
+@@ -517,7 +518,8 @@
  				// make zabbix.conf.php downloadable
  				header('Content-Type: application/x-httpd-php');
  				header('Content-Disposition: attachment; filename="'.basename(CConfigFile::CONFIG_FILE_PATH).'"');
