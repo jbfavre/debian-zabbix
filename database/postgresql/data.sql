@@ -215,7 +215,7 @@ INSERT INTO valuemaps (valuemapid,name) values ('4','APC Battery Replacement Sta
 INSERT INTO valuemaps (valuemapid,name) values ('5','APC Battery Status');
 INSERT INTO valuemaps (valuemapid,name) values ('7','Dell Open Manage System Status');
 INSERT INTO valuemaps (valuemapid,name) values ('6','HP Insight System Status');
-INSERT INTO valuemaps (valuemapid,name) values ('2','Host status');
+INSERT INTO valuemaps (valuemapid,name) values ('2','Host availability');
 INSERT INTO valuemaps (valuemapid,name) values ('17','HTTP response status code');
 INSERT INTO valuemaps (valuemapid,name) values ('14','Maintenance status');
 INSERT INTO valuemaps (valuemapid,name) values ('9','SNMP device status (hrDeviceStatus)');
@@ -1230,7 +1230,7 @@ INSERT INTO triggers (triggerid,expression,description,url,status,priority,comme
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13534','({TRIGGER.VALUE}=0 and {13138}>75) or ({TRIGGER.VALUE}=1 and {13138}>65)','Zabbix data sender processes more than 75% busy','','0','3','',NULL,'0','0');
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13535','({TRIGGER.VALUE}=0 and {13140}>75) or ({TRIGGER.VALUE}=1 and {13140}>65)','Zabbix heartbeat sender processes more than 75% busy','','0','3','',NULL,'0','0');
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13536','{12965}<25','Less than 25% free in the vmware cache','','0','3','',NULL,'0','0');
-INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13538','{12968}>0.7','70% os Process CPU Load on {HOST.NAME}','','0','3','',NULL,'0','0');
+INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13538','{12968}>70','70% os Process CPU Load on {HOST.NAME}','','0','3','',NULL,'0','0');
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13539','{12969}>({12970}*0.7)','70% mem Heap Memory used on {HOST.NAME}','','0','3','',NULL,'0','0');
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13540','{12971}>({12972}*0.7)','70% mem Non-Heap Memory used on {HOST.NAME}','','0','3','',NULL,'0','0');
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13541','{12973}={12974}','mem Heap Memory fully committed on {HOST.NAME}','','0','2','',NULL,'0','0');
@@ -1532,7 +1532,7 @@ INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('
 INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12871','23207','13463','last','0');
 INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12872','23209','13464','last','0');
 INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12873','23210','13464','last','0');
-INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12874','23188','13465','nodata','1m');
+INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12874','23188','13465','nodata','5m');
 INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12895','23271','13486','min','10m');
 INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12896','23273','13487','min','10m');
 INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12897','23274','13488','min','10m');
@@ -2948,8 +2948,9 @@ INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5873','
 INSERT INTO items_applications (itemappid,applicationid,itemid) values ('5874','458','23659');
 INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('1','1','0','Down');
 INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('2','1','1','Up');
-INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('3','2','0','Up');
-INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('4','2','2','Unreachable');
+INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('3','2','0','not available');
+INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('4','2','1','available');
+INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('5','2','2','unknown');
 INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('13','6','1','Other');
 INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('14','6','2','OK');
 INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('15','6','3','Degraded');

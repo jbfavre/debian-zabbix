@@ -647,7 +647,7 @@ INSERT INTO valuemaps (valuemapid,name) values ('7','Dell Open Manage System Sta
 INSERT INTO valuemaps (valuemapid,name) values ('6','HP Insight System Status')
 /
 
-INSERT INTO valuemaps (valuemapid,name) values ('2','Host status')
+INSERT INTO valuemaps (valuemapid,name) values ('2','Host availability')
 /
 
 INSERT INTO valuemaps (valuemapid,name) values ('17','HTTP response status code')
@@ -3485,7 +3485,7 @@ INSERT INTO triggers (triggerid,expression,description,url,status,priority,comme
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13536','{12965}<25','Less than 25% free in the vmware cache','','0','3','',NULL,'0','0')
 /
 
-INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13538','{12968}>0.7','70% os Process CPU Load on {HOST.NAME}','','0','3','',NULL,'0','0')
+INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13538','{12968}>70','70% os Process CPU Load on {HOST.NAME}','','0','3','',NULL,'0','0')
 /
 
 INSERT INTO triggers (triggerid,expression,description,url,status,priority,comments,templateid,type,flags) values ('13539','{12969}>({12970}*0.7)','70% mem Heap Memory used on {HOST.NAME}','','0','3','',NULL,'0','0')
@@ -4391,7 +4391,7 @@ INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('
 INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12873','23210','13464','last','0')
 /
 
-INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12874','23188','13465','nodata','1m')
+INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12874','23188','13465','nodata','5m')
 /
 
 INSERT INTO functions (functionid,itemid,triggerid,function,parameter) values ('12895','23271','13486','min','10m')
@@ -8639,10 +8639,13 @@ INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('1','1','0','
 INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('2','1','1','Up')
 /
 
-INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('3','2','0','Up')
+INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('3','2','0','not available')
 /
 
-INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('4','2','2','Unreachable')
+INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('4','2','1','available')
+/
+
+INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('5','2','2','unknown')
 /
 
 INSERT INTO mappings (mappingid,valuemapid,value,newvalue) values ('13','6','1','Other')
