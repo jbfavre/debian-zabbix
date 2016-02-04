@@ -3,11 +3,9 @@ Author: Dmitry Smirnov <onlyjob@member.fsf.org>
 Forwarded: not-needed
 Description: correct location of config files in man pages
 
-Index: zabbix/man/zabbix_agentd.man
-===================================================================
---- zabbix.orig/man/zabbix_agentd.man	2016-01-23 13:09:06.870940518 +0100
-+++ zabbix/man/zabbix_agentd.man	2016-01-23 13:09:06.866940499 +0100
-@@ -116,7 +116,7 @@
+--- a/man/zabbix_agentd.man
++++ b/man/zabbix_agentd.man
+@@ -116,7 +116,7 @@ Display this help and exit.
  Output version information and exit.
  .SH FILES
  .TP
@@ -16,11 +14,9 @@ Index: zabbix/man/zabbix_agentd.man
  Default location of Zabbix agent configuration file (if not modified during compile time).
  .SH "SEE ALSO"
  .BR zabbix_get (8),
-Index: zabbix/man/zabbix_proxy.man
-===================================================================
---- zabbix.orig/man/zabbix_proxy.man	2016-01-23 13:09:06.870940518 +0100
-+++ zabbix/man/zabbix_proxy.man	2016-01-23 13:09:06.866940499 +0100
-@@ -79,7 +79,7 @@
+--- a/man/zabbix_proxy.man
++++ b/man/zabbix_proxy.man
+@@ -79,7 +79,7 @@ Display this help and exit.
  Output version information and exit.
  .SH FILES
  .TP
@@ -29,11 +25,9 @@ Index: zabbix/man/zabbix_proxy.man
  Default location of Zabbix proxy configuration file (if not modified during compile time).
  .SH "SEE ALSO"
  .BR zabbix_agentd (8),
-Index: zabbix/man/zabbix_server.man
-===================================================================
---- zabbix.orig/man/zabbix_server.man	2016-01-23 13:09:06.870940518 +0100
-+++ zabbix/man/zabbix_server.man	2016-01-23 13:09:06.866940499 +0100
-@@ -78,7 +78,7 @@
+--- a/man/zabbix_server.man
++++ b/man/zabbix_server.man
+@@ -78,7 +78,7 @@ Display this help and exit.
  Output version information and exit.
  .SH FILES
  .TP
@@ -42,11 +36,9 @@ Index: zabbix/man/zabbix_server.man
  Default location of Zabbix server configuration file (if not modified during compile time).
  .SH "SEE ALSO"
  .BR zabbix_agentd (8),
-Index: zabbix/man/zabbix_sender.man
-===================================================================
---- zabbix.orig/man/zabbix_sender.man	2016-01-23 13:09:06.870940518 +0100
-+++ zabbix/man/zabbix_sender.man	2016-01-23 13:09:06.866940499 +0100
-@@ -436,7 +436,7 @@
+--- a/man/zabbix_sender.man
++++ b/man/zabbix_sender.man
+@@ -436,7 +436,7 @@ Host names and keys are defined in the f
  .RE
  
  .br
