@@ -9260,7 +9260,7 @@ INSERT INTO regexps (regexpid,name,test_string) values ('2','Network interfaces 
 INSERT INTO regexps (regexpid,name,test_string) values ('3','Storage devices for SNMP discovery','/boot')
 /
 
-INSERT INTO expressions (expressionid,regexpid,expression,expression_type,exp_delimiter,case_sensitive) values ('1','1','^(btrfs|ext2|ext3|ext4|jfs|reiser|xfs|ffs|ufs|jfs|jfs2|vxfs|hfs|ntfs|fat32|zfs)$','3',',','0')
+INSERT INTO expressions (expressionid,regexpid,expression,expression_type,exp_delimiter,case_sensitive) values ('1','1','^(btrfs|ext2|ext3|ext4|jfs|reiser|xfs|ffs|ufs|jfs|jfs2|vxfs|hfs|refs|ntfs|fat32|zfs)$','3',',','0')
 /
 
 INSERT INTO expressions (expressionid,regexpid,expression,expression_type,exp_delimiter,case_sensitive) values ('2','2','^lo$','4',',','1')
