@@ -3086,7 +3086,7 @@ INSERT INTO `sysmaps_elements` (`selementid`,`sysmapid`,`elementid`,`elementtype
 INSERT INTO `regexps` (`regexpid`,`name`,`test_string`) values ('1','File systems for discovery','ext3');
 INSERT INTO `regexps` (`regexpid`,`name`,`test_string`) values ('2','Network interfaces for discovery','eth0');
 INSERT INTO `regexps` (`regexpid`,`name`,`test_string`) values ('3','Storage devices for SNMP discovery','/boot');
-INSERT INTO `expressions` (`expressionid`,`regexpid`,`expression`,`expression_type`,`exp_delimiter`,`case_sensitive`) values ('1','1','^(btrfs|ext2|ext3|ext4|jfs|reiser|xfs|ffs|ufs|jfs|jfs2|vxfs|hfs|ntfs|fat32|zfs)$','3',',','0');
+INSERT INTO `expressions` (`expressionid`,`regexpid`,`expression`,`expression_type`,`exp_delimiter`,`case_sensitive`) values ('1','1','^(btrfs|ext2|ext3|ext4|jfs|reiser|xfs|ffs|ufs|jfs|jfs2|vxfs|hfs|refs|ntfs|fat32|zfs)$','3',',','0');
 INSERT INTO `expressions` (`expressionid`,`regexpid`,`expression`,`expression_type`,`exp_delimiter`,`case_sensitive`) values ('2','2','^lo$','4',',','1');
 INSERT INTO `expressions` (`expressionid`,`regexpid`,`expression`,`expression_type`,`exp_delimiter`,`case_sensitive`) values ('3','3','^(Physical memory|Virtual memory|Memory buffers|Cached memory|Swap space)$','4',',','1');
 INSERT INTO `expressions` (`expressionid`,`regexpid`,`expression`,`expression_type`,`exp_delimiter`,`case_sensitive`) values ('4','2','^Software Loopback Interface','4',',','1');
