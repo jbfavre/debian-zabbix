@@ -5,3 +5,4 @@ config-debian-customizations.patch
 manpages-path.patch
 sql-upgrades-path.patch
 conffile-in-etc.patch
+ZBX-10352.patch
