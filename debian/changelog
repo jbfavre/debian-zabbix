@@ -1,3 +1,10 @@
+zabbix (1:2.4.7-2~bpo7+1) stable; urgency=medium
+
+  * Add patch to monitor CoreOS from rkt container
+  * Update patch for Zabbix 2.4.7
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Wed, 10 Feb 2016 10:47:43 +0100
+
 zabbix (1:2.4.7-1~bbc7+1) stable; urgency=medium
 
   * Update d/watch to stick with 2.4
