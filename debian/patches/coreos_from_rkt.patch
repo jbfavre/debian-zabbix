@@ -98,7 +98,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	struct zbx_json	j;
  
 +#ifdef HAVE_COREOS
-+       if (NULL != (f = fopen("/coreos/proc/1/mounts", "r")))
++       if (NULL == (f = fopen("/coreos/proc/1/mounts", "r")))
 +#else
  	if (NULL == (f = fopen("/proc/mounts", "r")))
 +#endif
@@ -184,7 +184,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	}
  
 +#ifdef HAVE_COREOS
-+       if (NULL != (f = fopen("/coreos/proc/1/net/dev", "r")))
++       if (NULL == (f = fopen("/coreos/proc/1/net/dev", "r")))
 +#else
  	if (NULL == (f = fopen("/proc/net/dev", "r")))
 +#endif
@@ -196,7 +196,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	struct zbx_json	j;
  
 +#ifdef HAVE_COREOS
-+       if (NULL != (f = fopen("/coreos/proc/1/net/dev", "r")))
++       if (NULL == (f = fopen("/coreos/proc/1/net/dev", "r")))
 +#else
  	if (NULL == (f = fopen("/proc/net/dev", "r")))
 +#endif
