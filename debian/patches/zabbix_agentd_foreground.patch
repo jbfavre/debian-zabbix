@@ -51,7 +51,7 @@
  {
  	pid_t		pid;
  	struct passwd	*pwd;
-@@ -336,15 +337,22 @@ int	daemon_start(int allow_root, const c
+@@ -336,15 +337,27 @@ int	daemon_start(int allow_root, const c
  #endif
  	}
  
@@ -69,6 +69,11 @@
 -		exit(EXIT_SUCCESS);
 +	if ( ZBX_RUN_FOREGROUND == run_foreground) {
 +		zabbix_log(LOG_LEVEL_INFORMATION, "Running in foreground...");
++#ifdef HAVE_COREOS
++		zabbix_log(LOG_LEVEL_INFORMATION, "CoreOS support is enabled...");
++#else
++		zabbix_log(LOG_LEVEL_INFORMATION, "CoreOS support is NOT enabled...");
++#endif
 +	} else {
 +		if (0 != (pid = zbx_fork()))
 +			exit(EXIT_SUCCESS);
