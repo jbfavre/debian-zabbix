@@ -1,3 +1,11 @@
+zabbix (1:2.4.7-2~bpo8+1) stable; urgency=medium
+
+  * Imported Upstream version 2.4.7
+  * Patches refresh for 2.4.7
+  * Add patch to monitor CoreOS from rkt container
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Wed, 10 Feb 2016 11:09:44 +0100
+
 zabbix (1:2.4.6-2~bbc82+1) stable; urgency=medium
 
   * Update d/gbp.conf for Jessie
