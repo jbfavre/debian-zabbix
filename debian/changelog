@@ -1,3 +1,9 @@
+zabbix (1:2.4.7-6~bpo8+1) stable; urgency=medium
+
+  * Fix typo in coreos patch preventing filesystem discovery
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Wed, 10 Feb 2016 18:45:57 +0100
+
 zabbix (1:2.4.7-5~bpo8+1) stable; urgency=medium
 
   * Add foreground output when CoreOS support is enabled
