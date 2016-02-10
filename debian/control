@@ -27,6 +27,27 @@ Vcs-Git: git://anonscm.debian.org/collab-maint/zabbix.git
 Package: zabbix-agent
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ucf, adduser, lsb-base
+Conflicts: zabbix-agent-coreos
+Suggests: logrotate
+Description: network monitoring solution - agent
+ Zabbix is a server/client network monitoring system with many features.
+ It can be used for:
+ .
+  - high level monitoring of IT services;
+  - centralized monitoring of your servers and applications;
+  - monitoring of SNMP-enabled devices;
+  - performance monitoring (process load, network activity, disk
+    activity, memory usage, OS parameters etc.);
+  - data visualization.
+ .
+ This package provides the software needed to monitor a host using a
+ Zabbix agent.
+
+Package: zabbix-agent-coreos
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, ucf, adduser, lsb-base
+Conflicts: zabbix-agent
+Provides: zabbix-agent
 Suggests: logrotate
 Description: network monitoring solution - agent
  Zabbix is a server/client network monitoring system with many features.

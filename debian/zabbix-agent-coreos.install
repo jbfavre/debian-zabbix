@@ -1,0 +1,4 @@
+debian/tmp-build-COREOS/src/zabbix_agent/zabbix_agentd	usr/sbin
+debian/tmp-build-COREOS/src/zabbix_agent/zabbix_agent	usr/bin
+debian/tmp-build-COREOS/src/zabbix_sender/zabbix_sender	usr/bin
+debian/tmp-build-COREOS/conf/zabbix_agentd.conf		usr/share/zabbix-agent

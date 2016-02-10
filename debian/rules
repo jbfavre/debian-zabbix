@@ -5,6 +5,7 @@
 
 ## Define the names of the resulting binary packages
 PKG_AGENT = zabbix-agent
+PKG_AGENT_COREOS = zabbix-agent-coreos
 PKG_FRONTEND = zabbix-frontend-php
 PKG_JAVA_GATEWAY = zabbix-java-gateway
 PKG_PROXY_MYSQL = zabbix-proxy-mysql
@@ -59,14 +60,15 @@ CONFFLAG_IPMI           = $(if $(shell dpkg --status libopenipmi-dev &>/dev/null
 CONFFLAG_SERVER_MYSQL   = --with-mysql
 CONFFLAG_SERVER_PGSQL   = --with-postgresql
 CONFFLAG_SERVER_SQLITE3 = --with-sqlite3
+CONFFLAG_AGENT_COREOS   = --enable-coreos
 BUILD_PREFIX := $(CURDIR)/debian/tmp-build
 
 # The Zabbix sources are compiled once for each database backends (VARIANT).
 # The proxy and server packages always contain one kind of database support.
 # The zabbix-agent and zabbix-frontend-php package do not have any kind of
 # database support and are created from one of the above mentioned builds.
-#VARIANTS := MYSQL PGSQL SQLITE3
 VARIANTS := MYSQL PGSQL SQLITE3
+AGENT_VARIANT := COREOS
 
 %:
 	dh $@ --parallel --max-parallel=4 --with autoreconf
@@ -87,16 +89,28 @@ override_dh_autoreconf:
 		tar -cSf - --exclude=./.svn --exclude=./debian . \
 		| tar -xSpf - -C $(BUILD_PREFIX)-$$i ;\
 	done
+	for i in $(AGENT_VARIANT); do \
+		mkdir $(BUILD_PREFIX)-$$i ;\
+		tar -cSf - --exclude=./.svn --exclude=./debian . \
+		| tar -xSpf - -C $(BUILD_PREFIX)-$$i ;\
+	done
 
 override_dh_auto_configure:
 	$(foreach i,$(VARIANTS), \
         SNMP_LIBS="-lgcrypt" dh_auto_configure --sourcedirectory=$(BUILD_PREFIX)-$i --max-parallel=4 -- \
             $(CONFFLAGS_COMMON) $(CONFFLAG_IPMI) $(CONFFLAG_SERVER_$i) \
     ;)
+	$(foreach i,$(AGENT_VARIANT), \
+	SNMP_LIBS="-lgcrypt" dh_auto_configure --sourcedirectory=$(BUILD_PREFIX)-$i --max-parallel=4 -- \
+	    $(CONFFLAGS_COMMON) $(CONFFLAG_IPMI) $(CONFFLAG_SERVER_MYSQL) $(CONFFLAG_AGENT_$i) \
+    ;)
 
 override_dh_auto_build:
 	$(foreach i,$(VARIANTS), \
         dh_auto_build --sourcedirectory=$(BUILD_PREFIX)-$i --max-parallel=4 \
+    ;)
+	$(foreach i,$(AGENT_VARIANT), \
+	dh_auto_build --sourcedirectory=$(BUILD_PREFIX)-$i --max-parallel=4 \
     ;)
 
 override_dh_auto_install:
@@ -113,6 +127,7 @@ override_dh_install:
 
 override_dh_installinit:
 	dh_installinit -p $(PKG_AGENT)
+	dh_installinit -p $(PKG_AGENT_COREOS) --name zabbix-agent-coreos
 	dh_installinit -p $(PKG_PROXY_MYSQL) --name zabbix-proxy
 	dh_installinit -p $(PKG_JAVA_GATEWAY) --name zabbix-java-gateway
 	dh_installinit -p $(PKG_PROXY_PGSQL) --name zabbix-proxy
