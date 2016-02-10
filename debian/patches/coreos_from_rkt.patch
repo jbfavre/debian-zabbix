@@ -1,0 +1,512 @@
+Description: Add CoreOS support
+ Allow running and monitoring on CoreOS servers 
+Author: Boris HUISGEN <bhuisgen@hbis.fr>
+Last-Update: 2014-10-10
+---
+This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
+--- a/include/config.h.in
++++ b/include/config.h.in
+@@ -21,6 +21,9 @@
+ /* Define to 1 if you have the <conio.h> header file. */
+ #undef HAVE_CONIO_H
+ 
++/* Define to 1 if CoreOS features should be enabled. */
++#undef HAVE_COREOS
++
+ /* Define to 1 if you have the <ctype.h> header file. */
+ #undef HAVE_CTYPE_H
+ 
+--- a/src/libs/zbxsysinfo/linux/boottime.c
++++ b/src/libs/zbxsysinfo/linux/boottime.c
+@@ -28,7 +28,11 @@ int	SYSTEM_BOOTTIME(AGENT_REQUEST *reque
+ 	int		ret = SYSINFO_RET_FAIL;
+ 	unsigned long	value;
+ 
++#ifdef HAVE_COREOS
++       if (NULL == (f = fopen("/coreos/proc/stat", "r")))
++#else
+ 	if (NULL == (f = fopen("/proc/stat", "r")))
++#endif
+ 	{
+ 		SET_MSG_RESULT(result, zbx_dsprintf(NULL, "Cannot open /proc/stat: %s", zbx_strerror(errno)));
+ 		return ret;
+--- a/src/libs/zbxsysinfo/linux/cpu.c
++++ b/src/libs/zbxsysinfo/linux/cpu.c
+@@ -194,7 +194,11 @@ int     SYSTEM_CPU_SWITCHES(AGENT_REQUES
+ 	zbx_uint64_t	value = 0;
+ 	FILE		*f;
+ 
++#ifdef HAVE_COREOS
++       if (NULL == (f = fopen("/coreos/proc/stat", "r")))
++#else
+ 	if (NULL == (f = fopen("/proc/stat", "r")))
++#endif
+ 	{
+ 		SET_MSG_RESULT(result, zbx_dsprintf(NULL, "Cannot open /proc/stat: %s", zbx_strerror(errno)));
+ 		return SYSINFO_RET_FAIL;
+@@ -227,7 +231,11 @@ int     SYSTEM_CPU_INTR(AGENT_REQUEST *r
+ 	zbx_uint64_t	value = 0;
+ 	FILE		*f;
+ 
++#ifdef HAVE_COREOS
++       if (NULL == (f = fopen("/coreos/proc/stat", "r")))
++#else
+ 	if (NULL == (f = fopen("/proc/stat", "r")))
++#endif
+ 	{
+ 		SET_MSG_RESULT(result, zbx_dsprintf(NULL, "Cannot open /proc/stat: %s", zbx_strerror(errno)));
+ 		return SYSINFO_RET_FAIL;
+--- a/src/libs/zbxsysinfo/linux/diskio.c
++++ b/src/libs/zbxsysinfo/linux/diskio.c
+@@ -22,12 +22,20 @@
+ #include "stats.h"
+ #include "diskdevices.h"
+ 
++#ifdef HAVE_COREOS
++#define ZBX_DEV_PFX	"/coreos/dev/"
++#else
+ #define ZBX_DEV_PFX	"/dev/"
++#endif
+ #define ZBX_DEV_READ	0
+ #define ZBX_DEV_WRITE	1
+ 
+ #if defined(KERNEL_2_4)
++#ifdef HAVE_COREOS
++#	define INFO_FILE_NAME	"/coreos/proc/partitions"
++#else
+ #	define INFO_FILE_NAME	"/proc/partitions"
++#endif
+ #	define PARSE(line)	if (sscanf(line, ZBX_FS_UI64 ZBX_FS_UI64 " %*d %s " 		\
+ 					ZBX_FS_UI64 " %*d " ZBX_FS_UI64 " %*d "			\
+ 					ZBX_FS_UI64 " %*d " ZBX_FS_UI64 " %*d %*d %*d %*d",	\
+@@ -40,7 +48,11 @@
+ 				&ds[ZBX_DSTAT_W_SECT]						\
+ 				) != 7) continue
+ #else
++#ifdef HAVE_COREOS
++#	define INFO_FILE_NAME	"/coreos/proc/diskstats"
++#else
+ #	define INFO_FILE_NAME	"/proc/diskstats"
++#endif
+ #	define PARSE(line)	if (sscanf(line, ZBX_FS_UI64 ZBX_FS_UI64 " %s "			\
+ 					ZBX_FS_UI64 " %*d " ZBX_FS_UI64 " %*d "			\
+ 					ZBX_FS_UI64 " %*d " ZBX_FS_UI64 " %*d %*d %*d %*d",	\
+--- a/src/libs/zbxsysinfo/linux/diskspace.c
++++ b/src/libs/zbxsysinfo/linux/diskspace.c
+@@ -125,7 +125,11 @@ int	VFS_FS_DISCOVERY(AGENT_REQUEST *requ
+ 	FILE		*f;
+ 	struct zbx_json	j;
+ 
++#ifdef HAVE_COREOS
++       if (NULL == (f = fopen("/coreos/proc/1/mounts", "r")))
++#else
+ 	if (NULL == (f = fopen("/proc/mounts", "r")))
++#endif
+ 	{
+ 		SET_MSG_RESULT(result, zbx_dsprintf(NULL, "Cannot open /proc/mounts: %s", zbx_strerror(errno)));
+ 		return SYSINFO_RET_FAIL;
+--- a/src/libs/zbxsysinfo/linux/hardware.h
++++ b/src/libs/zbxsysinfo/linux/hardware.h
+@@ -24,7 +24,11 @@
+ #define SMBIOS_STATUS_ERROR	2
+ #define SMBIOS_STATUS_OK	3
+ 
++#ifdef HAVE_COREOS
++#define DEV_MEM			"/coreos/dev/mem"
++#else
+ #define DEV_MEM			"/dev/mem"
++#endif
+ #define SMBIOS_ENTRY_POINT_SIZE	0x20
+ #define DMI_HEADER_SIZE		4
+ 
+@@ -36,9 +40,16 @@
+ #define DMI_GET_MODEL		0x04
+ #define DMI_GET_SERIAL		0x08
+ 
++#ifdef HAVE_COREOS
++#define CPU_MAX_FREQ_FILE	"/coreos/sys/devices/system/cpu/cpu%d/cpufreq/cpuinfo_max_freq"
++#else
+ #define CPU_MAX_FREQ_FILE	"/sys/devices/system/cpu/cpu%d/cpufreq/cpuinfo_max_freq"
+-
++#endif
++#ifdef HAVE_COREOS
++#define HW_CPU_INFO_FILE	"/coreos/proc/cpuinfo"
++#else
+ #define HW_CPU_INFO_FILE	"/proc/cpuinfo"
++#endif
+ #define HW_CPU_ALL_CPUS		-1
+ #define HW_CPU_SHOW_ALL		1
+ #define HW_CPU_SHOW_MAXFREQ	2
+--- a/src/libs/zbxsysinfo/linux/kernel.c
++++ b/src/libs/zbxsysinfo/linux/kernel.c
+@@ -43,7 +43,11 @@ int	KERNEL_MAXFILES(AGENT_REQUEST *reque
+ {
+ 	zbx_uint64_t	value;
+ 
++#ifdef HAVE_COREOS
++	if (SYSINFO_RET_FAIL == read_uint64_from_procfs("/coreos/proc/sys/fs/file-max", &value))
++#else
+ 	if (SYSINFO_RET_FAIL == read_uint64_from_procfs("/proc/sys/fs/file-max", &value))
++#endif
+ 	{
+ 		SET_MSG_RESULT(result, zbx_strdup(NULL, "Cannot obtain data from /proc/sys/fs/file-max."));
+ 		return SYSINFO_RET_FAIL;
+@@ -57,7 +61,11 @@ int	KERNEL_MAXPROC(AGENT_REQUEST *reques
+ {
+ 	zbx_uint64_t	value;
+ 
++#ifdef HAVE_COREOS
++	if (SYSINFO_RET_FAIL == read_uint64_from_procfs("/coreos/proc/sys/kernel/pid_max", &value))
++#else
+ 	if (SYSINFO_RET_FAIL == read_uint64_from_procfs("/proc/sys/kernel/pid_max", &value))
++#endif
+ 	{
+ 		SET_MSG_RESULT(result, zbx_strdup(NULL, "Cannot obtain data from /proc/sys/kernel/pid_max."));
+ 		return SYSINFO_RET_FAIL;
+--- a/src/libs/zbxsysinfo/linux/memory.c
++++ b/src/libs/zbxsysinfo/linux/memory.c
+@@ -73,7 +73,11 @@ static int	VM_MEMORY_CACHED(AGENT_RESULT
+ 	zbx_uint64_t	value;
+ 	int		res;
+ 
++#ifdef HAVE_COREOS
++	if (NULL == (f = fopen("/coreos/proc/meminfo", "r")))
++#else
+ 	if (NULL == (f = fopen("/proc/meminfo", "r")))
++#endif
+ 	{
+ 		SET_MSG_RESULT(result, zbx_dsprintf(NULL, "Cannot open /proc/meminfo: %s", zbx_strerror(errno)));
+ 		return SYSINFO_RET_FAIL;
+--- a/src/libs/zbxsysinfo/linux/net.c
++++ b/src/libs/zbxsysinfo/linux/net.c
+@@ -210,7 +210,11 @@ static int	get_net_stat(const char *if_n
+ 		return SYSINFO_RET_FAIL;
+ 	}
+ 
++#ifdef HAVE_COREOS
++	if (NULL == (f = fopen("/coreos/proc/1/net/dev", "r")))
++#else
+ 	if (NULL == (f = fopen("/proc/net/dev", "r")))
++#endif
+ 	{
+ 		*error = zbx_dsprintf(NULL, "Cannot open /proc/net/dev: %s", zbx_strerror(errno));
+ 		return SYSINFO_RET_FAIL;
+@@ -526,7 +530,11 @@ int	NET_IF_DISCOVERY(AGENT_REQUEST *requ
+ 	FILE		*f;
+ 	struct zbx_json	j;
+ 
++#ifdef HAVE_COREOS
++	if (NULL == (f = fopen("/coreos/proc/1/net/dev", "r")))
++#else
+ 	if (NULL == (f = fopen("/proc/net/dev", "r")))
++#endif
+ 	{
+ 		SET_MSG_RESULT(result, zbx_dsprintf(NULL, "Cannot open /proc/net/dev: %s", zbx_strerror(errno)));
+ 		return SYSINFO_RET_FAIL;
+@@ -631,7 +639,11 @@ int	NET_TCP_LISTEN(AGENT_REQUEST *reques
+ #endif
+ 		buffer = zbx_malloc(NULL, buffer_alloc);
+ 
++#ifdef HAVE_COREOS
++		if (0 < (n = proc_read_tcp_listen("/coreos/proc/net/tcp", &buffer, &buffer_alloc)))
++#else
+ 		if (0 < (n = proc_read_tcp_listen("/proc/net/tcp", &buffer, &buffer_alloc)))
++#endif
+ 		{
+ 			ret = SYSINFO_RET_OK;
+ 
+@@ -644,7 +656,11 @@ int	NET_TCP_LISTEN(AGENT_REQUEST *reques
+ 			}
+ 		}
+ 
++#ifdef HAVE_COREOS
++		if (0 < (n = proc_read_tcp_listen("/coreos/proc/1/net/tcp6", &buffer, &buffer_alloc)))
++#else
+ 		if (0 < (n = proc_read_tcp_listen("/proc/net/tcp6", &buffer, &buffer_alloc)))
++#endif
+ 		{
+ 			ret = SYSINFO_RET_OK;
+ 
+@@ -687,7 +703,11 @@ int	NET_UDP_LISTEN(AGENT_REQUEST *reques
+ 
+ 	buffer = zbx_malloc(NULL, buffer_alloc);
+ 
++#ifdef HAVE_COREOS
++	if (0 < (n = proc_read_file("/coreos/proc/1/net/udp", &buffer, &buffer_alloc)))
++#else
+ 	if (0 < (n = proc_read_file("/proc/net/udp", &buffer, &buffer_alloc)))
++#endif
+ 	{
+ 		ret = SYSINFO_RET_OK;
+ 
+@@ -701,8 +721,11 @@ int	NET_UDP_LISTEN(AGENT_REQUEST *reques
+ 			goto out;
+ 		}
+ 	}
+-
++#ifdef HAVE_COREOS
++	if (0 < (n = proc_read_file("/coreos/proc/1/net/udp6", &buffer, &buffer_alloc)))
++#else
+ 	if (0 < (n = proc_read_file("/proc/net/udp6", &buffer, &buffer_alloc)))
++#endif
+ 	{
+ 		ret = SYSINFO_RET_OK;
+ 
+--- a/src/libs/zbxsysinfo/linux/proc.c
++++ b/src/libs/zbxsysinfo/linux/proc.c
+@@ -506,7 +506,11 @@ int	PROC_MEM(AGENT_REQUEST *request, AGE
+ 		}
+ 	}
+ 
++#ifdef HAVE_COREOS
++	if (NULL == (dir = opendir("/coreos/proc")))
++#else
+ 	if (NULL == (dir = opendir("/proc")))
++#endif
+ 	{
+ 		SET_MSG_RESULT(result, zbx_dsprintf(NULL, "Cannot open /proc: %s", zbx_strerror(errno)));
+ 		return SYSINFO_RET_FAIL;
+@@ -520,12 +524,19 @@ int	PROC_MEM(AGENT_REQUEST *request, AGE
+ 		if (0 == strcmp(entries->d_name, "self"))
+ 			continue;
+ 
++#ifdef HAVE_COREOS
++		zbx_snprintf(tmp, sizeof(tmp), "/coreos/proc/%s/cmdline", entries->d_name);
++#else
+ 		zbx_snprintf(tmp, sizeof(tmp), "/proc/%s/cmdline", entries->d_name);
+-
++#endif
+ 		if (NULL == (f_cmd = fopen(tmp, "r")))
+ 			continue;
+ 
++#ifdef HAVE_COREOS
++		zbx_snprintf(tmp, sizeof(tmp), "/coreos/proc/%s/status", entries->d_name);
++#else
+ 		zbx_snprintf(tmp, sizeof(tmp), "/proc/%s/status", entries->d_name);
++#endif
+ 
+ 		if (NULL == (f_stat = fopen(tmp, "r")))
+ 			continue;
+@@ -769,7 +780,11 @@ int	PROC_NUM(AGENT_REQUEST *request, AGE
+ 	if (1 == invalid_user)	/* handle 0 for non-existent user after all parameters have been parsed and validated */
+ 		goto out;
+ 
++#ifdef HAVE_COREOS
++	if (NULL == (dir = opendir("/coreos/proc")))
++#else
+ 	if (NULL == (dir = opendir("/proc")))
++#endif
+ 	{
+ 		SET_MSG_RESULT(result, zbx_dsprintf(NULL, "Cannot open /proc: %s", zbx_strerror(errno)));
+ 		return SYSINFO_RET_FAIL;
+@@ -783,13 +798,19 @@ int	PROC_NUM(AGENT_REQUEST *request, AGE
+ 		if (0 == strcmp(entries->d_name, "self"))
+ 			continue;
+ 
++#ifdef HAVE_COREOS
++		zbx_snprintf(tmp, sizeof(tmp), "/coreos/proc/%s/cmdline", entries->d_name);
++#else
+ 		zbx_snprintf(tmp, sizeof(tmp), "/proc/%s/cmdline", entries->d_name);
+-
++#endif
+ 		if (NULL == (f_cmd = fopen(tmp, "r")))
+ 			continue;
+ 
++#ifdef HAVE_COREOS
++		zbx_snprintf(tmp, sizeof(tmp), "/coreos/proc/%s/status", entries->d_name);
++#else
+ 		zbx_snprintf(tmp, sizeof(tmp), "/proc/%s/status", entries->d_name);
+-
++#endif
+ 		if (NULL == (f_stat = fopen(tmp, "r")))
+ 			continue;
+ 
+--- a/src/libs/zbxsysinfo/linux/sensors.c
++++ b/src/libs/zbxsysinfo/linux/sensors.c
+@@ -21,9 +21,17 @@
+ #include "zbxregexp.h"
+ 
+ #ifdef KERNEL_2_4
++#ifdef HAVE_COREOS
++#define DEVICE_DIR	"/coreos/proc/sys/dev/sensors"
++#else
+ #define DEVICE_DIR	"/proc/sys/dev/sensors"
++#endif
++#else
++#ifdef HAVE_COREOS
++#define DEVICE_DIR	"/coreos/sys/class/hwmon"
+ #else
+ #define DEVICE_DIR	"/sys/class/hwmon"
++#endif
+ static char	*locations[] = {"", "/device", NULL};
+ #endif
+ 
+@@ -181,7 +189,11 @@ static int	get_device_info(const char *d
+ 		}
+ 		else
+ 		{
++#ifdef HAVE_COREOS
++			zbx_snprintf(bus_path, sizeof(bus_path), "/coreos/sys/class/i2c-adapter/i2c-%d", bus_i2c);
++#else
+ 			zbx_snprintf(bus_path, sizeof(bus_path), "/sys/class/i2c-adapter/i2c-%d", bus_i2c);
++#endif
+ 			bus_subfolder = sysfs_read_attr(bus_path, &bus_attr);
+ 
+ 			if (NULL != bus_subfolder && '\0' != *bus_subfolder)
+--- a/src/libs/zbxsysinfo/linux/swap.c
++++ b/src/libs/zbxsysinfo/linux/swap.c
+@@ -78,7 +78,11 @@ typedef struct
+ swap_stat_t;
+ 
+ #ifdef KERNEL_2_4
++#ifdef HAVE_COREOS
++#	define INFO_FILE_NAME	"/coreos/proc/partitions"
++#else
+ #	define INFO_FILE_NAME	"/proc/partitions"
++#endif
+ #	define PARSE(line)								\
+ 											\
+ 		if (6 != sscanf(line, "%d %d %*d %*s "					\
+@@ -92,7 +96,11 @@ swap_stat_t;
+ 				&result->wsect		/* wsect */			\
+ 				)) continue
+ #else
++#ifdef HAVE_COREOS
++#	define INFO_FILE_NAME	"/coreos/proc/diskstats"
++#else
+ #	define INFO_FILE_NAME	"/proc/diskstats"
++#endif
+ #	define PARSE(line)								\
+ 											\
+ 		if (6 != sscanf(line, "%d %d %*s "					\
+@@ -158,10 +166,19 @@ static int	get_swap_pages(swap_stat_t *r
+ 	FILE	*f;
+ 
+ #ifdef KERNEL_2_4
++#ifdef HAVE_COREOS
++	if (NULL != (f = fopen("/coreos/proc/stat", "r")))
++#else
+ 	if (NULL != (f = fopen("/proc/stat", "r")))
++#endif
++}
++#else
++#ifdef HAVE_COREOS
++	if (NULL != (f = fopen("/coreos/proc/vmstat", "r")))
+ #else
+ 	if (NULL != (f = fopen("/proc/vmstat", "r")))
+ #endif
++#endif
+ 	{
+ 		while (NULL != fgets(line, sizeof(line), f))
+ 		{
+@@ -215,15 +232,27 @@ static int	get_swap_stat(const char *swa
+ 		ret = get_swap_pages(result);
+ 		swapdev = NULL;
+ 	}
++#ifdef HAVE_COREOS
++	else if (0 != strncmp(swapdev, "/coreos/dev/", 5))
++#else
+ 	else if (0 != strncmp(swapdev, "/dev/", 5))
++#endif
+ 		offset = 5;
+ 
++#ifdef HAVE_COREOS
++	if (NULL == (f = fopen("/coreos/proc/swaps", "r")))
++#else
+ 	if (NULL == (f = fopen("/proc/swaps", "r")))
++#endif
+ 		return ret;
+ 
+ 	while (NULL != fgets(line, sizeof(line), f))
+ 	{
++#ifdef HAVE_COREOS
++		if (0 != strncmp(line, "/coreos/dev/", 5))
++#else
+ 		if (0 != strncmp(line, "/dev/", 5))
++#endif
+ 			continue;
+ 
+ 		if (NULL == (s = strchr(line, ' ')))
+--- a/src/zabbix_agent/cpustat.c
++++ b/src/zabbix_agent/cpustat.c
+@@ -314,7 +314,11 @@ static void	update_cpustats(ZBX_CPUS_STA
+ 	FILE		*file;
+ 	char		line[1024];
+ 	unsigned char	*cpu_status = NULL;
++#ifdef HAVE_COREOS
++	const char	*filename = "/coreos/proc/stat";
++#else
+ 	const char	*filename = "/proc/stat";
++#endif
+ 
+ #elif defined(HAVE_SYS_PSTAT_H)
+ 
+--- a/src/zabbix_agent/stats.c
++++ b/src/zabbix_agent/stats.c
+@@ -102,7 +102,11 @@ static int	zbx_get_cpu_num()
+ 	FILE	*f = NULL;
+ 	int	ncpu = 0;
+ 
++#ifdef HAVE_COREOS
++	if (NULL == (file = fopen("/coreos/proc/cpuinfo", "r")))
++#else
+ 	if (NULL == (file = fopen("/proc/cpuinfo", "r")))
++#endif
+ 		goto return_one;
+ 
+ 	while (NULL != fgets(line, 1024, file))
+--- a/src/libs/zbxsysinfo/linux/software.h
++++ b/src/libs/zbxsysinfo/linux/software.h
+@@ -20,9 +20,15 @@
+ #ifndef ZABBIX_SOFTWARE_H
+ #define ZABBIX_SOFTWARE_H
+ 
++#ifdef HAVE_COREOS
++#define SW_OS_FULL	"/coreos/proc/version"
++#define SW_OS_SHORT	"/coreos/proc/version_signature"
++#define SW_OS_NAME	"/coreos/etc/issue.net"
++#else
+ #define SW_OS_FULL	"/proc/version"
+ #define SW_OS_SHORT	"/proc/version_signature"
+ #define SW_OS_NAME	"/etc/issue.net"
++#endif
+ 
+ typedef struct
+ {
+--- a/configure.ac
++++ b/configure.ac
+@@ -1089,6 +1089,14 @@ AC_ARG_ENABLE(ipv6,[  --enable-ipv6
+ esac],
+ [ipv6=no])
+ 
++AC_ARG_ENABLE(coreos, [  --enable-coreos	 Turn on support of CoreOS],
++[case "${enableval}" in
++  yes) coreos=yes ;;
++  no)  coreos=no ;;
++  *) AC_MSG_ERROR([bad value ${enableval} for --enable-coreos]) ;;
++esac],
++[ipv6=no])
++
+ have_db="no"
+ have_unixodbc="no"
+ have_web_monitoring="no"
+@@ -1096,6 +1104,7 @@ have_jabber="no"
+ have_snmp="no"
+ have_ipmi="no"
+ have_ipv6="no"
++have_coreos="no"
+ have_ssh2="no"
+ have_tls="no"
+ 
+@@ -1104,6 +1113,11 @@ if test "x$ipv6" = "xyes"; then
+ 	have_ipv6="yes"
+ fi
+ 
++if test "x$coreos" = "xyes"; then
++  AC_DEFINE(HAVE_COREOS,1,[Define to 1 if CoreOS features should be enabled.])
++  have_coreos="yes"
++fi
++
+ if test "x$server" = "xyes" || test "x$proxy" = "xyes"; then
+ 
+ 	have_multirow_insert="no"
