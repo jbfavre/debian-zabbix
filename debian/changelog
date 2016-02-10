@@ -1,3 +1,9 @@
+zabbix (1:2.4.7-4~bpo8+1) stable; urgency=medium
+
+  * Fix ucfr issue with zabbix-agent & zabbix-agent-coreos packages
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Wed, 10 Feb 2016 13:57:02 +0100
+
 zabbix (1:2.4.7-3~bpo8+1) stable; urgency=medium
 
   * Enable zabbix-agent CoreOS-ready package to be built
