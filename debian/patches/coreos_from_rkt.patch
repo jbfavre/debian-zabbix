@@ -144,7 +144,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	zbx_uint64_t	value;
  
 +#ifdef HAVE_COREOS
-+       if (SYSINFO_RET_OK == read_uint64_from_procfs("/coreos/proc/sys/fs/file-max", &value))
++	if (SYSINFO_RET_FAIL == read_uint64_from_procfs("/coreos/proc/sys/fs/file-max", &value))
 +#else
  	if (SYSINFO_RET_FAIL == read_uint64_from_procfs("/proc/sys/fs/file-max", &value))
 +#endif
@@ -156,7 +156,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	zbx_uint64_t	value;
  
 +#ifdef HAVE_COREOS
-+       if (SYSINFO_RET_OK == read_uint64_from_procfs("/coreos/proc/sys/kernel/pid_max", &value))
++	if (SYSINFO_RET_FAIL == read_uint64_from_procfs("/coreos/proc/sys/kernel/pid_max", &value))
 +#else
  	if (SYSINFO_RET_FAIL == read_uint64_from_procfs("/proc/sys/kernel/pid_max", &value))
 +#endif
@@ -170,7 +170,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	zbx_uint64_t	res = 0;
  
 +#ifdef HAVE_COREOS
-+       if (NULL == (f = fopen("/coreos/proc/meminfo", "r")))
++	if (NULL == (f = fopen("/coreos/proc/meminfo", "r")))
 +#else
  	if (NULL == (f = fopen("/proc/meminfo", "r")))
 +#endif
@@ -184,7 +184,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	}
  
 +#ifdef HAVE_COREOS
-+       if (NULL == (f = fopen("/coreos/proc/1/net/dev", "r")))
++	if (NULL == (f = fopen("/coreos/proc/1/net/dev", "r")))
 +#else
  	if (NULL == (f = fopen("/proc/net/dev", "r")))
 +#endif
@@ -196,7 +196,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	struct zbx_json	j;
  
 +#ifdef HAVE_COREOS
-+       if (NULL == (f = fopen("/coreos/proc/1/net/dev", "r")))
++	if (NULL == (f = fopen("/coreos/proc/1/net/dev", "r")))
 +#else
  	if (NULL == (f = fopen("/proc/net/dev", "r")))
 +#endif
@@ -208,7 +208,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	buffer = zbx_malloc(NULL, buffer_alloc);
  
 +#ifdef HAVE_COREOS
-+       if (0 < (n = proc_read_file("/coreos/proc/1/net/tcp", &buffer, &buffer_alloc)))
++	if (0 < (n = proc_read_file("/coreos/proc/1/net/tcp", &buffer, &buffer_alloc)))
 +#else
  	if (0 < (n = proc_read_file("/proc/net/tcp", &buffer, &buffer_alloc)))
 +#endif
@@ -220,7 +220,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	}
  
 +#ifdef HAVE_COREOS
-+       if (0 < (n = proc_read_file("/coreos/proc/1/net/tcp6", &buffer, &buffer_alloc)))
++	if (0 < (n = proc_read_file("/coreos/proc/1/net/tcp6", &buffer, &buffer_alloc)))
 +#else
  	if (0 < (n = proc_read_file("/proc/net/tcp6", &buffer, &buffer_alloc)))
 +#endif
@@ -232,7 +232,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	buffer = zbx_malloc(NULL, buffer_alloc);
  
 +#ifdef HAVE_COREOS
-+       if (0 < (n = proc_read_file("/coreos/proc/1/net/udp", &buffer, &buffer_alloc)))
++	if (0 < (n = proc_read_file("/coreos/proc/1/net/udp", &buffer, &buffer_alloc)))
 +#else
  	if (0 < (n = proc_read_file("/proc/net/udp", &buffer, &buffer_alloc)))
 +#endif
@@ -245,7 +245,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	}
 -
 +#ifdef HAVE_COREOS
-+       if (0 < (n = proc_read_file("/coreos/proc/1/net/udp6", &buffer, &buffer_alloc)))
++	if (0 < (n = proc_read_file("/coreos/proc/1/net/udp6", &buffer, &buffer_alloc)))
 +#else
  	if (0 < (n = proc_read_file("/proc/net/udp6", &buffer, &buffer_alloc)))
 +#endif
@@ -437,7 +437,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 +#ifdef HAVE_COREOS
 +	const char	*filename = "/coreos/proc/stat";
 +#else
-+	const char  *filename = "/proc/stat";
++	const char	*filename = "/proc/stat";
 +#endif
  
  #elif defined(HAVE_SYS_PSTAT_H)
@@ -465,10 +465,10 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 -#define SW_OS_FULL	"/proc/version"
 +#ifdef HAVE_COREOS
 +#define SW_OS_FULL	"/coreos/proc/version"
-+#define SW_OS_SHORT     "/coreos/proc/version_signature"
-+#define SW_OS_NAME      "/coreos/etc/issue.net"
++#define SW_OS_SHORT	"/coreos/proc/version_signature"
++#define SW_OS_NAME	"/coreos/etc/issue.net"
 +#else
-+#define SW_OS_FULL      "/proc/version"
++#define SW_OS_FULL	"/proc/version"
  #define SW_OS_SHORT	"/proc/version_signature"
  #define SW_OS_NAME	"/etc/issue.net"
 +#endif
