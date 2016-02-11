@@ -1435,7 +1435,7 @@ CREATE TABLE dbversion (
 	mandatory                integer         WITH DEFAULT '0'          NOT NULL,
 	optional                 integer         WITH DEFAULT '0'          NOT NULL
 );
-INSERT INTO dbversion VALUES ('2050119','2050119');
+INSERT INTO dbversion VALUES ('3000000','3000000');
 ALTER TABLE hosts ADD CONSTRAINT c_hosts_1 FOREIGN KEY (proxy_hostid) REFERENCES hosts (hostid);
 ALTER TABLE hosts ADD CONSTRAINT c_hosts_2 FOREIGN KEY (maintenanceid) REFERENCES maintenances (maintenanceid);
 ALTER TABLE hosts ADD CONSTRAINT c_hosts_3 FOREIGN KEY (templateid) REFERENCES hosts (hostid) ON DELETE CASCADE;

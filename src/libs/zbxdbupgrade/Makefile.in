@@ -112,7 +112,7 @@ libzbxdbupgrade_a_LIBADD =
 am_libzbxdbupgrade_a_OBJECTS = dbupgrade.$(OBJEXT) \
 	dbupgrade_2010.$(OBJEXT) dbupgrade_2020.$(OBJEXT) \
 	dbupgrade_2030.$(OBJEXT) dbupgrade_2040.$(OBJEXT) \
-	dbupgrade_2050.$(OBJEXT)
+	dbupgrade_2050.$(OBJEXT) dbupgrade_3000.$(OBJEXT)
 libzbxdbupgrade_a_OBJECTS = $(am_libzbxdbupgrade_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -356,6 +356,7 @@ libzbxdbupgrade_a_SOURCES = dbupgrade.c \
 	dbupgrade_2030.c \
 	dbupgrade_2040.c \
 	dbupgrade_2050.c \
+	dbupgrade_3000.c \
 	dbupgrade.h
 
 all: all-am
@@ -413,6 +414,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbupgrade_2030.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbupgrade_2040.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbupgrade_2050.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbupgrade_3000.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
