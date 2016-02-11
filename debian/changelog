@@ -1,3 +1,9 @@
+zabbix (1:3.0.0~rc1-5~bpo8+1) stable; urgency=medium
+
+  * Remove obsolete /usr/bin/zabbix_agent from being installed
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Thu, 11 Feb 2016 11:05:40 +0100
+
 zabbix (1:3.0.0~rc1-4~bpo8+1) stable; urgency=medium
 
   * Update d/gbp.conf for jessie
