@@ -1432,4 +1432,4 @@ CREATE TABLE dbversion (
 	mandatory                integer         DEFAULT '0'               NOT NULL,
 	optional                 integer         DEFAULT '0'               NOT NULL
 );
-INSERT INTO dbversion VALUES ('2050119','2050119');
+INSERT INTO dbversion VALUES ('3000000','3000000');
