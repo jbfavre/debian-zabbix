@@ -1,0 +1,1666 @@
+diff --git a/conf/zabbix_agentd.conf b/conf/zabbix_agentd.conf
+index 1a76d61..c42052d 100644
+--- a/conf/zabbix_agentd.conf
++++ b/conf/zabbix_agentd.conf
+@@ -1,4 +1,4 @@
+-# This is a config file for the Zabbix agent daemon (Unix)
++# This is a configuration file for Zabbix agent daemon (Unix)
+ # To get more information about Zabbix, visit http://www.zabbix.com
+ 
+ ############ GENERAL PARAMETERS #################
+@@ -10,9 +10,18 @@
+ # Default:
+ # PidFile=/tmp/zabbix_agentd.pid
+ 
++### Option: LogType
++#	Specifies where log messages are written to:
++#		system  - syslog
++#		file    - file specified with LogFile parameter
++#		console - standard output
++#
++# Mandatory: no
++# Default:
++# LogType=file
++
+ ### Option: LogFile
+-#	Name of log file.
+-#	If not set, syslog is used.
++#	Log file name for LogType 'file' parameter.
+ #
+ # Mandatory: no
+ # Default:
+diff --git a/conf/zabbix_agentd.win.conf b/conf/zabbix_agentd.win.conf
+index a32d328..cbb370e 100644
+--- a/conf/zabbix_agentd.win.conf
++++ b/conf/zabbix_agentd.win.conf
+@@ -1,11 +1,20 @@
+-# This is a config file for the Zabbix agent daemon (Windows)
+-# To get more information about Zabbix, go to http://www.zabbix.com
++# This is a configuration file for Zabbix agent service (Windows)
++# To get more information about Zabbix, visit http://www.zabbix.com
+ 
+ ############ GENERAL PARAMETERS #################
+ 
++### Option: LogType
++#	Specifies where log messages are written to:
++#		system  - Windows event log
++#		file    - file specified with LogFile parameter
++#		console - standard output
++#
++# Mandatory: no
++# Default:
++# LogType=file
++
+ ### Option: LogFile
+-#	Name of log file.
+-#	If not set, Windows Event Log is used.
++#	Log file name for LogType 'file' parameter.
+ #
+ # Mandatory: no
+ # Default:
+diff --git a/conf/zabbix_proxy.conf b/conf/zabbix_proxy.conf
+index e44cbee..d7c1bd0 100644
+--- a/conf/zabbix_proxy.conf
++++ b/conf/zabbix_proxy.conf
+@@ -1,6 +1,5 @@
+-# This is a configuration file for Zabbix Proxy process
+-# To get more information about Zabbix,
+-# visit http://www.zabbix.com
++# This is a configuration file for Zabbix proxy daemon
++# To get more information about Zabbix, visit http://www.zabbix.com
+ 
+ ############ GENERAL PARAMETERS #################
+ 
+@@ -66,9 +65,18 @@ Hostname=Zabbix proxy
+ # Default:
+ # SourceIP=
+ 
++### Option: LogType
++#	Specifies where log messages are written to:
++#		system  - syslog
++#		file    - file specified with LogFile parameter
++#		console - standard output
++#
++# Mandatory: no
++# Default:
++# LogType=file
++
+ ### Option: LogFile
+-#	Name of log file.
+-#	If not set, syslog is used.
++#	Log file name for LogType 'file' parameter.
+ #
+ # Mandatory: no
+ # Default:
+diff --git a/conf/zabbix_server.conf b/conf/zabbix_server.conf
+index 81e193c..a0f98cb 100644
+--- a/conf/zabbix_server.conf
++++ b/conf/zabbix_server.conf
+@@ -1,6 +1,5 @@
+-# This is a configuration file for Zabbix Server process
+-# To get more information about Zabbix,
+-# visit http://www.zabbix.com
++# This is a configuration file for Zabbix server daemon
++# To get more information about Zabbix, visit http://www.zabbix.com
+ 
+ ############ GENERAL PARAMETERS #################
+ 
+@@ -19,9 +18,18 @@
+ # Default:
+ # SourceIP=
+ 
++### Option: LogType
++#	Specifies where log messages are written to:
++#		system  - syslog
++#		file    - file specified with LogFile parameter
++#		console - standard output
++#
++# Mandatory: no
++# Default:
++# LogType=file
++
+ ### Option: LogFile
+-#	Name of log file.
+-#	If not set, syslog is used.
++#	Log file name for LogType 'file' parameter.
+ #
+ # Mandatory: no
+ # Default:
+diff --git a/include/cfg.h b/include/cfg.h
+index 310df5b..ff71bf4 100644
+--- a/include/cfg.h
++++ b/include/cfg.h
+@@ -37,6 +37,8 @@
+ #define	ZBX_CFG_STRICT		1
+ 
+ extern char	*CONFIG_FILE;
++extern char	*CONFIG_LOG_TYPE_STR;
++extern int	CONFIG_LOG_TYPE;
+ extern char	*CONFIG_LOG_FILE;
+ extern int	CONFIG_ALLOW_ROOT;
+ extern int	CONFIG_TIMEOUT;
+diff --git a/include/common.h b/include/common.h
+index bcb7ef7..b6ec8d2 100644
+--- a/include/common.h
++++ b/include/common.h
+@@ -739,11 +739,13 @@ typedef enum
+ zbx_httptest_auth_t;
+ 
+ #define ZBX_TASK_FLAG_MULTIPLE_AGENTS 0x01
++#define ZBX_TASK_FLAG_FOREGROUND      0x02
+ 
+ typedef struct
+ {
+ 	zbx_task_t	task;
+ 	int		flags;
++	int		data;
+ }
+ ZBX_TASK_EX;
+ 
+@@ -1049,7 +1051,7 @@ void	find_cr_lf_szbyte(const char *encoding, const char **cr, const char **lf, s
+ int	zbx_read(int fd, char *buf, size_t count, const char *encoding);
+ int	zbx_is_regular_file(const char *path);
+ 
+-int	MAIN_ZABBIX_ENTRY();
++int	MAIN_ZABBIX_ENTRY(int flags);
+ 
+ zbx_uint64_t	zbx_letoh_uint64(zbx_uint64_t data);
+ zbx_uint64_t	zbx_htole_uint64(zbx_uint64_t data);
+diff --git a/include/daemon.h b/include/daemon.h
+index 650c743..07bbf97 100644
+--- a/include/daemon.h
++++ b/include/daemon.h
+@@ -28,7 +28,7 @@ extern char	*CONFIG_PID_FILE;
+ 
+ #include "threads.h"
+ 
+-int	daemon_start(int allow_root, const char *user);
++int	daemon_start(int allow_root, const char *user, unsigned int flags);
+ void	daemon_stop();
+ 
+ int	zbx_sigusr_send(int flags);
+@@ -36,6 +36,6 @@ int	zbx_sigusr_send(int flags);
+ #define ZBX_IS_RUNNING()	1
+ #define ZBX_DO_EXIT()
+ 
+-#define START_MAIN_ZABBIX_ENTRY(a, u)	daemon_start(a, u)
++#define START_MAIN_ZABBIX_ENTRY(allow_root, user, flags)	daemon_start(allow_root, user, flags)
+ 
+ #endif	/* ZABBIX_DAEMON_H */
+diff --git a/include/log.h b/include/log.h
+index 149123a..21f548c 100644
+--- a/include/log.h
++++ b/include/log.h
+@@ -30,8 +30,13 @@
+ #define LOG_LEVEL_INFORMATION	127	/* printing in any case no matter what level set */
+ 
+ #define LOG_TYPE_UNDEFINED	0
+-#define LOG_TYPE_SYSLOG		1
++#define LOG_TYPE_SYSTEM		1
+ #define LOG_TYPE_FILE		2
++#define LOG_TYPE_CONSOLE	3
++
++#define ZBX_OPTION_LOGTYPE_SYSTEM	"system"
++#define ZBX_OPTION_LOGTYPE_FILE		"file"
++#define ZBX_OPTION_LOGTYPE_CONSOLE	"console"
+ 
+ typedef enum
+ {
+@@ -77,4 +82,7 @@ char		*strerror_from_module(unsigned long error, const wchar_t *module);
+ 	void	redirect_std(const char *filename);
+ #endif
+ 
++int		zbx_get_log_type(const char *logtype);
++int		zbx_validate_log_parameters(ZBX_TASK_EX *task);
++
+ #endif
+diff --git a/include/service.h b/include/service.h
+index 1aa783e..67584c5 100644
+--- a/include/service.h
++++ b/include/service.h
+@@ -28,7 +28,7 @@
+ 
+ extern ZBX_THREAD_HANDLE	*threads;
+ 
+-void	service_start();
++void	service_start(int flags);
+ 
+ int	ZabbixCreateService(const char *path, int multiple_agents);
+ int	ZabbixRemoveService();
+@@ -45,6 +45,6 @@ int	application_status;	/* required for closing application from service */
+ #define ZBX_IS_RUNNING()	(ZBX_APP_RUNNING == application_status)
+ #define ZBX_DO_EXIT()		application_status = ZBX_APP_STOPPED
+ 
+-#define START_MAIN_ZABBIX_ENTRY(a, u)	service_start()
++#define START_MAIN_ZABBIX_ENTRY(allow_root, user, flags)	service_start(flags)
+ 
+ #endif /* ZABBIX_SERVICE_H */
+diff --git a/src/libs/zbxconf/cfg.c b/src/libs/zbxconf/cfg.c
+index e7dc232..03b79ed 100644
+--- a/src/libs/zbxconf/cfg.c
++++ b/src/libs/zbxconf/cfg.c
+@@ -23,6 +23,8 @@
+ 
+ char	*CONFIG_FILE		= NULL;
+ 
++char	*CONFIG_LOG_TYPE_STR	= NULL;
++int	CONFIG_LOG_TYPE		= LOG_TYPE_UNDEFINED;
+ char	*CONFIG_LOG_FILE	= NULL;
+ int	CONFIG_LOG_FILE_SIZE	= 1;
+ int	CONFIG_ALLOW_ROOT	= 0;
+diff --git a/src/libs/zbxlog/log.c b/src/libs/zbxlog/log.c
+index d10d4aa..f187fa0 100644
+--- a/src/libs/zbxlog/log.c
++++ b/src/libs/zbxlog/log.c
+@@ -21,6 +21,7 @@
+ #include "log.h"
+ #include "mutexs.h"
+ #include "threads.h"
++#include "cfg.h"
+ #ifdef _WINDOWS
+ #	include "messages.h"
+ #	include "service.h"
+@@ -30,17 +31,28 @@ static HANDLE		system_log_handle = INVALID_HANDLE_VALUE;
+ static char		log_filename[MAX_STRING_LEN];
+ static int		log_type = LOG_TYPE_UNDEFINED;
+ static ZBX_MUTEX	log_file_access = ZBX_MUTEX_NULL;
+-#ifdef DEBUG
+-static int		log_level = LOG_LEVEL_DEBUG;
+-#else
+ static int		log_level = LOG_LEVEL_WARNING;
+-#endif
++
++#define LOCK_LOG	zbx_mutex_lock(&log_file_access)
++#define UNLOCK_LOG	zbx_mutex_unlock(&log_file_access)
+ 
+ #define ZBX_MESSAGE_BUF_SIZE	1024
+ 
+ #define ZBX_CHECK_LOG_LEVEL(level)	\
+ 		((LOG_LEVEL_INFORMATION != level && (level > log_level || LOG_LEVEL_EMPTY == level)) ? FAIL : SUCCEED)
+ 
++#ifdef _WINDOWS
++#	define STDIN_FILENO	_fileno(stdin)
++#	define STDOUT_FILENO	_fileno(stdout)
++#	define STDERR_FILENO	_fileno(stderr)
++
++#	define ZBX_DEV_NULL	"NUL"
++
++#	define dup2(fd1, fd2)	_dup2(fd1, fd2)
++#else
++#	define ZBX_DEV_NULL	"/dev/null"
++#endif
++
+ const char	*zabbix_get_log_level_string(void)
+ {
+ 	switch (log_level)
+@@ -83,11 +95,10 @@ int	zabbix_decrease_log_level(void)
+ 	return SUCCEED;
+ }
+ 
+-#if !defined(_WINDOWS)
+ void	redirect_std(const char *filename)
+ {
+ 	int		fd;
+-	const char	default_file[] = "/dev/null";
++	const char	default_file[] = ZBX_DEV_NULL;
+ 	const char	*out_file = default_file;
+ 	int		open_flags = O_WRONLY;
+ 
+@@ -116,7 +127,196 @@ void	redirect_std(const char *filename)
+ 		exit(EXIT_FAILURE);
+ 	}
+ }
+-#endif	/* not _WINDOWS */
++
++/******************************************************************************
++ *                                                                            *
++ * Function: get_time                                                         *
++ *                                                                            *
++ * Purpose:                                                                   *
++ *     get current time and store it in memory locations provided by caller   *
++ *                                                                            *
++ * Parameters:                                                                *
++ *     tm           - [OUT] broken-down representation of the current time    *
++ *     milliseconds - [OUT] milliseconds since the previous second            *
++ *                                                                            *
++ * Comments:                                                                  *
++ *     On Windows localtime() returns pointer to static, thread-local storage *
++ *     location. On Unix localtime() is not thread-safe and re-entrant as it  *
++ *     returns pointer to static storage location which can be overwritten    *
++ *     by localtime() itself or other time functions in other threads or      *
++ *     signal handlers. To avoid this we use localtime_r().                   *
++ *                                                                            *
++ ******************************************************************************/
++static void     get_time(struct tm *tm, long *milliseconds)
++{
++#ifdef _WINDOWS
++        struct _timeb   current_time;
++        struct tm       *tm_thread_static;
++
++        _ftime(&current_time);
++        if (NULL != (tm_thread_static = localtime(&current_time.time)))
++        {
++                *tm = *tm_thread_static;
++        }
++        else
++        {
++                THIS_SHOULD_NEVER_HAPPEN;
++                memset(tm, 0, sizeof(struct tm));
++        }
++
++        *milliseconds = current_time.millitm;
++#else
++        struct timeval  current_time;
++        struct tm       tm_local;
++
++        gettimeofday(&current_time, NULL);
++        if (NULL != localtime_r(&current_time.tv_sec, &tm_local))
++        {
++                *tm = tm_local;
++        }
++        else
++        {
++                THIS_SHOULD_NEVER_HAPPEN;
++                memset(tm, 0, sizeof(struct tm));
++        }
++
++        *milliseconds = current_time.tv_usec / 1000;
++#endif
++}
++static void     rotate_log(const char *filename)
++{
++        zbx_stat_t              buf;
++        zbx_uint64_t            new_size;
++        static zbx_uint64_t     old_size = ZBX_MAX_UINT64;
++
++        if (0 == CONFIG_LOG_FILE_SIZE || NULL == filename || '\0' == *filename)
++        {
++                /* redirect only once if log file wasn't specified or there is no log file size limit */
++                if (ZBX_MAX_UINT64 == old_size)
++                {
++                        old_size = 0;
++                        redirect_std(filename);
++                }
++
++                return;
++        }
++
++        if (0 != zbx_stat(filename, &buf))
++                return;
++
++        new_size = buf.st_size;
++
++        if ((zbx_uint64_t)CONFIG_LOG_FILE_SIZE * ZBX_MEBIBYTE < new_size)
++        {
++                char    filename_old[MAX_STRING_LEN];
++
++                strscpy(filename_old, filename);
++                zbx_strlcat(filename_old, ".old", MAX_STRING_LEN);
++                remove(filename_old);
++
++                if (0 != rename(filename, filename_old))
++                {
++                        FILE    *log_file = NULL;
++
++                        if (NULL != (log_file = fopen(filename, "w")))
++                        {
++                                long            milliseconds;
++                                struct tm       tm;
++
++                                get_time(&tm, &milliseconds);
++
++                                fprintf(log_file, "%6li:%.4d%.2d%.2d:%.2d%.2d%.2d.%03ld"
++                                                " cannot rename log file \"%s\" to \"%s\": %s\n",
++                                                zbx_get_thread_id(),
++                                                tm.tm_year + 1900,
++                                                tm.tm_mon + 1,
++                                                tm.tm_mday,
++                                                tm.tm_hour,
++                                                tm.tm_min,
++                                                tm.tm_sec,
++                                                milliseconds,
++                                                filename,
++                                                filename_old,
++                                                zbx_strerror(errno));
++
++                                fprintf(log_file, "%6li:%.4d%.2d%.2d:%.2d%.2d%.2d.%03ld"
++                                                " Logfile \"%s\" size reached configured limit"
++                                                " LogFileSize but moving it to \"%s\" failed. The logfile"
++                                                " was truncated.\n",
++                                                zbx_get_thread_id(),
++                                                tm.tm_year + 1900,
++                                                tm.tm_mon + 1,
++                                                tm.tm_mday,
++                                                tm.tm_hour,
++                                                tm.tm_min,
++                                                tm.tm_sec,
++                                                milliseconds,
++                                                filename,
++                                                filename_old);
++
++                                zbx_fclose(log_file);
++
++                                new_size = 0;
++                        }
++                }
++                else
++                        new_size = 0;
++        }
++
++        if (old_size > new_size)
++                redirect_std(filename);
++
++        old_size = new_size;
++}
++
++#ifndef _WINDOWS
++static sigset_t orig_mask;
++
++static void     lock_log(void)
++{
++        sigset_t        mask;
++
++        sigemptyset(&mask);
++        sigaddset(&mask, SIGUSR1);
++        sigaddset(&mask, SIGTERM);      /* block SIGTERM, SIGINT to prevent deadlock on log file mutex */
++        sigaddset(&mask, SIGINT);
++
++        if (0 > sigprocmask(SIG_BLOCK, &mask, &orig_mask))
++                zbx_error("cannot set sigprocmask to block the user signal");
++
++        LOCK_LOG;
++}
++
++static void     unlock_log(void)
++{
++        UNLOCK_LOG;
++
++        if (0 > sigprocmask(SIG_SETMASK, &orig_mask, NULL))
++                zbx_error("cannot restore sigprocmask");
++}
++#else
++static void     lock_log(void)
++{
++        LOCK_LOG;
++}
++
++static void     unlock_log(void)
++{
++        UNLOCK_LOG;
++}
++#endif
++
++void    zbx_handle_log(void)
++{
++        if (LOG_TYPE_FILE != log_type)
++                return;
++
++        lock_log();
++
++        rotate_log(log_filename);
++
++        unlock_log();
++}
+ 
+ int	zabbix_open_log(int type, int level, const char *filename)
+ {
+@@ -124,14 +324,11 @@ int	zabbix_open_log(int type, int level, const char *filename)
+ #ifdef _WINDOWS
+ 	wchar_t	*wevent_source;
+ #endif
++	log_type = type;
+ 	log_level = level;
+ 
+-	if (LOG_TYPE_FILE == type && NULL == filename)
+-		type = LOG_TYPE_SYSLOG;
+-
+-	if (LOG_TYPE_SYSLOG == type)
++	if (LOG_TYPE_SYSTEM == type)
+ 	{
+-		log_type = LOG_TYPE_SYSLOG;
+ #ifdef _WINDOWS
+ 		wevent_source = zbx_utf8_to_unicode(ZABBIX_EVENT_SOURCE);
+ 		system_log_handle = RegisterEventSource(NULL, wevent_source);
+@@ -160,17 +357,28 @@ int	zabbix_open_log(int type, int level, const char *filename)
+ 			exit(EXIT_FAILURE);
+ 		}
+ 
+-		log_type = LOG_TYPE_FILE;
+ 		strscpy(log_filename, filename);
+ 		zbx_fclose(log_file);
+ 	}
++	else if (LOG_TYPE_CONSOLE == type)
++	{
++		if (FAIL == zbx_mutex_create_force(&log_file_access, ZBX_MUTEX_LOG))
++		{
++			zbx_error("unable to create mutex for standard output");
++			exit(EXIT_FAILURE);
++		}
++
++		fflush(stderr);
++		if (-1 == dup2(STDOUT_FILENO, STDERR_FILENO))
++			zbx_error("cannot redirect stderr to stdout: %s", zbx_strerror(errno));
++	}
+ 
+ 	return SUCCEED;
+ }
+ 
+ void	zabbix_close_log(void)
+ {
+-	if (LOG_TYPE_SYSLOG == log_type)
++	if (LOG_TYPE_SYSTEM == log_type)
+ 	{
+ #ifdef _WINDOWS
+ 		if (NULL != system_log_handle)
+@@ -179,7 +387,7 @@ void	zabbix_close_log(void)
+ 		closelog();
+ #endif
+ 	}
+-	else if (LOG_TYPE_FILE == log_type)
++	else if (LOG_TYPE_FILE == log_type || LOG_TYPE_CONSOLE == log_type)
+ 	{
+ 		zbx_mutex_destroy(&log_file_access);
+ 	}
+@@ -247,221 +455,224 @@ int	zabbix_check_log_level(int level)
+ 	return ZBX_CHECK_LOG_LEVEL(level);
+ }
+ 
+-void	__zbx_zabbix_log(int level, const char *fmt, ...)
++void    __zbx_zabbix_log(int level, const char *fmt, ...)
+ {
+-	FILE			*log_file = NULL;
+-	char			message[MAX_BUFFER_LEN], filename_old[MAX_STRING_LEN];
+-	long			milliseconds;
+-	static zbx_uint64_t	old_size = 0;
+-	va_list			args;
+-	struct tm		*tm;
+-	zbx_stat_t		buf;
++        FILE            *log_file = NULL;
++        char            message[MAX_BUFFER_LEN];
++        va_list         args;
+ #ifdef _WINDOWS
+-	struct _timeb		current_time;
+-	WORD			wType;
+-	wchar_t			thread_id[20], *strings[2];
+-#else
+-	struct timeval		current_time;
++        WORD            wType;
++        wchar_t         thread_id[20], *strings[2];
+ #endif
+-	if (SUCCEED != ZBX_CHECK_LOG_LEVEL(level))
+-		return;
++        if (SUCCEED != ZBX_CHECK_LOG_LEVEL(level))
++                return;
+ 
+-	if (LOG_TYPE_FILE == log_type)
+-	{
+-		zbx_mutex_lock(&log_file_access);
++        if (LOG_TYPE_FILE == log_type)
++        {
++                lock_log();
+ 
+-		if (0 != CONFIG_LOG_FILE_SIZE && 0 == zbx_stat(log_filename, &buf))
+-		{
+-			if (CONFIG_LOG_FILE_SIZE * ZBX_MEBIBYTE < buf.st_size)
+-			{
+-				strscpy(filename_old, log_filename);
+-				zbx_strlcat(filename_old, ".old", MAX_STRING_LEN);
+-				remove(filename_old);
+-
+-				if (0 != rename(log_filename, filename_old))
+-				{
+-					log_file = fopen(log_filename, "w");
+-
+-					if (NULL != log_file)
+-					{
+-#ifdef _WINDOWS
+-						_ftime(&current_time);
+-						tm = localtime(&current_time.time);
+-						milliseconds = current_time.millitm;
+-#else
+-						gettimeofday(&current_time,NULL);
+-						tm = localtime(&current_time.tv_sec);
+-						milliseconds = current_time.tv_usec / 1000;
+-#endif
+-						fprintf(log_file, "%6li:%.4d%.2d%.2d:%.2d%.2d%.2d.%03ld"
+-								" cannot rename log file \"%s\" to \"%s\": %s\n",
+-								zbx_get_thread_id(),
+-								tm->tm_year + 1900,
+-								tm->tm_mon + 1,
+-								tm->tm_mday,
+-								tm->tm_hour,
+-								tm->tm_min,
+-								tm->tm_sec,
+-								milliseconds,
+-								log_filename,
+-								filename_old,
+-								zbx_strerror(errno));
+-
+-						fprintf(log_file, "%6li:%.4d%.2d%.2d:%.2d%.2d%.2d.%03ld"
+-								" Logfile \"%s\" size reached configured limit"
+-								" LogFileSize. Renaming the logfile to \"%s\" and"
+-								" starting a new logfile failed. The logfile"
+-								" was truncated and started from beginning.\n",
+-								zbx_get_thread_id(),
+-								tm->tm_year + 1900,
+-								tm->tm_mon + 1,
+-								tm->tm_mday,
+-								tm->tm_hour,
+-								tm->tm_min,
+-								tm->tm_sec,
+-								milliseconds,
+-								log_filename,
+-								filename_old);
+-
+-						zbx_fclose(log_file);
+-					}
+-				}
+-			}
+-
+-			if (old_size > (zbx_uint64_t)buf.st_size)
+-				redirect_std(log_filename);
+-
+-			old_size = (zbx_uint64_t)buf.st_size;
+-		}
++                rotate_log(log_filename);
+ 
+-		log_file = fopen(log_filename,"a+");
++                if (NULL != (log_file = fopen(log_filename, "a+")))
++                {
++                        long            milliseconds;
++                        struct tm       tm;
+ 
+-		if (NULL != log_file)
+-		{
+-#ifdef _WINDOWS
+-		        _ftime(&current_time);
+-			tm = localtime(&current_time.time);
+-			milliseconds = current_time.millitm;
+-#else
+-			gettimeofday(&current_time,NULL);
+-			tm = localtime(&current_time.tv_sec);
+-			milliseconds = current_time.tv_usec / 1000;
+-#endif
+-			fprintf(log_file,
+-				"%6li:%.4d%.2d%.2d:%.2d%.2d%.2d.%03ld ",
+-				zbx_get_thread_id(),
+-				tm->tm_year + 1900,
+-				tm->tm_mon + 1,
+-				tm->tm_mday,
+-				tm->tm_hour,
+-				tm->tm_min,
+-				tm->tm_sec,
+-				milliseconds
+-				);
+-
+-			va_start(args, fmt);
+-			vfprintf(log_file, fmt, args);
+-			va_end(args);
+-
+-			fprintf(log_file, "\n");
+-			zbx_fclose(log_file);
+-		}
++                        get_time(&tm, &milliseconds);
+ 
+-		zbx_mutex_unlock(&log_file_access);
++                        fprintf(log_file,
++                                        "%6li:%.4d%.2d%.2d:%.2d%.2d%.2d.%03ld ",
++                                        zbx_get_thread_id(),
++                                        tm.tm_year + 1900,
++                                        tm.tm_mon + 1,
++                                        tm.tm_mday,
++                                        tm.tm_hour,
++                                        tm.tm_min,
++                                        tm.tm_sec,
++                                        milliseconds
++                                        );
+ 
+-		return;
+-	}
++                        va_start(args, fmt);
++                        vfprintf(log_file, fmt, args);
++                        va_end(args);
+ 
+-	va_start(args, fmt);
+-	zbx_vsnprintf(message, sizeof(message), fmt, args);
+-	va_end(args);
++                        fprintf(log_file, "\n");
+ 
+-	if (LOG_TYPE_SYSLOG == log_type)
+-	{
+-#ifdef _WINDOWS
+-		switch (level)
+-		{
+-			case LOG_LEVEL_CRIT:
+-			case LOG_LEVEL_ERR:
+-				wType = EVENTLOG_ERROR_TYPE;
+-				break;
+-			case LOG_LEVEL_WARNING:
+-				wType = EVENTLOG_WARNING_TYPE;
+-				break;
+-			default:
+-				wType = EVENTLOG_INFORMATION_TYPE;
+-				break;
+-		}
++                        zbx_fclose(log_file);
++                }
+ 
+-		StringCchPrintf(thread_id, ARRSIZE(thread_id), TEXT("[%li]: "), zbx_get_thread_id());
+-		strings[0] = thread_id;
+-		strings[1] = zbx_utf8_to_unicode(message);
++                unlock_log();
+ 
+-		ReportEvent(
+-			system_log_handle,
+-			wType,
+-			0,
+-			MSG_ZABBIX_MESSAGE,
+-			NULL,
+-			sizeof(strings) / sizeof(*strings),
+-			0,
+-			strings,
+-			NULL);
++                return;
++        }
+ 
+-		zbx_free(strings[1]);
++        if (LOG_TYPE_CONSOLE == log_type)
++        {
++                long            milliseconds;
++                struct tm       tm;
+ 
+-#else	/* not _WINDOWS */
++                lock_log();
+ 
+-		/* for nice printing into syslog */
+-		switch (level)
+-		{
+-			case LOG_LEVEL_CRIT:
+-				syslog(LOG_CRIT, "%s", message);
+-				break;
+-			case LOG_LEVEL_ERR:
+-				syslog(LOG_ERR, "%s", message);
+-				break;
+-			case LOG_LEVEL_WARNING:
+-				syslog(LOG_WARNING, "%s", message);
+-				break;
+-			case LOG_LEVEL_DEBUG:
+-				syslog(LOG_DEBUG, "%s", message);
+-				break;
+-			case LOG_LEVEL_INFORMATION:
+-				syslog(LOG_INFO, "%s", message);
+-				break;
+-			default:
+-				/* LOG_LEVEL_EMPTY - print nothing */
+-				break;
+-		}
++                get_time(&tm, &milliseconds);
+ 
+-#endif	/* _WINDOWS */
+-	}	/* LOG_TYPE_SYSLOG */
+-	else	/* LOG_TYPE_UNDEFINED == log_type */
++                fprintf(stdout,
++                                "%6li:%.4d%.2d%.2d:%.2d%.2d%.2d.%03ld ",
++                                zbx_get_thread_id(),
++                                tm.tm_year + 1900,
++                                tm.tm_mon + 1,
++                                tm.tm_mday,
++                                tm.tm_hour,
++                                tm.tm_min,
++                                tm.tm_sec,
++                                milliseconds
++                                );
++
++                va_start(args, fmt);
++                vfprintf(stdout, fmt, args);
++                va_end(args);
++
++                fprintf(stdout, "\n");
++
++                fflush(stdout);
++
++                unlock_log();
++
++                return;
++        }
++
++        va_start(args, fmt);
++        zbx_vsnprintf(message, sizeof(message), fmt, args);
++        va_end(args);
++
++        if (LOG_TYPE_SYSTEM == log_type)
++        {
++#ifdef _WINDOWS
++                switch (level)
++                {
++                        case LOG_LEVEL_CRIT:
++                        case LOG_LEVEL_ERR:
++                                wType = EVENTLOG_ERROR_TYPE;
++                                break;
++                        case LOG_LEVEL_WARNING:
++                                wType = EVENTLOG_WARNING_TYPE;
++                                break;
++                        default:
++                                wType = EVENTLOG_INFORMATION_TYPE;
++                                break;
++                }
++
++                StringCchPrintf(thread_id, ARRSIZE(thread_id), TEXT("[%li]: "), zbx_get_thread_id());
++                strings[0] = thread_id;
++                strings[1] = zbx_utf8_to_unicode(message);
++
++                ReportEvent(
++                        system_log_handle,
++                        wType,
++                        0,
++                        MSG_ZABBIX_MESSAGE,
++                        NULL,
++                        sizeof(strings) / sizeof(*strings),
++                        0,
++                        strings,
++                        NULL);
++
++                zbx_free(strings[1]);
++
++#else   /* not _WINDOWS */
++
++                /* for nice printing into syslog */
++                switch (level)
++                {
++                        case LOG_LEVEL_CRIT:
++                                syslog(LOG_CRIT, "%s", message);
++                                break;
++                        case LOG_LEVEL_ERR:
++                                syslog(LOG_ERR, "%s", message);
++                                break;
++                        case LOG_LEVEL_WARNING:
++                                syslog(LOG_WARNING, "%s", message);
++                                break;
++                        case LOG_LEVEL_DEBUG:
++                        case LOG_LEVEL_TRACE:
++                                syslog(LOG_DEBUG, "%s", message);
++                                break;
++                        case LOG_LEVEL_INFORMATION:
++                                syslog(LOG_INFO, "%s", message);
++                                break;
++                        default:
++                                /* LOG_LEVEL_EMPTY - print nothing */
++                                break;
++                }
++
++#endif  /* _WINDOWS */
++        }       /* LOG_TYPE_SYSLOG */
++        else    /* LOG_TYPE_UNDEFINED == log_type */
++        {
++                lock_log();
++
++                switch (level)
++                {
++                        case LOG_LEVEL_CRIT:
++                                zbx_error("ERROR: %s", message);
++                                break;
++                        case LOG_LEVEL_ERR:
++                                zbx_error("Error: %s", message);
++                                break;
++                        case LOG_LEVEL_WARNING:
++                                zbx_error("Warning: %s", message);
++                                break;
++                        case LOG_LEVEL_DEBUG:
++                                zbx_error("DEBUG: %s", message);
++                                break;
++                        case LOG_LEVEL_TRACE:
++                                zbx_error("TRACE: %s", message);
++                                break;
++                        default:
++                                zbx_error("%s", message);
++                                break;
++                }
++
++                unlock_log();
++        }
++}
++
++int	zbx_get_log_type(const char *logtype)
++{
++	const char	*logtypes[] = {ZBX_OPTION_LOGTYPE_SYSTEM, ZBX_OPTION_LOGTYPE_FILE, ZBX_OPTION_LOGTYPE_CONSOLE};
++	size_t		i;
++
++	for (i = 0; i < ARRSIZE(logtypes); i++)
+ 	{
+-		zbx_mutex_lock(&log_file_access);
++		if (0 == strcmp(logtype, logtypes[i]))
++			return i + 1;
++	}
+ 
+-		switch (level)
+-		{
+-			case LOG_LEVEL_CRIT:
+-				zbx_error("ERROR: %s", message);
+-				break;
+-			case LOG_LEVEL_ERR:
+-				zbx_error("Error: %s", message);
+-				break;
+-			case LOG_LEVEL_WARNING:
+-				zbx_error("Warning: %s", message);
+-				break;
+-			case LOG_LEVEL_DEBUG:
+-				zbx_error("DEBUG: %s", message);
+-				break;
+-			default:
+-				zbx_error("%s", message);
+-				break;
+-		}
++	return LOG_TYPE_UNDEFINED;
++}
+ 
+-		zbx_mutex_unlock(&log_file_access);
++int	zbx_validate_log_parameters(ZBX_TASK_EX *task)
++{
++	if (LOG_TYPE_UNDEFINED == CONFIG_LOG_TYPE)
++	{
++		zabbix_log(LOG_LEVEL_CRIT, "invalid \"LogType\" configuration parameter: '%s'", CONFIG_LOG_TYPE_STR);
++		return FAIL;
++	}
++
++	if (LOG_TYPE_CONSOLE == CONFIG_LOG_TYPE && 0 == (task->flags & ZBX_TASK_FLAG_FOREGROUND) &&
++			ZBX_TASK_START == task->task)
++	{
++		zabbix_log(LOG_LEVEL_CRIT, "\"LogType\" \"console\" parameter can only be used with the"
++				" -f (--foreground) command line option");
++		return FAIL;
+ 	}
++
++	if (LOG_TYPE_FILE == CONFIG_LOG_TYPE && (NULL == CONFIG_LOG_FILE || '\0' == *CONFIG_LOG_FILE))
++	{
++		zabbix_log(LOG_LEVEL_CRIT, "\"LogType\" \"file\" parameter requires \"LogFile\" parameter to be set");
++		return FAIL;
++	}
++
++	return SUCCEED;
+ }
+ 
+ /******************************************************************************
+diff --git a/src/libs/zbxnix/daemon.c b/src/libs/zbxnix/daemon.c
+index 2807e32..e380005 100644
+--- a/src/libs/zbxnix/daemon.c
++++ b/src/libs/zbxnix/daemon.c
+@@ -275,19 +275,26 @@ static void	set_daemon_signal_handlers()
+  * Parameters: allow_root - allow root permission for application             *
+  *             user       - user on the system to which to drop the           *
+  *                          privileges                                        *
++ *             flags      - daemon startup flags                              *
+  *                                                                            *
+  * Author: Alexei Vladishev                                                   *
+  *                                                                            *
+  * Comments: it doesn't allow running under 'root' if allow_root is zero      *
+  *                                                                            *
+  ******************************************************************************/
+-int	daemon_start(int allow_root, const char *user)
++int	daemon_start(int allow_root, const char *user, unsigned int flags)
+ {
+ 	pid_t		pid;
+ 	struct passwd	*pwd;
+ 
+ 	if (0 == allow_root && 0 == getuid())	/* running as root? */
+ 	{
++		if (0 != (flags & ZBX_TASK_FLAG_FOREGROUND))
++		{
++			zbx_error("cannot run as root!");
++			exit(EXIT_FAILURE);
++		}
++
+ 		if (NULL == user)
+ 			user = "zabbix";
+ 
+@@ -336,22 +343,25 @@ int	daemon_start(int allow_root, const char *user)
+ #endif
+ 	}
+ 
+-	if (0 != (pid = zbx_fork()))
+-		exit(EXIT_SUCCESS);
++	umask(0002);
+ 
+-	setsid();
++	if (0 == (flags & ZBX_TASK_FLAG_FOREGROUND))
++	{
++		if (0 != (pid = zbx_fork()))
++			exit(EXIT_SUCCESS);
+ 
+-	signal(SIGHUP, SIG_IGN);
++		setsid();
+ 
+-	if (0 != (pid = zbx_fork()))
+-		exit(EXIT_SUCCESS);
++		signal(SIGHUP, SIG_IGN);
+ 
+-	if (-1 == chdir("/"))	/* this is to eliminate warning: ignoring return value of chdir */
+-		assert(0);
++		if (0 != (pid = zbx_fork()))
++			exit(EXIT_SUCCESS);
+ 
+-	umask(0002);
++		if (-1 == chdir("/"))	/* this is to eliminate warning: ignoring return value of chdir */
++			assert(0);
+ 
+-	redirect_std(CONFIG_LOG_FILE);
++		redirect_std(CONFIG_LOG_FILE);
++	}
+ 
+ 	if (FAIL == create_pid_file(CONFIG_PID_FILE))
+ 		exit(EXIT_FAILURE);
+@@ -368,7 +378,7 @@ int	daemon_start(int allow_root, const char *user)
+ 	/* other cases, SIGCHLD is set to SIG_DFL in zbx_child_fork(). */
+ 	zbx_set_child_signal_handler();
+ 
+-	return MAIN_ZABBIX_ENTRY();
++	return MAIN_ZABBIX_ENTRY(flags);
+ }
+ 
+ void	daemon_stop()
+diff --git a/src/libs/zbxnix/sighandler.c b/src/libs/zbxnix/sighandler.c
+index 4e13f36..8715860 100644
+--- a/src/libs/zbxnix/sighandler.c
++++ b/src/libs/zbxnix/sighandler.c
+@@ -71,14 +71,19 @@ static void	terminate_signal_handler(int sig, siginfo_t *siginfo, void *context)
+ 
+ 	if (!SIG_PARENT_PROCESS)
+ 	{
+-		zabbix_log(sig_parent_pid == SIG_CHECKED_FIELD(siginfo, si_pid) ?
++		zabbix_log(sig_parent_pid == SIG_CHECKED_FIELD(siginfo, si_pid) || SIGINT == sig ?
+ 				LOG_LEVEL_DEBUG : LOG_LEVEL_WARNING,
+ 				"Got signal [signal:%d(%s),sender_pid:%d,sender_uid:%d,"
+-				"reason:%d]. Exiting ...",
++				"reason:%d]. %s ...",
+ 				sig, get_signal_name(sig),
+ 				SIG_CHECKED_FIELD(siginfo, si_pid),
+ 				SIG_CHECKED_FIELD(siginfo, si_uid),
+-				SIG_CHECKED_FIELD(siginfo, si_code));
++				SIG_CHECKED_FIELD(siginfo, si_code),
++				SIGINT == sig ? "Ignoring" : "Exiting");
++		/* ignore interrupt signal in children - the parent */
++		/* process will send terminate signals instead      */
++		if (SIGINT == sig)
++			return;
+ 		exit(EXIT_FAILURE);
+ 	}
+ 	else
+@@ -167,7 +172,7 @@ void 	zbx_set_child_signal_handler()
+ 	sig_parent_pid = (int)getpid();
+ 
+ 	sigemptyset(&phan.sa_mask);
+-	phan.sa_flags = SA_SIGINFO;
++	phan.sa_flags = SA_SIGINFO | SA_NOCLDSTOP;
+ 
+ 	phan.sa_sigaction = child_signal_handler;
+ 	sigaction(SIGCHLD, &phan, NULL);
+diff --git a/src/libs/zbxsys/threads.c b/src/libs/zbxsys/threads.c
+index 6b14dd8..80bc010 100644
+--- a/src/libs/zbxsys/threads.c
++++ b/src/libs/zbxsys/threads.c
+@@ -155,7 +155,7 @@ int	zbx_thread_wait(ZBX_THREAD_HANDLE thread)
+ 
+ 	if (0 >= waitpid(thread, &status, 0))
+ 	{
+-		zbx_error("Error on thread waiting.");
++		zbx_error("Error waiting for process with PID %d: %s", (int)thread, zbx_strerror(errno));
+ 		return ZBX_THREAD_ERROR;
+ 	}
+ 
+diff --git a/src/libs/zbxwin32/service.c b/src/libs/zbxwin32/service.c
+index dbb3197..98ac2f8 100644
+--- a/src/libs/zbxwin32/service.c
++++ b/src/libs/zbxwin32/service.c
+@@ -108,14 +108,20 @@ static VOID WINAPI	ServiceEntry(DWORD argc, wchar_t **argv)
+ 	serviceStatus.dwWaitHint	= 0;
+ 	SetServiceStatus(serviceHandle, &serviceStatus);
+ 
+-	MAIN_ZABBIX_ENTRY();
++	MAIN_ZABBIX_ENTRY(0);
+ }
+ 
+-void	service_start()
++void	service_start(int flags)
+ {
+ 	int				ret;
+ 	static SERVICE_TABLE_ENTRY	serviceTable[2];
+ 
++	if (0 != (flags & ZBX_TASK_FLAG_FOREGROUND))
++	{
++		MAIN_ZABBIX_ENTRY(flags);
++		return;
++	}
++
+ 	serviceTable[0].lpServiceName = zbx_utf8_to_unicode(ZABBIX_SERVICE_NAME);
+ 	serviceTable[0].lpServiceProc = (LPSERVICE_MAIN_FUNCTION)ServiceEntry;
+ 	serviceTable[1].lpServiceName = NULL;
+@@ -127,10 +133,7 @@ void	service_start()
+ 	if (0 == ret)
+ 	{
+ 		if (ERROR_FAILED_SERVICE_CONTROLLER_CONNECT == GetLastError())
+-		{
+-			zbx_error("\n\n\t!!!ATTENTION!!! Zabbix Agent started as a console application. !!!ATTENTION!!!\n");
+-			MAIN_ZABBIX_ENTRY();
+-		}
++			zbx_error("use foreground option to run Zabbix agent as console application");
+ 		else
+ 			zbx_error("StartServiceCtrlDispatcher() failed: %s", strerror_from_system(GetLastError()));
+ 	}
+diff --git a/src/zabbix_agent/zabbix_agent.c b/src/zabbix_agent/zabbix_agent.c
+index 0e02265..1a7b908 100644
+--- a/src/zabbix_agent/zabbix_agent.c
++++ b/src/zabbix_agent/zabbix_agent.c
+@@ -215,7 +215,7 @@ int	main(int argc, char **argv)
+ 	zbx_free_config();
+ 
+ 	/* do not create debug files */
+-	zabbix_open_log(LOG_TYPE_SYSLOG, LOG_LEVEL_EMPTY, NULL);
++	zabbix_open_log(LOG_TYPE_SYSTEM, LOG_LEVEL_EMPTY, NULL);
+ 
+ 	switch (task)
+ 	{
+diff --git a/src/zabbix_agent/zabbix_agentd.c b/src/zabbix_agent/zabbix_agentd.c
+index 9efc357..6e5bc42 100644
+--- a/src/zabbix_agent/zabbix_agentd.c
++++ b/src/zabbix_agent/zabbix_agentd.c
+@@ -93,6 +93,7 @@ const char	usage_message[] =
+ const char	*help_message[] = {
+ 	"Options:",
+ 	"  -c --config <config-file>       Absolute path to the configuration file",
++	"  -f --foreground                 Run Zabbix agent in foreground",
+ 	"  -p --print                      Print known items and exit",
+ 	"  -t --test <item key>            Test specified item and exit",
+ 	"  -h --help                       Display help information",
+@@ -128,6 +129,7 @@ const char	*help_message[] = {
+ static struct zbx_option	longopts[] =
+ {
+ 	{"config",		1,	NULL,	'c'},
++	{"foreground",		0,	NULL,	'f'},
+ 	{"help",		0,	NULL,	'h'},
+ 	{"version",		0,	NULL,	'V'},
+ 	{"print",		0,	NULL,	'p'},
+@@ -147,7 +149,7 @@ static struct zbx_option	longopts[] =
+ };
+ 
+ static char	shortopts[] =
+-	"c:hVpt:"
++	"c:hVpt:f"
+ #ifndef _WINDOWS
+ 	"R:"
+ #else
+@@ -246,7 +248,7 @@ static void	parse_commandline(int argc, char **argv, ZBX_TASK_EX *t)
+ 				break;
+ #ifndef _WINDOWS
+ 			case 'R':
+-				if (SUCCEED != parse_rtc_options(zbx_optarg, daemon_type, &t->flags))
++				if (SUCCEED != parse_rtc_options(zbx_optarg, daemon_type, &t->data))
+ 					exit(EXIT_FAILURE);
+ 
+ 				t->task = ZBX_TASK_RUNTIME_CONTROL;
+@@ -274,6 +276,9 @@ static void	parse_commandline(int argc, char **argv, ZBX_TASK_EX *t)
+ 					TEST_METRIC = strdup(zbx_optarg);
+ 				}
+ 				break;
++			case 'f':
++				t->flags |= ZBX_TASK_FLAG_FOREGROUND;
++				break;
+ #ifdef _WINDOWS
+ 			case 'i':
+ 				t->task = ZBX_TASK_INSTALL_SERVICE;
+@@ -288,7 +293,7 @@ static void	parse_commandline(int argc, char **argv, ZBX_TASK_EX *t)
+ 				t->task = ZBX_TASK_STOP_SERVICE;
+ 				break;
+ 			case 'm':
+-				t->flags = ZBX_TASK_FLAG_MULTIPLE_AGENTS;
++				t->flags |= ZBX_TASK_FLAG_MULTIPLE_AGENTS;
+ 				break;
+ #endif
+ 			default:
+@@ -356,6 +361,8 @@ static void	set_defaults(void)
+ 	if (NULL == CONFIG_PID_FILE)
+ 		CONFIG_PID_FILE = "/tmp/zabbix_agentd.pid";
+ #endif
++	if (NULL == CONFIG_LOG_TYPE_STR)
++		CONFIG_LOG_TYPE_STR = zbx_strdup(CONFIG_LOG_TYPE_STR, ZBX_OPTION_LOGTYPE_FILE);
+ }
+ 
+ /******************************************************************************
+@@ -367,10 +374,16 @@ static void	set_defaults(void)
+  * Author: Vladimir Levijev                                                   *
+  *                                                                            *
+  ******************************************************************************/
+-static void	zbx_validate_config(void)
++static void	zbx_validate_config(ZBX_TASK_EX *task)
+ {
+ 	char	*ch_error;
+ 
++	if (NULL == CONFIG_HOSTS_ALLOWED && 0 != CONFIG_PASSIVE_FORKS)
++	{
++		zabbix_log(LOG_LEVEL_CRIT, "StartAgents is not 0, parameter Server must be defined");
++		exit(EXIT_FAILURE);
++	}
++
+ 	if (NULL == CONFIG_HOSTNAME)
+ 	{
+ 		zabbix_log(LOG_LEVEL_CRIT, "\"Hostname\" configuration parameter is not defined");
+@@ -404,6 +417,9 @@ static void	zbx_validate_config(void)
+ 		zabbix_log(LOG_LEVEL_CRIT, "invalid \"SourceIP\" configuration parameter: '%s'", CONFIG_SOURCE_IP);
+ 		exit(EXIT_FAILURE);
+ 	}
++
++	if (SUCCEED != zbx_validate_log_parameters(task))
++		exit(EXIT_FAILURE);
+ }
+ 
+ static int	add_activechk_host(const char *host, unsigned short port)
+@@ -484,7 +500,7 @@ fail:
+  * Parameters: requirement - produce error if config file missing or not      *
+  *                                                                            *
+  ******************************************************************************/
+-static void	zbx_load_config(int requirement)
++static void	zbx_load_config(int requirement, ZBX_TASK_EX *task)
+ {
+ 	char	*active_hosts = NULL;
+ 
+@@ -512,6 +528,8 @@ static void	zbx_load_config(int requirement)
+ 		{"PidFile",			&CONFIG_PID_FILE,			TYPE_STRING,
+ 			PARM_OPT,	0,			0},
+ #endif
++		{"LogType",			&CONFIG_LOG_TYPE_STR,			TYPE_STRING,
++			PARM_OPT,	0,			0},
+ 		{"LogFile",			&CONFIG_LOG_FILE,			TYPE_STRING,
+ 			PARM_OPT,	0,			0},
+ 		{"LogFileSize",			&CONFIG_LOG_FILE_SIZE,			TYPE_INT,
+@@ -573,11 +591,7 @@ static void	zbx_load_config(int requirement)
+ 
+ 	set_defaults();
+ 
+-	if (ZBX_CFG_FILE_REQUIRED == requirement && NULL == CONFIG_HOSTS_ALLOWED && 0 != CONFIG_PASSIVE_FORKS)
+-	{
+-		zbx_error("StartAgents is not 0, parameter Server must be defined");
+-		exit(EXIT_FAILURE);
+-	}
++	CONFIG_LOG_TYPE = zbx_get_log_type(CONFIG_LOG_TYPE_STR);
+ 
+ 	if (NULL != active_hosts && '\0' != *active_hosts)
+ 		get_serveractive_hosts(active_hosts);
+@@ -585,7 +599,7 @@ static void	zbx_load_config(int requirement)
+ 	zbx_free(active_hosts);
+ 
+ 	if (ZBX_CFG_FILE_REQUIRED == requirement)
+-		zbx_validate_config();
++		zbx_validate_config(task);
+ }
+ 
+ /******************************************************************************
+@@ -637,17 +651,20 @@ static int	zbx_exec_service_task(const char *name, const ZBX_TASK_EX *t)
+ }
+ #endif	/* _WINDOWS */
+ 
+-int	MAIN_ZABBIX_ENTRY()
++int	MAIN_ZABBIX_ENTRY(int flags)
+ {
+ 	zbx_sock_t	listen_sock;
+ 	int		i, j = 0;
+ #ifdef _WINDOWS
+ 	DWORD		res;
+ #endif
+-	if (NULL == CONFIG_LOG_FILE || '\0' == *CONFIG_LOG_FILE)
+-		zabbix_open_log(LOG_TYPE_SYSLOG, CONFIG_LOG_LEVEL, NULL);
+-	else
+-		zabbix_open_log(LOG_TYPE_FILE, CONFIG_LOG_LEVEL, CONFIG_LOG_FILE);
++	if (0 != (flags & ZBX_TASK_FLAG_FOREGROUND))
++	{
++		printf("Starting Zabbix Agent [%s]. Zabbix %s (revision %s).\nPress Ctrl+C to exit.\n\n",
++				CONFIG_HOSTNAME, ZABBIX_VERSION, ZABBIX_REVISION);
++	}
++
++	zabbix_open_log(CONFIG_LOG_TYPE, CONFIG_LOG_LEVEL, CONFIG_LOG_FILE);
+ 
+ 	zabbix_log(LOG_LEVEL_INFORMATION, "Starting Zabbix Agent [%s]. Zabbix %s (revision %s).",
+ 			CONFIG_HOSTNAME, ZABBIX_VERSION, ZABBIX_REVISION);
+@@ -877,8 +894,8 @@ int	main(int argc, char **argv)
+ 			break;
+ #ifndef _WINDOWS
+ 		case ZBX_TASK_RUNTIME_CONTROL:
+-			zbx_load_config(ZBX_CFG_FILE_REQUIRED);
+-			exit(SUCCEED == zbx_sigusr_send(t.flags) ? EXIT_SUCCESS : EXIT_FAILURE);
++			zbx_load_config(ZBX_CFG_FILE_REQUIRED, &t);
++			exit(SUCCEED == zbx_sigusr_send(t.data) ? EXIT_SUCCESS : EXIT_FAILURE);
+ 			break;
+ #else
+ 		case ZBX_TASK_INSTALL_SERVICE:
+@@ -887,7 +904,7 @@ int	main(int argc, char **argv)
+ 		case ZBX_TASK_STOP_SERVICE:
+ 			if (t.flags & ZBX_TASK_FLAG_MULTIPLE_AGENTS)
+ 			{
+-				zbx_load_config(ZBX_CFG_FILE_REQUIRED);
++				zbx_load_config(ZBX_CFG_FILE_REQUIRED, &t);
+ 
+ 				zbx_snprintf(ZABBIX_SERVICE_NAME, sizeof(ZABBIX_SERVICE_NAME), "%s [%s]",
+ 						APPLICATION_NAME, CONFIG_HOSTNAME);
+@@ -895,7 +912,7 @@ int	main(int argc, char **argv)
+ 						APPLICATION_NAME, CONFIG_HOSTNAME);
+ 			}
+ 			else
+-				zbx_load_config(ZBX_CFG_FILE_OPTIONAL);
++				zbx_load_config(ZBX_CFG_FILE_OPTIONAL, &t);
+ 
+ 			zbx_free_config();
+ 
+@@ -906,7 +923,7 @@ int	main(int argc, char **argv)
+ #endif
+ 		case ZBX_TASK_TEST_METRIC:
+ 		case ZBX_TASK_PRINT_SUPPORTED:
+-			zbx_load_config(ZBX_CFG_FILE_OPTIONAL);
++			zbx_load_config(ZBX_CFG_FILE_OPTIONAL, &t);
+ #ifdef _WINDOWS
+ 			init_perf_collector(0);
+ 			load_perf_counters(CONFIG_PERF_COUNTERS);
+@@ -938,13 +955,13 @@ int	main(int argc, char **argv)
+ 			exit(EXIT_SUCCESS);
+ 			break;
+ 		default:
+-			zbx_load_config(ZBX_CFG_FILE_REQUIRED);
++			zbx_load_config(ZBX_CFG_FILE_REQUIRED, &t);
+ 			load_user_parameters(CONFIG_USER_PARAMETERS);
+ 			load_aliases(CONFIG_ALIASES);
+ 			break;
+ 	}
+ 
+-	START_MAIN_ZABBIX_ENTRY(CONFIG_ALLOW_ROOT, CONFIG_USER);
++	START_MAIN_ZABBIX_ENTRY(CONFIG_ALLOW_ROOT, CONFIG_USER, t.flags);
+ 
+ 	exit(EXIT_SUCCESS);
+ }
+diff --git a/src/zabbix_proxy/proxy.c b/src/zabbix_proxy/proxy.c
+index 49cc41c..f1762cf 100644
+--- a/src/zabbix_proxy/proxy.c
++++ b/src/zabbix_proxy/proxy.c
+@@ -62,6 +62,7 @@ const char	*help_message[] = {
+ 	"Options:",
+ 	"  -c --config <file>              Absolute path to the configuration file",
+ 	"  -R --runtime-control <option>   Perform administrative functions",
++	"  -f --foreground                 Run Zabbix proxy in foreground",
+ 	"",
+ 	"Runtime control options:",
+ 	"  " ZBX_CONFIG_CACHE_RELOAD "             Reload configuration cache",
+@@ -85,6 +86,7 @@ const char	*help_message[] = {
+ static struct zbx_option	longopts[] =
+ {
+ 	{"config",		1,	NULL,	'c'},
++	{"foreground",		0,	NULL,	'f'},
+ 	{"runtime-control",	1,	NULL,	'R'},
+ 	{"help",		0,	NULL,	'h'},
+ 	{"version",		0,	NULL,	'V'},
+@@ -92,7 +94,7 @@ static struct zbx_option	longopts[] =
+ };
+ 
+ /* short options */
+-static char	shortopts[] = "c:hVR:";
++static char	shortopts[] = "c:hVR:f";
+ 
+ /* end of COMMAND LINE OPTIONS */
+ 
+@@ -387,6 +389,9 @@ static void	zbx_set_defaults(void)
+ 		CONFIG_CONFSYNCER_FORKS = CONFIG_DATASENDER_FORKS = 0;
+ 		daemon_type = ZBX_DAEMON_TYPE_PROXY_PASSIVE;
+ 	}
++
++	if (NULL == CONFIG_LOG_TYPE_STR)
++		CONFIG_LOG_TYPE_STR = zbx_strdup(CONFIG_LOG_TYPE_STR, ZBX_OPTION_LOGTYPE_FILE);
+ }
+ 
+ /******************************************************************************
+@@ -398,7 +403,7 @@ static void	zbx_set_defaults(void)
+  * Author: Alexei Vladishev, Rudolfs Kreicbergs                               *
+  *                                                                            *
+  ******************************************************************************/
+-static void	zbx_validate_config(void)
++static void	zbx_validate_config(ZBX_TASK_EX *task)
+ {
+ 	char	*ch_error;
+ 
+@@ -451,6 +456,9 @@ static void	zbx_validate_config(void)
+ 		exit(EXIT_FAILURE);
+ 	}
+ #endif
++
++	if (SUCCEED != zbx_validate_log_parameters(task))
++		exit(EXIT_FAILURE);
+ }
+ 
+ /******************************************************************************
+@@ -464,7 +472,7 @@ static void	zbx_validate_config(void)
+  * Comments: will terminate process if parsing fails                          *
+  *                                                                            *
+  ******************************************************************************/
+-static void	zbx_load_config(void)
++static void	zbx_load_config(ZBX_TASK_EX *task)
+ {
+ 	static struct cfg_line	cfg[] =
+ 	{
+@@ -552,6 +560,8 @@ static void	zbx_load_config(void)
+ 			PARM_OPT,	0,			4},
+ 		{"PidFile",			&CONFIG_PID_FILE,			TYPE_STRING,
+ 			PARM_OPT,	0,			0},
++		{"LogType",			&CONFIG_LOG_TYPE_STR,			TYPE_STRING,
++			PARM_OPT,	0,			0},
+ 		{"LogFile",			&CONFIG_LOG_FILE,			TYPE_STRING,
+ 			PARM_OPT,	0,			0},
+ 		{"LogFileSize",			&CONFIG_LOG_FILE_SIZE,			TYPE_INT,
+@@ -612,7 +622,9 @@ static void	zbx_load_config(void)
+ 
+ 	zbx_set_defaults();
+ 
+-	zbx_validate_config();
++	CONFIG_LOG_TYPE = zbx_get_log_type(CONFIG_LOG_TYPE_STR);
++
++	zbx_validate_config(task);
+ }
+ 
+ #ifdef HAVE_SIGQUEUE
+@@ -670,7 +682,7 @@ int	main(int argc, char **argv)
+ 				CONFIG_FILE = zbx_strdup(CONFIG_FILE, zbx_optarg);
+ 				break;
+ 			case 'R':
+-				if (SUCCEED != parse_rtc_options(zbx_optarg, daemon_type, &t.flags))
++				if (SUCCEED != parse_rtc_options(zbx_optarg, daemon_type, &t.data))
+ 					exit(EXIT_FAILURE);
+ 
+ 				t.task = ZBX_TASK_RUNTIME_CONTROL;
+@@ -683,6 +695,9 @@ int	main(int argc, char **argv)
+ 				version();
+ 				exit(EXIT_SUCCESS);
+ 				break;
++			case 'f':
++				t.flags |= ZBX_TASK_FLAG_FOREGROUND;
++				break;
+ 			default:
+ 				usage();
+ 				exit(EXIT_FAILURE);
+@@ -696,27 +711,31 @@ int	main(int argc, char **argv)
+ 	/* required for simple checks */
+ 	init_metrics();
+ 
+-	zbx_load_config();
++	zbx_load_config(&t);
+ 
+ 	if (ZBX_TASK_RUNTIME_CONTROL == t.task)
+-		exit(SUCCEED == zbx_sigusr_send(t.flags) ? EXIT_SUCCESS : EXIT_FAILURE);
++		exit(SUCCEED == zbx_sigusr_send(t.data) ? EXIT_SUCCESS : EXIT_FAILURE);
+ 
+ #ifdef HAVE_OPENIPMI
+ 	init_ipmi_handler();
+ #endif
+ 
+-	return daemon_start(CONFIG_ALLOW_ROOT, CONFIG_USER);
++	return daemon_start(CONFIG_ALLOW_ROOT, CONFIG_USER, t.flags);
+ }
+ 
+-int	MAIN_ZABBIX_ENTRY()
++int	MAIN_ZABBIX_ENTRY(int flags)
+ {
+ 	zbx_sock_t	listen_sock;
+ 	int		i, db_type;
+ 
+-	if (NULL == CONFIG_LOG_FILE || '\0' == *CONFIG_LOG_FILE)
+-		zabbix_open_log(LOG_TYPE_SYSLOG, CONFIG_LOG_LEVEL, NULL);
+-	else
+-		zabbix_open_log(LOG_TYPE_FILE, CONFIG_LOG_LEVEL, CONFIG_LOG_FILE);
++	if (0 != (flags & ZBX_TASK_FLAG_FOREGROUND))
++	{
++		printf("Starting Zabbix Proxy (%s) [%s]. Zabbix %s (revision %s).\nPress Ctrl+C to exit.\n\n",
++				ZBX_PROXYMODE_PASSIVE == CONFIG_PROXYMODE ? "passive" : "active",
++				CONFIG_HOSTNAME, ZABBIX_VERSION, ZABBIX_REVISION);
++	}
++
++	zabbix_open_log(CONFIG_LOG_TYPE, CONFIG_LOG_LEVEL, CONFIG_LOG_FILE);
+ 
+ #ifdef HAVE_NETSNMP
+ #	define SNMP_FEATURE_STATUS 	"YES"
+diff --git a/src/zabbix_server/server.c b/src/zabbix_server/server.c
+index 99d7e8b..e2c4dda 100644
+--- a/src/zabbix_server/server.c
++++ b/src/zabbix_server/server.c
+@@ -66,6 +66,7 @@ const char	*help_message[] = {
+ 	"Options:",
+ 	"  -c --config <file>              Absolute path to the configuration file",
+ 	"  -R --runtime-control <option>   Perform administrative functions",
++	"  -f --foreground                 Run Zabbix server in foreground",
+ 	"",
+ 	"Runtime control options:",
+ 	"  " ZBX_CONFIG_CACHE_RELOAD "             Reload configuration cache",
+@@ -89,6 +90,7 @@ const char	*help_message[] = {
+ static struct zbx_option	longopts[] =
+ {
+ 	{"config",		1,	NULL,	'c'},
++	{"foreground",		0,	NULL,	'f'},
+ 	{"runtime-control",	1,	NULL,	'R'},
+ 	{"help",		0,	NULL,	'h'},
+ 	{"version",		0,	NULL,	'V'},
+@@ -96,7 +98,7 @@ static struct zbx_option	longopts[] =
+ };
+ 
+ /* short options */
+-static char	shortopts[] = "c:hVR:";
++static char	shortopts[] = "c:hVR:f";
+ 
+ /* end of COMMAND LINE OPTIONS */
+ 
+@@ -365,6 +367,9 @@ static void	zbx_set_defaults(void)
+ #ifdef HAVE_SQLITE3
+ 	CONFIG_MAX_HOUSEKEEPER_DELETE = 0;
+ #endif
++
++	if (NULL == CONFIG_LOG_TYPE_STR)
++		CONFIG_LOG_TYPE_STR = zbx_strdup(CONFIG_LOG_TYPE_STR, ZBX_OPTION_LOGTYPE_FILE);
+ }
+ 
+ /******************************************************************************
+@@ -376,7 +381,7 @@ static void	zbx_set_defaults(void)
+  * Author: Vladimir Levijev                                                   *
+  *                                                                            *
+  ******************************************************************************/
+-static void	zbx_validate_config(void)
++static void	zbx_validate_config(ZBX_TASK_EX *task)
+ {
+ 	if (0 == CONFIG_UNREACHABLE_POLLER_FORKS && 0 != CONFIG_POLLER_FORKS + CONFIG_IPMIPOLLER_FORKS +
+ 			CONFIG_JAVAPOLLER_FORKS)
+@@ -404,6 +409,10 @@ static void	zbx_validate_config(void)
+ 		zabbix_log(LOG_LEVEL_CRIT, "invalid \"SourceIP\" configuration parameter: '%s'", CONFIG_SOURCE_IP);
+ 		exit(EXIT_FAILURE);
+ 	}
++
++	if (SUCCEED != zbx_validate_log_parameters(task))
++		exit(EXIT_FAILURE);
++
+ #if !defined(HAVE_LIBXML2) || !defined(HAVE_LIBCURL)
+ 	if (0 != CONFIG_VMWARE_FORKS)
+ 	{
+@@ -429,7 +438,7 @@ static void	zbx_validate_config(void)
+  * Comments: will terminate process if parsing fails                          *
+  *                                                                            *
+  ******************************************************************************/
+-static void	zbx_load_config(void)
++static void	zbx_load_config(ZBX_TASK_EX *task)
+ {
+ 	static struct cfg_line	cfg[] =
+ 	{
+@@ -509,6 +518,8 @@ static void	zbx_load_config(void)
+ 			PARM_OPT,	0,			4},
+ 		{"PidFile",			&CONFIG_PID_FILE,			TYPE_STRING,
+ 			PARM_OPT,	0,			0},
++		{"LogType",			&CONFIG_LOG_TYPE_STR,			TYPE_STRING,
++			PARM_OPT,	0,			0},
+ 		{"LogFile",			&CONFIG_LOG_FILE,			TYPE_STRING,
+ 			PARM_OPT,	0,			0},
+ 		{"LogFileSize",			&CONFIG_LOG_FILE_SIZE,			TYPE_INT,
+@@ -577,7 +588,9 @@ static void	zbx_load_config(void)
+ 
+ 	zbx_set_defaults();
+ 
+-	zbx_validate_config();
++	CONFIG_LOG_TYPE = zbx_get_log_type(CONFIG_LOG_TYPE_STR);
++
++	zbx_validate_config(task);
+ }
+ 
+ #ifdef HAVE_SIGQUEUE
+@@ -635,7 +648,7 @@ int	main(int argc, char **argv)
+ 				CONFIG_FILE = zbx_strdup(CONFIG_FILE, zbx_optarg);
+ 				break;
+ 			case 'R':
+-				if (SUCCEED != parse_rtc_options(zbx_optarg, daemon_type, &t.flags))
++				if (SUCCEED != parse_rtc_options(zbx_optarg, daemon_type, &t.data))
+ 					exit(EXIT_FAILURE);
+ 
+ 				t.task = ZBX_TASK_RUNTIME_CONTROL;
+@@ -648,6 +661,9 @@ int	main(int argc, char **argv)
+ 				version();
+ 				exit(EXIT_SUCCESS);
+ 				break;
++			case 'f':
++				t.flags |= ZBX_TASK_FLAG_FOREGROUND;
++				break;
+ 			default:
+ 				usage();
+ 				exit(EXIT_FAILURE);
+@@ -661,27 +677,30 @@ int	main(int argc, char **argv)
+ 	/* required for simple checks */
+ 	init_metrics();
+ 
+-	zbx_load_config();
++	zbx_load_config(&t);
+ 
+ 	if (ZBX_TASK_RUNTIME_CONTROL == t.task)
+-		exit(SUCCEED == zbx_sigusr_send(t.flags) ? EXIT_SUCCESS : EXIT_FAILURE);
++		exit(SUCCEED == zbx_sigusr_send(t.data) ? EXIT_SUCCESS : EXIT_FAILURE);
+ 
+ #ifdef HAVE_OPENIPMI
+ 	init_ipmi_handler();
+ #endif
+ 
+-	return daemon_start(CONFIG_ALLOW_ROOT, CONFIG_USER);
++	return daemon_start(CONFIG_ALLOW_ROOT, CONFIG_USER, t.flags);
+ }
+ 
+-int	MAIN_ZABBIX_ENTRY()
++int	MAIN_ZABBIX_ENTRY(int flags)
+ {
+ 	zbx_sock_t	listen_sock;
+ 	int		i, db_type;
+ 
+-	if (NULL == CONFIG_LOG_FILE || '\0' == *CONFIG_LOG_FILE)
+-		zabbix_open_log(LOG_TYPE_SYSLOG, CONFIG_LOG_LEVEL, NULL);
+-	else
+-		zabbix_open_log(LOG_TYPE_FILE, CONFIG_LOG_LEVEL, CONFIG_LOG_FILE);
++	if (0 != (flags & ZBX_TASK_FLAG_FOREGROUND))
++	{
++		printf("Starting Zabbix Server. Zabbix %s (revision %s).\nPress Ctrl+C to exit.\n\n",
++				ZABBIX_VERSION, ZABBIX_REVISION);
++	}
++
++	zabbix_open_log(CONFIG_LOG_TYPE, CONFIG_LOG_LEVEL, CONFIG_LOG_FILE);
+ 
+ #ifdef HAVE_NETSNMP
+ #	define SNMP_FEATURE_STATUS	"YES"

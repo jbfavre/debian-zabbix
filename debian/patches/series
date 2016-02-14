@@ -7,6 +7,6 @@ manpages-fix.patch
 manpages-path.patch
 sql-upgrades-path.patch
 conffile-in-etc.patch
-zabbix_agentd_foreground.patch
+ZBXNEXT-611.patch
 ZBXNEXT-756_add_percentile_trigger_function-2.4.2.patch
 coreos_from_rkt.patch
