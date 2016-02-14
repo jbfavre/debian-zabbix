@@ -152,7 +152,7 @@ Description: network monitoring solution - proxy (using SQLite3)
 Package: zabbix-server-mysql
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, fping, adduser, lsb-base
-Recommends: mysql-server, snmpd
+Recommends: mysql-server, snmpd, snmp-mibs-downloader
 Suggests: zabbix-frontend-php, logrotate
 Conflicts: zabbix-server-pgsql, zabbix-server-sqlite3, zabbix-proxy-mysql, zabbix-proxy-pgsql, zabbix-proxy-sqlite3
 Description: network monitoring solution - server (using MySQL)
@@ -173,7 +173,7 @@ Description: network monitoring solution - server (using MySQL)
 Package: zabbix-server-pgsql
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, fping, adduser, lsb-base
-Recommends: postgresql, snmpd
+Recommends: postgresql, snmpd, snmp-mibs-downloader
 Suggests: zabbix-frontend-php, logrotate
 Conflicts: zabbix-server-mysql, zabbix-server-sqlite3, zabbix-proxy-mysql, zabbix-proxy-pgsql, zabbix-proxy-sqlite3
 Description: network monitoring solution - server (using PostgreSQL)
@@ -212,7 +212,7 @@ Description: network monitoring solution - java-gateway
 Package: zabbix-server-sqlite3
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, fping, adduser, lsb-base
-Recommends: snmpd
+Recommends: sqlite3, snmpd, snmp-mibs-downloader
 Suggests: logrotate
 Conflicts: zabbix-server-mysql, zabbix-server-pgsql, zabbix-proxy-mysql, zabbix-proxy-pgsql, zabbix-proxy-sqlite3
 Description: network monitoring solution - server (using SQLite3)
