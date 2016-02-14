@@ -485,7 +485,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
 +  no)  coreos=no ;;
 +  *) AC_MSG_ERROR([bad value ${enableval} for --enable-coreos]) ;;
 +esac],
-+[ipv6=no])
++[coreos=no])
 +
  have_db="no"
  have_unixodbc="no"
