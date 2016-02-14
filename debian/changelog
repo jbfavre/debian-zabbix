@@ -1,3 +1,10 @@
+zabbix (1:2.4.7-8~bpo8+1) stable; urgency=medium
+
+  * Update patches
+    - Fix coreos_from_rkt which disabled erroneously ipv6 support
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Sun, 14 Feb 2016 13:03:40 +0100
+
 zabbix (1:2.4.7-7~bpo8+1) stable; urgency=medium
 
   * Fix CoreOS monitoring for kernel.* items
