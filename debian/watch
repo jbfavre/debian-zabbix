@@ -2,5 +2,5 @@
 # Use 'debian/rules get-orig-source' command to generate DFSG-repackaged archive.
 
 version=3
-opts=dversionmangle=s/\+dfsg// \
-http://sf.net/zabbix/zabbix-([0-9.a-z]*)\.tar\.gz
+opts=uversionmangle=s/([0-9.]*)[_\.\-\+]?((RC|rc|pre|dev|beta|alpha|bpo|bbc)\d*)$/$1~$2/,dversionmangle=s/\+dfsg// \
+http://sf.net/zabbix/zabbix-([0-9.]*)\.tar\.gz
