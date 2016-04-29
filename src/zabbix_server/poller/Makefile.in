@@ -109,21 +109,12 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libzbxpoller_a_AR = $(AR) $(ARFLAGS)
 libzbxpoller_a_LIBADD =
-am__libzbxpoller_a_SOURCES_DIST = checks_agent.c checks_agent.h \
-	checks_internal.c checks_internal.h checks_simple.c \
-	checks_simple.h checks_simple_vmware.c checks_simple_vmware.h \
-	checks_snmp.c checks_snmp.h checks_db.c checks_db.h \
-	checks_aggregate.c checks_aggregate.h checks_external.c \
-	checks_external.h checks_ipmi.c checks_ipmi.h checks_ssh.c \
-	checks_ssh.h checks_telnet.c checks_telnet.h checks_java.c \
-	checks_java.h checks_calculated.c checks_calculated.h poller.c \
-	poller.h
-@WITH_ODBC_TRUE@am__objects_1 = libzbxpoller_a-checks_db.$(OBJEXT)
 am_libzbxpoller_a_OBJECTS = libzbxpoller_a-checks_agent.$(OBJEXT) \
 	libzbxpoller_a-checks_internal.$(OBJEXT) \
 	libzbxpoller_a-checks_simple.$(OBJEXT) \
 	libzbxpoller_a-checks_simple_vmware.$(OBJEXT) \
-	libzbxpoller_a-checks_snmp.$(OBJEXT) $(am__objects_1) \
+	libzbxpoller_a-checks_snmp.$(OBJEXT) \
+	libzbxpoller_a-checks_db.$(OBJEXT) \
 	libzbxpoller_a-checks_aggregate.$(OBJEXT) \
 	libzbxpoller_a-checks_external.$(OBJEXT) \
 	libzbxpoller_a-checks_ipmi.$(OBJEXT) \
@@ -166,7 +157,7 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libzbxpoller_a_SOURCES)
-DIST_SOURCES = $(am__libzbxpoller_a_SOURCES_DIST)
+DIST_SOURCES = $(libzbxpoller_a_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -196,7 +187,6 @@ ACLOCAL = @ACLOCAL@
 AGENT_LDFLAGS = @AGENT_LDFLAGS@
 AGENT_LIBS = @AGENT_LIBS@
 AMTAR = @AMTAR@
-AM_CPPFLAGS = @AM_CPPFLAGS@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 ARCH = @ARCH@
 AUTOCONF = @AUTOCONF@
@@ -209,7 +199,7 @@ CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
-DB_CPPFLAGS = @DB_CPPFLAGS@
+DB_CFLAGS = @DB_CFLAGS@
 DB_LDFLAGS = @DB_LDFLAGS@
 DB_LIBS = @DB_LIBS@
 DEFS = @DEFS@
@@ -270,9 +260,6 @@ OPENIPMI_LIBS = @OPENIPMI_LIBS@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
 OPENSSL_LDFLAGS = @OPENSSL_LDFLAGS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
-ORACLE_CPPFLAGS = @ORACLE_CPPFLAGS@
-ORACLE_LDFLAGS = @ORACLE_LDFLAGS@
-ORACLE_LIBS = @ORACLE_LIBS@
 ORACLE_OCI_CFLAGS = @ORACLE_OCI_CFLAGS@
 ORACLE_OCI_LDFLAGS = @ORACLE_OCI_LDFLAGS@
 ORACLE_OCI_LIBS = @ORACLE_OCI_LIBS@
@@ -314,6 +301,7 @@ SSH2_CFLAGS = @SSH2_CFLAGS@
 SSH2_LDFLAGS = @SSH2_LDFLAGS@
 SSH2_LIBS = @SSH2_LIBS@
 STRIP = @STRIP@
+TLS_CFLAGS = @TLS_CFLAGS@
 UNIXODBC_CFLAGS = @UNIXODBC_CFLAGS@
 UNIXODBC_LDFLAGS = @UNIXODBC_LDFLAGS@
 UNIXODBC_LIBS = @UNIXODBC_LIBS@
@@ -373,15 +361,13 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 noinst_LIBRARIES = libzbxpoller.a
-@WITH_ODBC_FALSE@CHECKS_DB_SRC = 
-@WITH_ODBC_TRUE@CHECKS_DB_SRC = checks_db.c checks_db.h
 libzbxpoller_a_SOURCES = \
 	checks_agent.c checks_agent.h \
 	checks_internal.c checks_internal.h \
 	checks_simple.c checks_simple.h \
 	checks_simple_vmware.c checks_simple_vmware.h \
 	checks_snmp.c checks_snmp.h \
-	${CHECKS_DB_SRC} \
+	checks_db.c checks_db.h \
 	checks_aggregate.c checks_aggregate.h \
 	checks_external.c checks_external.h \
 	checks_ipmi.c checks_ipmi.h \
@@ -391,7 +377,7 @@ libzbxpoller_a_SOURCES = \
 	checks_calculated.c checks_calculated.h \
 	poller.c poller.h
 
-libzbxpoller_a_CFLAGS = -I@top_srcdir@/src/libs/zbxsysinfo/simple -I@top_srcdir@/src/libs/zbxdbcache
+libzbxpoller_a_CFLAGS = -I@top_srcdir@/src/libs/zbxsysinfo/simple -I@top_srcdir@/src/libs/zbxdbcache @UNIXODBC_CFLAGS@ @SNMP_CFLAGS@ @SSH2_CFLAGS@ @OPENIPMI_CFLAGS@
 all: all-am
 
 .SUFFIXES:
