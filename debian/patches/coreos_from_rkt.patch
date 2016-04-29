@@ -179,7 +179,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  		return SYSINFO_RET_FAIL;
 --- a/src/libs/zbxsysinfo/linux/net.c
 +++ b/src/libs/zbxsysinfo/linux/net.c
-@@ -210,7 +210,11 @@ static int	get_net_stat(const char *if_n
+@@ -211,7 +211,11 @@ static int	get_net_stat(const char *if_n
  		return SYSINFO_RET_FAIL;
  	}
  
@@ -191,7 +191,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	{
  		*error = zbx_dsprintf(NULL, "Cannot open /proc/net/dev: %s", zbx_strerror(errno));
  		return SYSINFO_RET_FAIL;
-@@ -526,7 +530,11 @@ int	NET_IF_DISCOVERY(AGENT_REQUEST *requ
+@@ -527,7 +531,11 @@ int	NET_IF_DISCOVERY(AGENT_REQUEST *requ
  	FILE		*f;
  	struct zbx_json	j;
  
@@ -203,7 +203,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	{
  		SET_MSG_RESULT(result, zbx_dsprintf(NULL, "Cannot open /proc/net/dev: %s", zbx_strerror(errno)));
  		return SYSINFO_RET_FAIL;
-@@ -631,7 +639,11 @@ int	NET_TCP_LISTEN(AGENT_REQUEST *reques
+@@ -632,7 +640,11 @@ int	NET_TCP_LISTEN(AGENT_REQUEST *reques
  #endif
  		buffer = zbx_malloc(NULL, buffer_alloc);
  
@@ -215,7 +215,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  		{
  			ret = SYSINFO_RET_OK;
  
-@@ -644,7 +656,11 @@ int	NET_TCP_LISTEN(AGENT_REQUEST *reques
+@@ -645,7 +657,11 @@ int	NET_TCP_LISTEN(AGENT_REQUEST *reques
  			}
  		}
  
@@ -227,7 +227,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  		{
  			ret = SYSINFO_RET_OK;
  
-@@ -687,7 +703,11 @@ int	NET_UDP_LISTEN(AGENT_REQUEST *reques
+@@ -688,7 +704,11 @@ int	NET_UDP_LISTEN(AGENT_REQUEST *reques
  
  	buffer = zbx_malloc(NULL, buffer_alloc);
  
@@ -239,7 +239,7 @@ This patch header follows DEP-3: http://dep.debian.net/deps/dep3/
  	{
  		ret = SYSINFO_RET_OK;
  
-@@ -701,8 +721,11 @@ int	NET_UDP_LISTEN(AGENT_REQUEST *reques
+@@ -702,8 +722,11 @@ int	NET_UDP_LISTEN(AGENT_REQUEST *reques
  			goto out;
  		}
  	}
