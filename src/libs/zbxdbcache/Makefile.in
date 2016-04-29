@@ -112,8 +112,7 @@ libzbxdbcache_a_LIBADD =
 am_libzbxdbcache_a_OBJECTS = libzbxdbcache_a-dbcache.$(OBJEXT) \
 	libzbxdbcache_a-nextchecks.$(OBJEXT) \
 	libzbxdbcache_a-dbconfig.$(OBJEXT) \
-	libzbxdbcache_a-valuecache.$(OBJEXT) \
-	libzbxdbcache_a-macrocache.$(OBJEXT)
+	libzbxdbcache_a-valuecache.$(OBJEXT)
 libzbxdbcache_a_OBJECTS = $(am_libzbxdbcache_a_OBJECTS)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
@@ -178,7 +177,6 @@ ACLOCAL = @ACLOCAL@
 AGENT_LDFLAGS = @AGENT_LDFLAGS@
 AGENT_LIBS = @AGENT_LIBS@
 AMTAR = @AMTAR@
-AM_CPPFLAGS = @AM_CPPFLAGS@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 ARCH = @ARCH@
 AUTOCONF = @AUTOCONF@
@@ -191,7 +189,7 @@ CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
-DB_CPPFLAGS = @DB_CPPFLAGS@
+DB_CFLAGS = @DB_CFLAGS@
 DB_LDFLAGS = @DB_LDFLAGS@
 DB_LIBS = @DB_LIBS@
 DEFS = @DEFS@
@@ -252,9 +250,6 @@ OPENIPMI_LIBS = @OPENIPMI_LIBS@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
 OPENSSL_LDFLAGS = @OPENSSL_LDFLAGS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
-ORACLE_CPPFLAGS = @ORACLE_CPPFLAGS@
-ORACLE_LDFLAGS = @ORACLE_LDFLAGS@
-ORACLE_LIBS = @ORACLE_LIBS@
 ORACLE_OCI_CFLAGS = @ORACLE_OCI_CFLAGS@
 ORACLE_OCI_LDFLAGS = @ORACLE_OCI_LDFLAGS@
 ORACLE_OCI_LIBS = @ORACLE_OCI_LIBS@
@@ -296,6 +291,7 @@ SSH2_CFLAGS = @SSH2_CFLAGS@
 SSH2_LDFLAGS = @SSH2_LDFLAGS@
 SSH2_LIBS = @SSH2_LIBS@
 STRIP = @STRIP@
+TLS_CFLAGS = @TLS_CFLAGS@
 UNIXODBC_CFLAGS = @UNIXODBC_CFLAGS@
 UNIXODBC_LDFLAGS = @UNIXODBC_LDFLAGS@
 UNIXODBC_LIBS = @UNIXODBC_LIBS@
@@ -360,9 +356,7 @@ libzbxdbcache_a_SOURCES = \
 	nextchecks.c \
 	dbconfig.c \
 	valuecache.c \
-	valuecache.h \
-	macrocache.c \
-	macrocache.h
+	valuecache.h
 
 libzbxdbcache_a_CFLAGS = -I@top_srcdir@/src/zabbix_server/ -I@top_srcdir@/src/libs/zbxalgo
 all: all-am
@@ -416,7 +410,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbcache_a-dbcache.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbcache_a-dbconfig.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbcache_a-macrocache.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbcache_a-nextchecks.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libzbxdbcache_a-valuecache.Po@am__quote@
 
@@ -489,20 +482,6 @@ libzbxdbcache_a-valuecache.obj: valuecache.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='valuecache.c' object='libzbxdbcache_a-valuecache.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxdbcache_a_CFLAGS) $(CFLAGS) -c -o libzbxdbcache_a-valuecache.obj `if test -f 'valuecache.c'; then $(CYGPATH_W) 'valuecache.c'; else $(CYGPATH_W) '$(srcdir)/valuecache.c'; fi`
-
-libzbxdbcache_a-macrocache.o: macrocache.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxdbcache_a_CFLAGS) $(CFLAGS) -MT libzbxdbcache_a-macrocache.o -MD -MP -MF $(DEPDIR)/libzbxdbcache_a-macrocache.Tpo -c -o libzbxdbcache_a-macrocache.o `test -f 'macrocache.c' || echo '$(srcdir)/'`macrocache.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libzbxdbcache_a-macrocache.Tpo $(DEPDIR)/libzbxdbcache_a-macrocache.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='macrocache.c' object='libzbxdbcache_a-macrocache.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxdbcache_a_CFLAGS) $(CFLAGS) -c -o libzbxdbcache_a-macrocache.o `test -f 'macrocache.c' || echo '$(srcdir)/'`macrocache.c
-
-libzbxdbcache_a-macrocache.obj: macrocache.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxdbcache_a_CFLAGS) $(CFLAGS) -MT libzbxdbcache_a-macrocache.obj -MD -MP -MF $(DEPDIR)/libzbxdbcache_a-macrocache.Tpo -c -o libzbxdbcache_a-macrocache.obj `if test -f 'macrocache.c'; then $(CYGPATH_W) 'macrocache.c'; else $(CYGPATH_W) '$(srcdir)/macrocache.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libzbxdbcache_a-macrocache.Tpo $(DEPDIR)/libzbxdbcache_a-macrocache.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='macrocache.c' object='libzbxdbcache_a-macrocache.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libzbxdbcache_a_CFLAGS) $(CFLAGS) -c -o libzbxdbcache_a-macrocache.obj `if test -f 'macrocache.c'; then $(CYGPATH_W) 'macrocache.c'; else $(CYGPATH_W) '$(srcdir)/macrocache.c'; fi`
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique

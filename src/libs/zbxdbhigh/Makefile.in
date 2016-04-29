@@ -109,13 +109,8 @@ am__v_AR_0 = @echo "  AR      " $@;
 am__v_AR_1 = 
 libzbxdbhigh_a_AR = $(AR) $(ARFLAGS)
 libzbxdbhigh_a_LIBADD =
-am__libzbxdbhigh_a_SOURCES_DIST = host.c odbc.c db.c dbschema.c \
-	proxy.c discovery.c lld.c lld.h lld_common.c lld_item.c \
-	lld_graph.c lld_trigger.c lld_host.c itservices.c \
-	template_item.c template.h
-@WITH_ODBC_TRUE@am__objects_1 = libzbxdbhigh_a-odbc.$(OBJEXT)
 am_libzbxdbhigh_a_OBJECTS = libzbxdbhigh_a-host.$(OBJEXT) \
-	$(am__objects_1) libzbxdbhigh_a-db.$(OBJEXT) \
+	libzbxdbhigh_a-odbc.$(OBJEXT) libzbxdbhigh_a-db.$(OBJEXT) \
 	libzbxdbhigh_a-dbschema.$(OBJEXT) \
 	libzbxdbhigh_a-proxy.$(OBJEXT) \
 	libzbxdbhigh_a-discovery.$(OBJEXT) \
@@ -161,7 +156,7 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libzbxdbhigh_a_SOURCES)
-DIST_SOURCES = $(am__libzbxdbhigh_a_SOURCES_DIST)
+DIST_SOURCES = $(libzbxdbhigh_a_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -191,7 +186,6 @@ ACLOCAL = @ACLOCAL@
 AGENT_LDFLAGS = @AGENT_LDFLAGS@
 AGENT_LIBS = @AGENT_LIBS@
 AMTAR = @AMTAR@
-AM_CPPFLAGS = @AM_CPPFLAGS@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 ARCH = @ARCH@
 AUTOCONF = @AUTOCONF@
@@ -204,7 +198,7 @@ CFLAGS = @CFLAGS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
-DB_CPPFLAGS = @DB_CPPFLAGS@
+DB_CFLAGS = @DB_CFLAGS@
 DB_LDFLAGS = @DB_LDFLAGS@
 DB_LIBS = @DB_LIBS@
 DEFS = @DEFS@
@@ -265,9 +259,6 @@ OPENIPMI_LIBS = @OPENIPMI_LIBS@
 OPENSSL_CFLAGS = @OPENSSL_CFLAGS@
 OPENSSL_LDFLAGS = @OPENSSL_LDFLAGS@
 OPENSSL_LIBS = @OPENSSL_LIBS@
-ORACLE_CPPFLAGS = @ORACLE_CPPFLAGS@
-ORACLE_LDFLAGS = @ORACLE_LDFLAGS@
-ORACLE_LIBS = @ORACLE_LIBS@
 ORACLE_OCI_CFLAGS = @ORACLE_OCI_CFLAGS@
 ORACLE_OCI_LDFLAGS = @ORACLE_OCI_LDFLAGS@
 ORACLE_OCI_LIBS = @ORACLE_OCI_LIBS@
@@ -309,6 +300,7 @@ SSH2_CFLAGS = @SSH2_CFLAGS@
 SSH2_LDFLAGS = @SSH2_LDFLAGS@
 SSH2_LIBS = @SSH2_LIBS@
 STRIP = @STRIP@
+TLS_CFLAGS = @TLS_CFLAGS@
 UNIXODBC_CFLAGS = @UNIXODBC_CFLAGS@
 UNIXODBC_LDFLAGS = @UNIXODBC_LDFLAGS@
 UNIXODBC_LIBS = @UNIXODBC_LIBS@
@@ -368,11 +360,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 noinst_LIBRARIES = libzbxdbhigh.a
-@WITH_ODBC_FALSE@ODBC_SRC = 
-@WITH_ODBC_TRUE@ODBC_SRC = odbc.c
 libzbxdbhigh_a_SOURCES = \
 	host.c \
-	${ODBC_SRC} \
+	odbc.c \
 	db.c \
 	dbschema.c \
 	proxy.c \
@@ -387,7 +377,7 @@ libzbxdbhigh_a_SOURCES = \
 	template_item.c \
 	template.h
 
-libzbxdbhigh_a_CFLAGS = -I@top_srcdir@/src/zabbix_server/
+libzbxdbhigh_a_CFLAGS = -I@top_srcdir@/src/zabbix_server/ @UNIXODBC_CFLAGS@
 all: all-am
 
 .SUFFIXES:
