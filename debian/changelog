@@ -1,3 +1,11 @@
+zabbix (1:3.0.4-1~bpo7+1) stable; urgency=medium
+
+  * Imported Upstream version 3.0.4
+  * Patches refresh for 3.0.4
+  * Update d/gbp.conf
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Sun, 24 Jul 2016 09:25:08 +0200
+
 zabbix (1:3.0.3-1~bpo7+1) stable; urgency=medium
 
   * Imported Upstream version 3.0.3
