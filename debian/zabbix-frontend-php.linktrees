@@ -1,0 +1,8 @@
+## libjs-prototype (1.7.1 vs 1.6.1)
+replace  /usr/share/javascript/prototype/prototype.js		/usr/share/zabbix/js/vendors/prototype.js
+
+## libjs-jquery-ui (1.10.1 vs 1.10.3)
+replace  /usr/share/javascript/jquery-ui/jquery-ui.js		/usr/share/zabbix/js/vendors/jquery-ui.js
+
+## libjs-jquery (1.11.3 vs 1.10.2)
+replace  /usr/share/javascript/jquery/jquery.js			/usr/share/zabbix/js/vendors/jquery.js

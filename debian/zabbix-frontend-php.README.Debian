@@ -1,54 +1,54 @@
 Using the frontend with Apache
 ------------------------------
 
- To enable a URL alias that makes your Zabbix frontend available
- using http://yourserver/zabbix you just have set a symlink using:
+ Apache2 may need package "libapache2-mod-php" PHP support:
 
-  ln -s /usr/share/doc/zabbix-frontend-php/examples/apache.conf /etc/apache2/conf.d/zabbix
+    sudo apt-get install libapache2-mod-php
 
- Zabbix also requires minimum resource settings for PHP to work properly.
- During the first-time setup it will complain if these are not set. What you
- basically need to do is set these parameters in your /etc/php5/apache2/php.ini
- file if you are using Apache and PHP:
+ A URL alias that makes Zabbix frontend available from
 
- post_max_size = 16M
- max_execution_time = 300
- max_input_time = 300
- date.timezone = ...
- # (see http://www.php.net/manual/en/timezones.php)
+    http://yourserver/zabbix
 
- Finally restart Apache:
+ can be configured using the following commands:
 
-  apache2ctl restart
+    a2enconf zabbix-frontend-php
 
- Then follow the section "Configuring the Zabbix frontend".
+ or with
+
+    ln -s /usr/share/doc/zabbix-frontend-php/examples/apache.conf /etc/apache2/conf-available/zabbix.conf
+    a2enconf zabbix
+
+ Following by reloading Apache configuration:
+
+    sudo service apache2 reload
+
+ or restarting Apache:
+
+    sudo apache2ctl restart
+
+ Then follow the section "Configuring the Zabbix frontend" below.
 
 
 Using the frontend with nginx
 -----------------------------
 
- Nginx needs "php5-fpm" package to support PHP:
+ Nginx needs "php-fpm" package to support PHP:
 
-  sudo apt-get install php5-fpm
+  sudo apt-get install php-fpm
 
- To enable a URL alias that makes your Zabbix frontend available
- using http://yourserver/zabbix you just have set a symlink using:
+ To enable a URL alias that makes Zabbix frontend available from
 
-  ln -s /usr/share/doc/zabbix-frontend-php/examples/nginx.conf /etc/nginx/conf.d/zabbix
+    http://yourserver/zabbix
 
- and then restart the Nginx process:
+ the following line is to be added to "server" section of a web site
+ configuration:
 
-  /etc/init.d/nginx restart
+    include /usr/share/doc/zabbix-frontend-php/examples/nginx.conf;
 
- Then follow the section "Configuring the Zabbix frontend".
- The above instructions will work if directive
+ For "default" web site it would be sufficient to include the above
+ statement to the file
 
-     include /etc/nginx/conf.d/*.conf;
-
- is present in 'server' section of a configured site (which is not a
- default setting for nginx). Alternatively you can paste contents of
-     '/usr/share/doc/zabbix-frontend-php/examples/nginx.conf'
- to  '/etc/nginx/sites-enabled/default'.
+    /etc/nginx/sites-enabled/default
 
 
 Configuring the Zabbix frontend
@@ -60,6 +60,22 @@ Configuring the Zabbix frontend
  password immediately after logging in.
 
  If you are using PostgreSQL as a database backend please make sure that
- the 'php5-pgsql' package is installed. Similarly you may need
- 'php5-mysql' if you are using y MySQL database backend.
+ the 'php-pgsql' package is installed. Similarly 'php-mysql' is needed if
+ you are using MySQL database backend.
+
+
+PHP configuration
+-----------------
+
+ Zabbix also requires minimum resource settings for PHP to work properly.
+ During the first-time setup it will complain if these are not set.
+ Set these parameters in your "/etc/php/7.0/apache2/php.ini" file for Apache2
+ or in "/etc/php/7.0/fpm/php.ini" for nginx/php-fpm:
+
+  post_max_size = 16M
+  max_execution_time = 300
+  max_input_time = 300
+  always_populate_raw_post_data = -1
+  date.timezone = ...
+  # (see http://www.php.net/manual/en/timezones.php)
 

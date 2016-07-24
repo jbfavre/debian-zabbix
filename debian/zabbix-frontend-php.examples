@@ -1,3 +1,4 @@
 frontends/php/conf/*.example
 debian/conf/apache.conf
+debian/conf/apache2/zabbix.conf
 debian/conf/nginx.conf

@@ -1,11 +1,12 @@
-Last-Update: 2012-07-17
-Author: Dmitry Smirnov <onlyjob@member.fsf.org>
+Last-Update: 2016-02-13
 Forwarded: not-needed
+Author: Dmitry Smirnov <onlyjob@member.fsf.org>
 Description: correct location of config files in man pages
 
 --- a/man/zabbix_agentd.man
 +++ b/man/zabbix_agentd.man
-@@ -116,7 +116,7 @@ Display this help and exit.
+@@ -115,9 +115,9 @@
+ .IP "\fB\-V\fR, \fB\-\-version\fR"
  Output version information and exit.
  .SH FILES
  .TP
@@ -14,9 +15,11 @@ Description: correct location of config files in man pages
  Default location of Zabbix agent configuration file (if not modified during compile time).
  .SH "SEE ALSO"
  .BR zabbix_get (8),
+ .BR zabbix_proxy (8),
 --- a/man/zabbix_proxy.man
 +++ b/man/zabbix_proxy.man
-@@ -79,7 +79,7 @@ Display this help and exit.
+@@ -78,9 +78,9 @@
+ .IP "\fB\-V\fR, \fB\-\-version\fR"
  Output version information and exit.
  .SH FILES
  .TP
@@ -25,9 +28,11 @@ Description: correct location of config files in man pages
  Default location of Zabbix proxy configuration file (if not modified during compile time).
  .SH "SEE ALSO"
  .BR zabbix_agentd (8),
+ .BR zabbix_get (8),
 --- a/man/zabbix_server.man
 +++ b/man/zabbix_server.man
-@@ -78,7 +78,7 @@ Display this help and exit.
+@@ -77,9 +77,9 @@
+ .IP "\fB\-V\fR, \fB\-\-version\fR"
  Output version information and exit.
  .SH FILES
  .TP
@@ -36,14 +41,17 @@ Description: correct location of config files in man pages
  Default location of Zabbix server configuration file (if not modified during compile time).
  .SH "SEE ALSO"
  .BR zabbix_agentd (8),
+ .BR zabbix_get (8),
 --- a/man/zabbix_sender.man
 +++ b/man/zabbix_sender.man
-@@ -436,7 +436,7 @@ Host names and keys are defined in the f
+@@ -435,9 +435,9 @@
+ Host names and keys are defined in the file.
  .RE
  
  .br
 -\fBecho "\- hw.serial.number 1287872261 SQ4321ASDF" | zabbix_sender \-c /usr/local/etc/zabbix_agentd.conf \-T \-i \-\fR
-+\fBecho "\- hw.serial.number 1287872261 SQ4321ASDF" | zabbix_sender \-c /etc/zabbix/zabbix_agentd.conf \-T \-i \-\fR
++\fBecho "\- hw.serial.number 1287872261 SQ4321ASDF" | zabbix_sender \-c /etc/zabbix_agentd.conf \-T \-i \-\fR
  .br
  .RS
  Send a timestamped value from the commandline to Zabbix server, specified in the agent configuration file.
+ Dash in the input data indicates that hostname also should be used from the same configuration file.

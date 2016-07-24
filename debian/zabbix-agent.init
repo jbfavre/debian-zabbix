@@ -17,7 +17,6 @@ DAEMON=/usr/sbin/$NAME
 DIR=/var/run/zabbix
 PID=$DIR/$NAME.pid
 RETRY=TERM/30/KILL/5
-START=no
 
 # Load the VERBOSE setting and other rcS variables
 [ -f /etc/default/rcS ] && . /etc/default/rcS
@@ -37,7 +36,7 @@ case "$1" in
   start)
     start-stop-daemon --start --pidfile $PID --exec $DAEMON --test --quiet > /dev/null
     [ $? -ne 0 ] && log_action_msg "$NAME is already running" && exit 0
-    _ev_ log_action_begin_msg "$NAME starting"
+    _ev_ log_action_begin_msg \"$NAME starting\"
     R=$(start-stop-daemon --start --pidfile $PID --exec $DAEMON --oknodo 2>&1) \
     && _ev_ log_action_end_msg 0 \"$R\" \
     || _ev_ log_action_end_msg 1 \"$R\"
@@ -49,7 +48,8 @@ case "$1" in
     || _ev_ log_action_end_msg 1 \"$R\"
   ;;
   status)
-    status_of_proc -p $PID "$DAEMON" "$NAME" && exit 0 || exit $?
+    ## return status 0 if process is running.
+    status_of_proc -p $PID "$DAEMON" "$NAME"
   ;;
   restart|force-reload)
     $0 stop

@@ -9,7 +9,7 @@ Set up PostgreSQL on any system - you are not forced to run it on the same
 computer as the Zabbix server:
 
 -> apt-get install postgresql
- 
+
 Create a new database and access user (let's call both "zabbix"). By default on
 Debian systems you need to change to the "postgres" user:
 
@@ -27,9 +27,3 @@ to create the required database schema:
 See also:
 http://www.zabbix.com/documentation/2.0/manual/appendix/install/db_scripts
 
-
-Upgrading the database
-----------------------
-
-Database schema upgrade requires manual intervention,
-see NEWS.Debian for instructions.

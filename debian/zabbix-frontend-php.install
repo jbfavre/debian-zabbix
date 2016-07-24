@@ -1,1 +1,1 @@
-debian/tmp-build-PGSQL/frontends/php/* usr/share/zabbix
+frontends/php/* usr/share/zabbix

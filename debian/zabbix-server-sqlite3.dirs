@@ -1,4 +1,7 @@
+etc/logrotate.d
+etc/sudoers.d
 etc/zabbix
+etc/zabbix/zabbix_server.conf.d
 usr/share/zabbix-server-sqlite3
 var/lib/zabbix
 var/log/zabbix-server

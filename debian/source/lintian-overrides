@@ -1,0 +1,16 @@
+## Sources provided in "debian/patches/missing-source".
+source-is-missing frontends/php/js/jquery/jquery-ui.js
+source-is-missing frontends/php/js/jquery/jquery.js
+source-is-missing frontends/php/js/vendors/activity-indicator.js
+
+source-is-missing debian/missing-sources/jquery-ui-1.10.4.js line length *
+source-contains-prebuilt-javascript-object debian/missing-sources/jquery-ui-1.10.4.js line length *
+
+## False-positive:
+source-is-missing frontends/php/js/class.calendar.js
+
+## Indirectly the following problems are already resolved as -dbgsym
+## packages depend on their respective (proxy|server) binary packages
+## that conflict with each other:
+binaries-have-file-conflict zabbix-proxy-mysql-dbgsym zabbix-server-mysql-dbgsym *
+binaries-have-file-conflict zabbix-proxy-pgsql-dbgsym zabbix-server-pgsql-dbgsym *

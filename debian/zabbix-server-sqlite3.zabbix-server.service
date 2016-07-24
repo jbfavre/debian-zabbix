@@ -1,0 +1,15 @@
+[Unit]
+Description=Zabbix Server (SQLite3)
+Documentation=man:zabbix_server
+After=network.target
+
+[Service]
+Type=simple
+User=zabbix
+Group=zabbix
+ExecStart=/usr/sbin/zabbix_server --foreground
+ExecReload=/usr/sbin/zabbix_server -R config_cache_reload
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target

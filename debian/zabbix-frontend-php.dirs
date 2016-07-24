@@ -1,1 +1,4 @@
 etc/zabbix
+
+/var/lib/zabbix/app/controllers
+/var/lib/zabbix/app/views

@@ -1,0 +1,28 @@
+Last-Update: 2016-02-17
+Forwarded: not-needed
+Author: Dmitry Smirnov <onlyjob@member.fsf.org>
+Description: minor corections to gettext scripts.
+ * verbose .mo build
+ * invoke `xgettext` with "--omit-header" to preserve POT-Creation-Date headers.
+
+--- a/frontends/php/locale/make_mo.sh
++++ b/frontends/php/locale/make_mo.sh
+@@ -1,5 +1,5 @@
+ #!/bin/bash
+ 
+ while read pofile; do
+-        msgfmt --use-fuzzy -c -o ${pofile%po}mo $pofile
++        msgfmt --verbose --use-fuzzy -c -o ${pofile%po}mo $pofile
+ done < <(find $(dirname $0) -type f ! -wholename '*/.svn*' -name '*.po')
+--- a/frontends/php/locale/update_po.sh
++++ b/frontends/php/locale/update_po.sh
+@@ -11,8 +11,9 @@
+ # keyword "_n" is Zabbix frontend plural function
+ # keyword "_s" is Zabbix frontend placeholder function
+ # keyword "_x" is Zabbix frontend context function
+ xgettext --files-from=locale/POTFILES.in --from-code=UTF-8 \
++--omit-header \
+ --output=locale/frontend.pot \
+ --copyright-holder="Zabbix SIA" --no-wrap --sort-output \
+ --add-comments="GETTEXT:" --keyword=_n:1,2 --keyword=_s \
+ --keyword=_x:1,2c --keyword=_xn:1,2,4c || exit 1

@@ -1,3 +1,37 @@
+zabbix (1:2.4.3+dfsg-1) experimental; urgency=low
+
+  Services do not use config files in "/etc/default" any more. When first
+  installed servers and proxy should be configured for automatic start
+  using "systemd":
+
+    sudo systemctl enable zabbix-{server|proxy}
+
+  or SysV init system:
+
+    sudo update-rc.d zabbix-{server|proxy} enable
+
+ -- Dmitry Smirnov <onlyjob@debian.org>  Wed, 05 Nov 2014 15:40:16 +1100
+
+zabbix (1:2.2.0+dfsg-1) unstable; urgency=low
+
+  Database upgrade
+  ----------------
+
+  Starting with version 2.2.0 Zabbix server and proxy perform
+  automatic database upgrade. Manual database patching is not required
+  anymore. Zabbix server and proxy processes automatically check and
+  upgrade the database schema and relevant data. Patching status and
+  progress is visible in the logfile.
+
+  Note that upgrade will be always started unconditionally, care
+  should be taken when starting new binaries to prevent undesired
+  database changes.
+
+  Warning: make sure to have database backup before starting the new
+  binaries.
+
+ -- Dmitry Smirnov <onlyjob@debian.org>  Fri, 15 Nov 2013 18:59:16 +1100
+
 zabbix (1:2.0.1+dfsg-1) unstable; urgency=low
 
   Configuration file needs to be adapted

@@ -1,6 +1,11 @@
 # uscan(1) configuration file.
-# Use 'debian/rules get-orig-source' command to generate DFSG-repackaged archive.
+version=4
 
-version=3
-opts=uversionmangle=s/([0-9.]*)[_\.\-\+]?((RC|rc|pre|dev|beta|alpha|bpo|bbc)\d*)$/$1~$2/,dversionmangle=s/\+dfsg// \
-http://sf.net/zabbix/zabbix-([0-9.]*)\.tar\.gz
+## Redirector http://qa.debian.org/watch/sf.php/zabbix/
+opts="\
+pgpmode=none,\
+repacksuffix=+dfsg,\
+repack,compression=xz,\
+dversionmangle=s/\+dfsg\d*//,\
+uversionmangle=s/\d\K(rc\d+)/~$1/,\
+"  http://sf.net/zabbix/zabbix-(\d[0-9.]+(?:rc\d*)?)\.tar\.gz

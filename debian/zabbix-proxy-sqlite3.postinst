@@ -8,22 +8,10 @@ set -e
 #fi
 
 if [ "$1" = "configure" ]; then
-    if ! getent group zabbix > /dev/null 2>&1 ; then
-        addgroup --system --quiet zabbix
-    fi
-
     # Does the user 'zabbix' exist?
-    #
-    # (No need to move the zabbix user's home directory as done in the
-    # *-mysql and *-pgsql packages because the *-sqlite3 packages were
-    # introduced in 1.8.6-1 which did not have the bug #593458 with the
-    # wrong home directory.)
     if ! getent passwd zabbix > /dev/null 2>&1 ; then
         # Not yet. Create it.
-        adduser --quiet \
-            --system --disabled-login --ingroup zabbix \
-            --home /var/run/zabbix/ --no-create-home \
-            zabbix
+        adduser --quiet --system --group --disabled-login --no-create-home --home /nonexistent zabbix
     fi
 
     chown zabbix:zabbix /var/log/zabbix-proxy -R
