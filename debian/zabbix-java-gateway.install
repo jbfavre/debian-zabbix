@@ -1,4 +1,1 @@
-debian/tmp-build-MYSQL/src/zabbix_java/bin usr/share/zabbix-java
-debian/tmp-build-MYSQL/src/zabbix_java/lib usr/share/zabbix-java
-debian/tmp-build-MYSQL/src/zabbix_java/settings.sh /etc/zabbix
-
+zabbix*.jar  /usr/sbin

@@ -1,6 +1,8 @@
 etc/logrotate.d
+etc/sudoers.d
 etc/zabbix
 etc/zabbix/alert.d
+etc/zabbix/zabbix_server.conf.d
 usr/share/zabbix-server-pgsql
 var/log/zabbix-server
 

@@ -1,2 +1,4 @@
-extend-diff-ignore = "\.(bat|exe)$"
 compression = "xz"
+
+# ignore changes on refreshed translations
+extend-diff-ignore = "(^|/)LC_MESSAGES\/[^/]+\.po$"

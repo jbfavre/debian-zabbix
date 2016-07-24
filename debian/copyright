@@ -2,35 +2,33 @@ Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Zabbix
 Upstream-Contact: Alexei Vladishev <alexei.vladishev@zabbix.com>
 Source: http://www.zabbix.com/download.php
-Copyright: 2000-2013 Zabbix SIA
+Copyright: 2000-2016 Zabbix SIA
 License: GPL-2+
 Comment:
  This package was debianized by Michael Ablassmeier <abi@debian.org>
  on Tue, 23 Mar 2004 22:46:45 +0100.
-
-Files: debian/*
-Copyright: 2009-2012 Christoph Haas <haas@debian.org>
-           2012-2013 Dmitry Smirnov <onlyjob@debian.org>
-           2006-2009 Fabio Tranchitella <kobold@debian.org>
-           2006-2011 Michael Ablassmeier <abi@debian.org>
-License: GPL-2+
+Files-Excluded:
+    bin/win*/*.exe
+    bin/win*/dev/*.dll
+    bin/win*/dev/*.lib
+    frontends/php/images/flash
+    src/zabbix_java/lib/*.jar
 
 Files: *
-Copyright: 2000-2013 Zabbix SIA
+Copyright: 2000-2016 Zabbix SIA
 License: GPL-2+
 Comment:
  Author: Alexei Vladishev <alexei.vladishev@zabbix.com>
 
-Files: include/gnuregex.h
-       include/zbxgetopt.h
+Files: src/libs/zbxregexp/gnuregex.c
        src/libs/zbxcommon/zbxgetopt.c
-       src/libs/zbxcommon/gnuregex.c
+       include/zbxgetopt.h
 Copyright: 1985,1987,1988-1993 Free Software Foundation, Inc
 License: GPL-2+
 
 Files: include/md5.h src/libs/zbxcrypto/md5.c
 Copyright: 1999,2000,2002 Aladdin Enterprises. All rights reserved
-License:
+License: custom-BSD-like
  This software is provided 'as-is', without any express or implied
  warranty.  In no event will the authors be held liable for any damages
  arising from the use of this software.
@@ -51,7 +49,7 @@ License:
  ghost@aladdin.com
 
 Files: src/libs/zbxcommon/str.c
-Copyright: 2000-2013 Zabbix SIA
+Copyright: 2000-2014 Zabbix SIA
 License: GPL-2+
 Comment: with portions
  Copyright: 1998 Todd C. Miller <Todd.Miller@courtesan.com>
@@ -68,90 +66,36 @@ Comment: with portions
   ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
   OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-Files: src/libs/zbxsys/mutexs.c
-Copyright: 2000-2013 Zabbix SIA
-License: GPL-2+
-Comment:
- Part of source file is subject to version 3.01 of the PHP license
- that is available at http://www.php.net/license/3_01.txt
- Copyright: 1997-2006 The PHP Group
- License: PHP-3.01
-  The PHP License, version 3.01
-  Copyright (c) 1999 - 2012 The PHP Group. All rights reserved.
-  --------------------------------------------------------------------
-  Redistribution and use in source and binary forms, with or without
-  modification, is permitted provided that the following conditions
-  are met:
-  .
-   1. Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-  .
-   2. Redistributions in binary form must reproduce the above copyright
-      notice, this list of conditions and the following disclaimer in
-      the documentation and/or other materials provided with the
-      distribution.
-  .
-   3. The name "PHP" must not be used to endorse or promote products
-      derived from this software without prior written permission. For
-      written permission, please contact group@php.net.
-  .
-   4. Products derived from this software may not be called "PHP", nor
-      may "PHP" appear in their name, without prior written permission
-      from group@php.net.  You may indicate that your software works in
-      conjunction with PHP by saying "Foo for PHP" instead of calling
-      it "PHP Foo" or "phpfoo"
-  .
-   5. The PHP Group may publish revised and/or new versions of the
-      license from time to time. Each version will be given a
-      distinguishing version number.
-      Once covered code has been published under a particular version
-      of the license, you may always continue to use it under the terms
-      of that version. You may also choose to use such covered code
-      under the terms of any subsequent version of the license
-      published by the PHP Group. No one other than the PHP Group has
-      the right to modify the terms applicable to covered code created
-      under this License.
-  .
-   6. Redistributions of any form whatsoever must retain the following
-      acknowledgment:
-      "This product includes PHP software, freely available from
-      <http://www.php.net/software/>".
-   .
-  THIS SOFTWARE IS PROVIDED BY THE PHP DEVELOPMENT TEAM ``AS IS'' AND
-  ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-  THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
-  PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE PHP
-  DEVELOPMENT TEAM OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-  (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
-  STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-  OF THE POSSIBILITY OF SUCH DAMAGE.
-
 Files: misc/init.d/suse/*
 Copyright: 2004 A.Tophofen
 License: GPL-2+
 Comment: assuming the same license as for the whole application
 
-Files: frontend/php/js/prototype.js
+Files: misc/images/png_classic/*.png
+Copyright: Jakub "Jimmac" Steiner
+License: GPL-2+
+
+Files: frontends/php/js/vendors/prototype.js
 Copyright: (C) 2005-2010 Sam Stephenson <sam@conio.net>
 License: Expat
 
-Files: frontend/php/js/jquery/jquery.js
+Files: frontends/php/js/vendors/jquery.js
 Copyright: 2005-2011 John Resig, Brandon Aaron & Jörn Zaefferer
 License: GPL-2 or Expat
+Comment:
+ Minified; full source is in "debian/missing-sources".
 
-Files: frontend/php/js/jquery/jquery-ui.js
-Copyright: 2012 jQuery Foundation and other contributors
+Files: frontends/php/js/vendors/jquery-ui.js
+Copyright: 2012-2013 jQuery Foundation and other contributors
 License: GPL-2 or Expat
+Comment:
+ Minified; full source is in "debian/missing-sources".
 
 Files: frontends/php/fonts/*.ttf
 Copyright: 2003 Bitstream, Inc. All Rights Reserved.
  Bitstream Vera is a trademark of Bitstream, Inc.
  DejaVu changes are in public domain.
-License:
+License: bitstream-font-license
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of the fonts accompanying this license ("Fonts") and associated
  documentation files (the "Font Software"), to reproduce and distribute the
@@ -192,6 +136,13 @@ License:
  without prior written authorization from the Gnome Foundation or Bitstream
  Inc., respectively. For further information, contact: fonts at gnome dot
  org.
+
+Files: debian/*
+Copyright: 2009-2012 Christoph Haas <haas@debian.org>
+           2012-2016 Dmitry Smirnov <onlyjob@debian.org>
+           2006-2009 Fabio Tranchitella <kobold@debian.org>
+           2006-2011 Michael Ablassmeier <abi@debian.org>
+License: GPL-2+
 
 License: Expat
  Permission is hereby granted, free of charge, to any person obtaining a copy

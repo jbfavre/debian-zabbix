@@ -1,7 +1,8 @@
 /var/log/zabbix-agent/zabbix_agentd.log {
-    daily
+    weekly
     rotate 7
     compress
+    delaycompress
     missingok
     notifempty
     create 0640 zabbix zabbix

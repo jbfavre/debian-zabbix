@@ -1,0 +1,219 @@
+Last-Update: 2015-03-19
+Forwarded: not-needed
+Author: Christoph Haas <haas@debian.org>
+Reviewed-By: Dmitry Smirnov <onlyjob@member.fsf.org>
+Description: Change default paths and settings in config files specifically for Debian
+
+--- a/conf/zabbix_agentd.conf
++++ b/conf/zabbix_agentd.conf
+@@ -9,8 +9,10 @@
+ # Mandatory: no
+ # Default:
+ # PidFile=/tmp/zabbix_agentd.pid
+ 
++PidFile=/var/run/zabbix/zabbix_agentd.pid
++
+ ### Option: LogType
+ #	Specifies where log messages are written to:
+ #		system  - syslog
+ #		file    - file specified with LogFile parameter
+@@ -26,9 +28,9 @@
+ # Mandatory: no
+ # Default:
+ # LogFile=
+ 
+-LogFile=/tmp/zabbix_agentd.log
++LogFile=/var/log/zabbix-agent/zabbix_agentd.log
+ 
+ ### Option: LogFileSize
+ #	Maximum size of log file in MB.
+ #	0 - disable automatic log rotation.
+@@ -37,8 +39,10 @@
+ # Range: 0-1024
+ # Default:
+ # LogFileSize=1
+ 
++LogFileSize=0
++
+ ### Option: DebugLevel
+ #	Specifies debug level:
+ #	0 - basic information about starting and stopping of Zabbix processes
+ #	1 - critical information
+@@ -251,17 +255,17 @@
+ # User=zabbix
+ 
+ ### Option: Include
+ #	You may include individual files or all files in a directory in the configuration file.
+-#	Installing Zabbix will create include directory in /usr/local/etc, unless modified during the compile time.
++#	Installing Zabbix will create include directory in /etc/zabbix, unless modified during the compile time.
+ #
+ # Mandatory: no
+ # Default:
+ # Include=
+ 
+-# Include=/usr/local/etc/zabbix_agentd.userparams.conf
+-# Include=/usr/local/etc/zabbix_agentd.conf.d/
+-# Include=/usr/local/etc/zabbix_agentd.conf.d/*.conf
++# Include=/etc/zabbix/zabbix_agentd.userparams.conf
++# Include=/etc/zabbix/zabbix_agentd.conf.d/
++Include=/etc/zabbix/zabbix_agentd.conf.d/*.conf
+ 
+ ####### USER-DEFINED MONITORED PARAMETERS #######
+ 
+ ### Option: UnsafeUserParameters
+--- a/conf/zabbix_proxy.conf
++++ b/conf/zabbix_proxy.conf
+@@ -81,9 +81,9 @@
+ # Mandatory: no
+ # Default:
+ # LogFile=
+ 
+-LogFile=/tmp/zabbix_proxy.log
++LogFile=/var/log/zabbix-proxy/zabbix_proxy.log
+ 
+ ### Option: LogFileSize
+ #	Maximum size of log file in MB.
+ #	0 - disable automatic log rotation.
+@@ -112,8 +112,9 @@
+ #
+ # Mandatory: no
+ # Default:
+ # PidFile=/tmp/zabbix_proxy.pid
++PidFile=/var/run/zabbix/zabbix_proxy.pid
+ 
+ ### Option: DBHost
+ #	Database host name.
+ #	If set to localhost, socket is used for MySQL.
+@@ -477,8 +478,9 @@
+ #
+ # Mandatory: no
+ # Default:
+ # FpingLocation=/usr/sbin/fping
++FpingLocation=/usr/bin/fping
+ 
+ ### Option: Fping6Location
+ #	Location of fping6.
+ #	Make sure that fping6 binary has root ownership and SUID flag set.
+@@ -486,8 +488,9 @@
+ #
+ # Mandatory: no
+ # Default:
+ # Fping6Location=/usr/sbin/fping6
++Fping6Location=/usr/bin/fping6
+ 
+ ### Option: SSHKeyLocation
+ #	Location of public and private keys for SSH checks and actions.
+ #
+@@ -534,17 +537,17 @@
+ # User=zabbix
+ 
+ ### Option: Include
+ #	You may include individual files or all files in a directory in the configuration file.
+-#	Installing Zabbix will create include directory in /usr/local/etc, unless modified during the compile time.
++#	Installing Zabbix will create include directory in /etc/zabbix, unless modified during the compile time.
+ #
+ # Mandatory: no
+ # Default:
+ # Include=
+ 
+-# Include=/usr/local/etc/zabbix_proxy.general.conf
+-# Include=/usr/local/etc/zabbix_proxy.conf.d/
+-# Include=/usr/local/etc/zabbix_proxy.conf.d/*.conf
++# Include=/etc/zabbix/zabbix_proxy.general.conf
++# Include=/etc/zabbix/zabbix_proxy.conf.d/
++Include=/etc/zabbix/zabbix_proxy.conf.d/*.conf
+ 
+ ### Option: SSLCertLocation
+ #	Location of SSL client certificates.
+ #	This parameter is used only in web monitoring.
+--- a/conf/zabbix_server.conf
++++ b/conf/zabbix_server.conf
+@@ -34,9 +34,9 @@
+ # Mandatory: no
+ # Default:
+ # LogFile=
+ 
+-LogFile=/tmp/zabbix_server.log
++LogFile=/var/log/zabbix-server/zabbix_server.log
+ 
+ ### Option: LogFileSize
+ #	Maximum size of log file in MB.
+ #	0 - disable automatic log rotation.
+@@ -66,8 +66,10 @@
+ # Mandatory: no
+ # Default:
+ # PidFile=/tmp/zabbix_server.pid
+ 
++PidFile=/var/run/zabbix/zabbix_server.pid
++
+ ### Option: DBHost
+ #	Database host name.
+ #	If set to localhost, socket is used for MySQL.
+ #	If set to empty string, socket is used for PostgreSQL.
+@@ -78,8 +80,10 @@
+ 
+ ### Option: DBName
+ #	Database name.
+ #	For SQLite3 path to database file must be provided. DBUser and DBPassword are ignored.
++#	Sample SQLite3 DBName:
++#				DBName=/var/lib/zabbix/zabbix.sqlite3
+ #
+ # Mandatory: yes
+ # Default:
+ # DBName=
+@@ -445,8 +449,10 @@
+ # Mandatory: no
+ # Default:
+ # AlertScriptsPath=${datadir}/zabbix/alertscripts
+ 
++AlertScriptsPath=/etc/zabbix/alert.d/
++
+ ### Option: ExternalScripts
+ #	Full path to location of external scripts.
+ #	Default depends on compilation options.
+ #
+@@ -459,18 +465,20 @@
+ #	Make sure that fping binary has root ownership and SUID flag set.
+ #
+ # Mandatory: no
+ # Default:
+-# FpingLocation=/usr/sbin/fping
++# FpingLocation=/usr/bin/fping
++
++FpingLocation=/usr/bin/fping
+ 
+ ### Option: Fping6Location
+ #	Location of fping6.
+ #	Make sure that fping6 binary has root ownership and SUID flag set.
+ #	Make empty if your fping utility is capable to process IPv6 addresses.
+ #
+ # Mandatory: no
+ # Default:
+-# Fping6Location=/usr/sbin/fping6
++# Fping6Location=/usr/bin/fping6
+ 
+ ### Option: SSHKeyLocation
+ #	Location of public and private keys for SSH checks and actions.
+ #
+@@ -543,17 +551,17 @@
+ # User=zabbix
+ 
+ ### Option: Include
+ #	You may include individual files or all files in a directory in the configuration file.
+-#	Installing Zabbix will create include directory in /usr/local/etc, unless modified during the compile time.
++#	Installing Zabbix will create include directory in /etc/zabbix, unless modified during the compile time.
+ #
+ # Mandatory: no
+ # Default:
+ # Include=
+ 
+-# Include=/usr/local/etc/zabbix_server.general.conf
+-# Include=/usr/local/etc/zabbix_server.conf.d/
+-# Include=/usr/local/etc/zabbix_server.conf.d/*.conf
++# Include=/etc/zabbix/zabbix_server.general.conf
++# Include=/etc/zabbix/zabbix_server.conf.d/
++Include=/etc/zabbix/zabbix_server.conf.d/*.conf
+ 
+ ### Option: SSLCertLocation
+ #	Location of SSL client certificates.
+ #	This parameter is used only in web monitoring.

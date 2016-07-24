@@ -1,6 +1,13 @@
+Last-Update: 2016-02-13
+Forwarded: not-needed
+Author: Christoph Haas <haas@debian.org>
+Reviewed-By: Dmitry Smirnov <onlyjob@member.fsf.org>
+Description: Make Zabbix put its generated config file into /etc/zabbix
+
 --- a/frontends/php/include/classes/core/CConfigFile.php
 +++ b/frontends/php/include/classes/core/CConfigFile.php
-@@ -24,7 +24,7 @@ class CConfigFile {
+@@ -23,9 +23,9 @@
+ 
  	const CONFIG_NOT_FOUND = 1;
  	const CONFIG_ERROR = 2;
  
@@ -9,39 +16,41 @@
  
  	private static $supported_db_types = [
  		ZBX_DB_DB2 => true,
---- a/frontends/php/include/classes/core/ZBase.php
-+++ b/frontends/php/include/classes/core/ZBase.php
-@@ -282,7 +282,8 @@ class ZBase {
- 	 * Load zabbix config file.
- 	 */
- 	protected function loadConfigFile() {
--		$configFile = $this->getRootDir().CConfigFile::CONFIG_FILE_PATH;
-+		#$configFile = $this->getRootDir().CConfigFile::CONFIG_FILE_PATH;
-+		$configFile = CConfigFile::CONFIG_FILE_PATH;
- 		$config = new CConfigFile($configFile);
- 		$this->config = $config->load();
- 	}
+ 		ZBX_DB_MYSQL => true,
 --- a/frontends/php/include/classes/setup/CSetupWizard.php
 +++ b/frontends/php/include/classes/setup/CSetupWizard.php
-@@ -348,8 +348,9 @@ class CSetupWizard extends CForm {
+@@ -347,9 +347,9 @@
+ 
  	function stage5() {
  		$this->setConfig('ZBX_CONFIG_FILE_CORRECT', true);
  
 -		$config_file_name = Z::getInstance()->getRootDir().CConfigFile::CONFIG_FILE_PATH;
--		$config = new CConfigFile($config_file_name);
-+		#$config_file_name = Z::getInstance()->getRootDir().CConfigFile::CONFIG_FILE_PATH;
-+		#$config = new CConfigFile($config_file_name);
-+		$config = CConfigFile::CONFIG_FILE_PATH;
++		$config_file_name = CConfigFile::CONFIG_FILE_PATH;
+ 		$config = new CConfigFile($config_file_name);
  		$config->config = [
  			'DB' => [
  				'TYPE' => $this->getConfig('DB_TYPE'),
-@@ -517,7 +518,8 @@ class CSetupWizard extends CForm {
+@@ -516,9 +516,9 @@
+ 			if (hasRequest('save_config')) {
  				// make zabbix.conf.php downloadable
  				header('Content-Type: application/x-httpd-php');
  				header('Content-Disposition: attachment; filename="'.basename(CConfigFile::CONFIG_FILE_PATH).'"');
 -				$config = new CConfigFile(Z::getInstance()->getRootDir().CConfigFile::CONFIG_FILE_PATH);
-+				#$config = new CConfigFile(Z::getInstance()->getRootDir().CConfigFile::CONFIG_FILE_PATH);
 +				$config = new CConfigFile(CConfigFile::CONFIG_FILE_PATH);
  				$config->config = [
  					'DB' => [
  						'TYPE' => $this->getConfig('DB_TYPE'),
+ 						'SERVER' => $this->getConfig('DB_SERVER'),
+--- a/frontends/php/include/classes/core/ZBase.php
++++ b/frontends/php/include/classes/core/ZBase.php
+@@ -298,9 +298,9 @@
+ 	/**
+ 	 * Load zabbix config file.
+ 	 */
+ 	protected function loadConfigFile() {
+-		$configFile = $this->getRootDir().CConfigFile::CONFIG_FILE_PATH;
++		$configFile = CConfigFile::CONFIG_FILE_PATH;
+ 		$config = new CConfigFile($configFile);
+ 		$this->config = $config->load();
+ 	}
+ 

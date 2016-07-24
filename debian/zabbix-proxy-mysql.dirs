@@ -1,2 +1,3 @@
 etc/zabbix
+etc/zabbix/zabbix_proxy.conf.d
 var/log/zabbix-proxy

@@ -1,2 +1,2 @@
 /usr/share/zabbix-server-mysql/zabbix_server.conf /etc/zabbix/zabbix_server.conf
-
+/usr/share/zabbix-server-mysql/zabbix    /etc/sudoers.d/zabbix

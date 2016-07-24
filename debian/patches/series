@@ -1,8 +1,7 @@
-no-swf-clock.patch
-ZBX-6163.patch
-fix_java_gateway_missing_dir.patch
-config-debian-customizations.patch
+config_debianisation.patch
+config_frontend-conffile-in-etc.patch
+gettext.patch
+java-gateway.patch
 manpages-path.patch
-sql-upgrades-path.patch
-conffile-in-etc.patch
+ZBX-6163.patch
 coreos_from_rkt.patch

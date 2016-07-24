@@ -31,9 +31,3 @@ Now enter the database access credentials into your
 See also:
 http://www.zabbix.com/documentation/2.0/manual/appendix/install/db_scripts
 
-
-Upgrading the database
-----------------------
-
-Database schema upgrade requires manual intervention,
-see NEWS.Debian for instructions.

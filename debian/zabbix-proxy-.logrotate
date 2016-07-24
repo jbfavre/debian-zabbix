@@ -1,7 +1,8 @@
 /var/log/zabbix-proxy/zabbix_proxy.log {
-    daily
+    weekly
     rotate 7
     compress
+    delaycompress
     missingok
     notifempty
     create 0640 zabbix zabbix
