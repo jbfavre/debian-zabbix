@@ -220,7 +220,7 @@ Recommends: snmpd
            ,nmap
            ,traceroute
 Suggests: logrotate, sudo
- SNMP:   snmp-mibs-downloader (non-free) may be required when MIBs are missing, see #740815
+# SNMP:   snmp-mibs-downloader (non-free) may be required when MIBs are missing, see #740815
          ,snmp-mibs-downloader
 Conflicts: zabbix-server-mysql, zabbix-server-pgsql, zabbix-proxy-mysql, zabbix-proxy-pgsql, zabbix-proxy-sqlite3
 Description: network monitoring solution - server (using SQLite3)
