@@ -5,6 +5,7 @@
 
 ## Define the names of the resulting binary packages
 PKG_AGENT = zabbix-agent
+PKG_AGENT_COREOS = zabbix-agent-coreos
 PKG_FRONTEND = zabbix-frontend-php
 PKG_GATEWAY_JAVA = zabbix-java-gateway
 PKG_PROXY_MYSQL = zabbix-proxy-mysql
@@ -45,6 +46,7 @@ CONFFLAGS_COMMON  = --host=$(DEB_HOST_GNU_TYPE) \
                     --enable-agent \
                     --enable-proxy \
                     --enable-server \
+		    --with-gnutls \
                     --enable-ipv6 \
                     --with-gnutls \
                     --with-jabber \
@@ -65,6 +67,7 @@ CONFFLAG_IPMI           = $(if $(shell dpkg --status libopenipmi-dev &>/dev/null
 CONFFLAG_SERVER_MYSQL   = --with-mysql
 CONFFLAG_SERVER_PGSQL   = --with-postgresql
 CONFFLAG_SERVER_SQLITE3 = --with-sqlite3
+CONFFLAG_AGENT_COREOS   = --enable-coreos
 BUILD_PREFIX := $(CURDIR)/debian/tmp-build
 
 # The Zabbix sources are compiled once for each database backends (VARIANT).
@@ -72,6 +75,7 @@ BUILD_PREFIX := $(CURDIR)/debian/tmp-build
 # The zabbix-agent and zabbix-frontend-php package do not have any kind of
 # database support and are created from one of the above mentioned builds.
 VARIANTS := MYSQL PGSQL SQLITE3
+AGENT_VARIANTS := COREOS
 
 %:
 	dh $@ --parallel --max-parallel=4 --with autoreconf,javahelper,systemd,linktree,apache2
@@ -98,13 +102,26 @@ override_dh_auto_configure:
             tar -cSf - --exclude=./.svn --exclude=./debian . \
             | tar -xSpf - -C $(BUILD_PREFIX)-$$i ;\
         done
+	for i in $(AGENT_VARIANTS); do \
+            mkdir $(BUILD_PREFIX)-$$i ;\
+            tar -cSf - --exclude=./.svn --exclude=./debian . \
+            | tar -xSpf - -C $(BUILD_PREFIX)-$$i ;\
+        done
+
 	$(foreach i,$(VARIANTS), \
         dh_auto_configure --sourcedirectory=$(BUILD_PREFIX)-$i --max-parallel=4 -- \
             $(CONFFLAGS_COMMON) $(CONFFLAG_IPMI) $(CONFFLAG_SERVER_$i) \
     ;)
+	$(foreach i,$(AGENT_VARIANTS), \
+        dh_auto_configure --sourcedirectory=$(BUILD_PREFIX)-$i --max-parallel=4 -- \
+            $(CONFFLAGS_COMMON) $(CONFFLAG_IPMI) $(CONFFLAG_SERVER_MYSQL) $(CONFFLAG_AGENT_$i) \
+    ;)
 
 override_dh_auto_build:
 	$(foreach i,$(VARIANTS), \
+        dh_auto_build --sourcedirectory=$(BUILD_PREFIX)-$i --max-parallel=4 \
+    ;)
+	$(foreach i,$(AGENT_VARIANTS), \
         dh_auto_build --sourcedirectory=$(BUILD_PREFIX)-$i --max-parallel=4 \
     ;)
 
@@ -139,12 +156,12 @@ override_dh_install:
             cp -v src/zabbix_java/lib/logback.xml  $(CURDIR)/debian/$(PKG_GATEWAY_JAVA)/etc/zabbix/zabbix_java_gateway.logback.xml ;\
             cp -v src/zabbix_java/settings.sh  $(CURDIR)/debian/$(PKG_GATEWAY_JAVA)/etc/zabbix/zabbix_java_gateway.conf ;\
         fi
-        ## Directories will be replaced with symlinks:
-	if [ -d "$(CURDIR)/debian/$(PKG_FRONTEND)" ]; then \
-            rmdir -v $(CURDIR)/debian/$(PKG_FRONTEND)/usr/share/zabbix/local/app/controllers ;\
-            rmdir -v $(CURDIR)/debian/$(PKG_FRONTEND)/usr/share/zabbix/local/app/views ;\
-        fi
-        ## Remove .po files to save space in frontend-php:
+	## Directories will be replaced with symlinks:
+	#if [ -d "$(CURDIR)/debian/$(PKG_FRONTEND)" ]; then \
+        #    rmdir -v $(CURDIR)/debian/$(PKG_FRONTEND)/usr/share/zabbix/local/app/controllers ;\
+        #    rmdir -v $(CURDIR)/debian/$(PKG_FRONTEND)/usr/share/zabbix/local/app/views ;\
+        #fi
+	## Remove .po files to save space in frontend-php:
 	if [ -d "$(CURDIR)/debian/$(PKG_FRONTEND)" ]; then \
             $(RM) -v $(CURDIR)/debian/$(PKG_FRONTEND)/usr/share/zabbix/locale/*/LC_MESSAGES/*.po ;\
         fi
@@ -161,6 +178,7 @@ override_dh_apache2:
 
 override_dh_installinit:
 	dh_installinit -p $(PKG_AGENT)
+	dh_installinit -p $(PKG_AGENT_COREOS) --name zabbix-agent-coreos
 	dh_installinit -p $(PKG_GATEWAY_JAVA)
 	dh_installinit -p $(PKG_PROXY_MYSQL) --name zabbix-proxy --no-start
 	dh_installinit -p $(PKG_PROXY_PGSQL) --name zabbix-proxy --no-start
