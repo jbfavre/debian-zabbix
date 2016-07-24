@@ -1,3 +1,12 @@
+zabbix (1:3.0.4-1) jessie-backports; urgency=medium
+
+  * Update d/gbp.conf
+  * Imported Upstream version 3.0.4
+  * Patch refresh for 3.0.4
+  * Sync with Debian
+
+ -- Jean Baptiste Favre <debian@jbfavre.org>  Sun, 24 Jul 2016 07:50:03 +0200
+
 zabbix (1:3.0.3-1~bpo8+1) jessie-backports; urgency=medium
 
   * Imported Upstream version 3.0.3
