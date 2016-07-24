@@ -11,7 +11,7 @@
  		ZBX_DB_DB2 => true,
 --- a/frontends/php/include/classes/core/ZBase.php
 +++ b/frontends/php/include/classes/core/ZBase.php
-@@ -299,7 +299,8 @@ class ZBase {
+@@ -282,7 +282,8 @@ class ZBase {
  	 * Load zabbix config file.
  	 */
  	protected function loadConfigFile() {
