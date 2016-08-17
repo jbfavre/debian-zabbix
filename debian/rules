@@ -46,7 +46,6 @@ CONFFLAGS_COMMON  = --host=$(DEB_HOST_GNU_TYPE) \
                     --enable-agent \
                     --enable-proxy \
                     --enable-server \
-		    --with-gnutls \
                     --enable-ipv6 \
                     --with-gnutls \
                     --with-jabber \
